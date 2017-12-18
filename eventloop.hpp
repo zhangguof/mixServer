@@ -86,6 +86,24 @@ public:
 			fd,p_handle->events);
 		// log_debug("is read!!%d",FD_ISSET(fd,&read_fds));
 	}
+	inline void update_fd(int fd,int events,int e,struct fd_set* fds)
+	{
+		if(!FD_ISSET(fd,fds) && (events&e))
+			FD_SET(fd,fds);
+		else
+			FD_CLR(fd,fds);
+	}
+	void update_event(ptHandle p_handle)
+	{
+		int fd = p_handle->get_fd();
+		int events = p_handle->events;
+		assert(fd!=-1);
+		update_fd(fd,events,READ,&read_fds);
+		update_fd(fd,events,WRITE,&write_fds);
+		update_fd(fd,events,ERROR,&error_fds);
+		log_debug("update_handle:fd:%d,event:%x",
+			fd,p_handle->events);
+	}
 	void rm_handle(ptHandle p_handle)
 	{
 		int fd = p_handle->get_fd();
@@ -148,7 +166,7 @@ public:
 		{
 			(*it)->handle_event();
 		}
-		//sleep(2);
+		sleep(2);
 
 	}
 	void regist_handle(ptHandle p_handle)
@@ -161,6 +179,10 @@ public:
 	void unregist_handle(ptHandle p_handle)
 	{
 		select_.rm_handle(p_handle);
+	}
+	void update_event(ptHandle p_handle)
+	{
+		select_.update_event(p_handle);
 	}
 	void shutdown()
 	{

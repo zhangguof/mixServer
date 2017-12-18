@@ -122,8 +122,22 @@ public:
 	}
 	char* read()
 	{
+		char* r = &(*(date.begin()+start_idx));
 		clear();
-		return &(*date.begin());
+		return r;
+	}
+	char* read(int n)
+	{
+		if(start_idx>=end_idx)
+			return 0;
+		char* r = &(*(date.begin()+start_idx));
+		start_idx += n;
+		return r;
+	}
+	char* get_buf()
+	{
+		char* r = &(*(date.begin()+start_idx));
+		return r;
 	}
 	~Buffer(){
 	}
@@ -185,7 +199,17 @@ public:
 	int send(std::shared_ptr<Buffer> pbuf){
 		int n;
 		int size = pbuf->size();
-		n = ::send(socket_fd,pbuf->read(),size,0);
+		while(size>0)
+		{
+			n = ::send(socket_fd,pbuf->get_buf(),BUFFER_SIZE,0);
+			log_debug("send once:%d",n);
+			if(n<0)
+				return n;
+			size -= n;
+			pbuf->read(n);
+
+		}
+
 		return n;
 	}
 	void set_nonblock()

@@ -14,7 +14,7 @@ int main(int argn,char** argv)
 {
 	auto cpp_server = std::make_shared<TcpServer>();
 	std::string ip = "127.0.0.1";
-	int port = 8888;
+	int port = 8889;
 	cpp_server->bind(ip,port);
 
 	cpp_server->start();

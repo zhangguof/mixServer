@@ -79,6 +79,32 @@ public:
 			streams.erase(it);
 		}
 	}
+	void handle_read(int con_id)
+	{
+		auto it = streams.find(con_id);
+		if(it!=streams.end())
+		{
+			auto pstream = (*it).second;
+			int size = pstream->read_buf.size();
+			char *pbuf = pstream->read_buf.read();
+			pbuf[size] = '\0';
+			printf("read str:%s\n",pbuf);
+			auto buf = std::make_shared<Buffer>();
+			buf->append(pbuf,size);
+			pstream->send(buf);
+
+		}
+	}
+	void update_event(int con_id)
+	{
+		auto it = streams.find(con_id);
+		if(it!=streams.end())
+		{
+			auto pstream = (*it).second;
+			ploop->update_event(pstream);
+
+		}
+	}
 
 	std::string server_ip;
 	int server_port;
