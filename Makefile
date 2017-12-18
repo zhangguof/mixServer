@@ -1,7 +1,7 @@
-cpp_src= channel.cpp  server.cpp
-include_src = channel.hpp server.hpp log.hpp
+cpp_src=  server.cpp handles.cpp
+include_src =  server.hpp log.hpp Socket.hpp eventloop.hpp handle.hpp
 CC=c++
-CFLAG=-I.
+CFLAG=-I. -std=c++11
 
 all: cppserver
 

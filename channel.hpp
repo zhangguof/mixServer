@@ -1,13 +1,6 @@
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 #include <cassert>
 #include <string.h>
@@ -18,67 +11,12 @@
 
 // sockfd = socket(PF_INET, SOCK_STREAM, 0);
 
-typedef struct sockaddr SA;
+
 #define LISTENNQ (65535)
 
 class EventLoop;
 
-class SockAddr
-{
-public:
-	SockAddr(){}
-	SockAddr(struct sockaddr_in *sock_addr)
-	{
-		bind(sock_addr);
-	}
-	SockAddr(SA *sock_addr)
-	{
-		bind(sock_addr);
-	}
-	SockAddr(std::string _ip, unsigned short _port)
-	{
-		bind(_ip,_port);
-	}
-	void bind(std::string _ip, unsigned short _port)
-	{
-		ip = _ip;
-		port = _port;
-		s_addr.sin_family = AF_INET;
-		s_addr.sin_port = htons(_port);
-		if(_ip.length()==0)
-		{
-			s_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-		}
-		else
-		{
-			 inet_pton(AF_INET,_ip.c_str(),&s_addr.sin_addr);
-		}
-	}
-	void bind(struct sockaddr_in *sock_addr)
-	{
-		char addr_buf[20];
-		ip = inet_ntop(AF_INET,&(sock_addr->sin_addr),addr_buf,sizeof(addr_buf));
-		port = ntohs(sock_addr->sin_port);
-		family = sock_addr->sin_family;
-		s_addr = *sock_addr;
-	}
-	void bind(SA* sock_addr)
-	{
-		bind((struct sockaddr_in*) sock_addr);
-	}
-	struct sockaddr_in* get_sockin_addr()
-	{
-		return &s_addr;
-	}
-	SA* get_sa()
-	{
-		return (SA*)(&s_addr);
-	}
-	std::string ip;
-	unsigned short port;
-	int family;
-	struct sockaddr_in s_addr;
-};
+
 
 class Channel;
 typedef std::shared_ptr<Channel> ptrChannel;
@@ -139,12 +77,12 @@ public:
 		// return *ch;
 		return ch;
 	}
-	int read()
+	int read(std::vector<char> &buf)
 	{
 		int size,n;
 		size = 0;
-		char* pbuf = rbuf;
-		while((n = ::read(socket_fd,pbuf,4096)) > 0 && pbuf<rbuf+4096)
+		char* pbuf =;
+		while((n = ::read(socket_fd,pbuf,4096)) > 0 && pbuf <rbuf+4096)
 		{
 			pbuf += n;
 			size += n;
