@@ -30,6 +30,7 @@ public:
 	TcpServer()
 	{
 		state = STOP;
+		max_connect_id = 0;
 		ploop = std::make_shared<EventLoop>();
 		// loop = std::shared_ptr<EventLoop>(new EventLoop());
 
@@ -48,8 +49,8 @@ public:
 	{
 		server_ip = ip;
 		server_port = port;
-		// acceptor = std::make_shared<Acceptor>(ip,port,loop,this);
-		acceptor = std::shared_ptr<Acceptor>(new Acceptor(ip,port,ploop,this));
+		acceptor = std::make_shared<Acceptor>(ip,port,ploop,this);
+		// acceptor = std::shared_ptr<Acceptor>(new Acceptor(ip,port,ploop,this));
 		ploop->regist_handle(acceptor);
 		
 
@@ -57,9 +58,26 @@ public:
 	void new_connect(int fd)
 	{
 		// auto p = std::shared_ptr<TcpStream>(new TcpStream(fd,ploop,this));
-		auto pstream = std::make_shared<TcpStream>(fd,ploop,this);
+		++max_connect_id;
+		auto pstream = std::make_shared<TcpStream>(fd,max_connect_id
+													,ploop,this);
 		ploop->regist_handle(pstream);
-		streams.push_back(pstream);
+		//streams.push_back(pstream);
+		streams[max_connect_id] = pstream;
+		log_debug("new connect:%d",max_connect_id);
+
+	}
+	void close_connect(int con_id)
+	{
+		auto it = streams.find(con_id);
+		if(it!=streams.end())
+		{
+			auto pstream = (*it).second;
+			log_debug("close connect:%d",pstream->connect_id);
+
+			ploop->unregist_handle(pstream);
+			streams.erase(it);
+		}
 	}
 
 	std::string server_ip;
@@ -67,8 +85,9 @@ public:
 	SERVER_STATE state;
 	std::shared_ptr<EventLoop> ploop;
 	std::shared_ptr<Acceptor> acceptor;
-	std::weak_ptr<TcpServer> _this;
-	std::vector<std::shared_ptr<TcpStream> > streams;
+	// std::weak_ptr<TcpServer> _this;
+	int max_connect_id;
+	std::map<int, std::shared_ptr<TcpStream> > streams;
 
 
 

@@ -12,6 +12,8 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include "log.hpp"
+#include "errors.hpp"
 
 typedef struct sockaddr SA;
 
@@ -107,6 +109,7 @@ public:
 	{
 		make_space(len);
 		std::copy(buf,buf+len,end());
+		end_idx+=len;
 
 	}
 	char* end()
@@ -156,14 +159,17 @@ public:
 	}
 	int recv(Buffer& buf){
 		char rbuf[BUFFER_SIZE];
-		int n ;
-		int size = 0;
-		while ((n=::read(socket_fd,rbuf,BUFFER_SIZE))> 0)
+		int n;
+		while(1)
 		{
+			n=::recv(socket_fd,rbuf,BUFFER_SIZE,0);
+			log_debug("read once:%d",n);
+			if(n<=0)
+				return n;
 			buf.append(rbuf,n);
-			size += n;
 		}
-		return size;
+		return n;
+
 	}
 	int accept()
 	{
@@ -176,16 +182,28 @@ public:
 	}
 
 
-	void send(){
-
+	int send(std::shared_ptr<Buffer> pbuf){
+		int n;
+		int size = pbuf->size();
+		n = ::send(socket_fd,pbuf->read(),size,0);
+		return n;
 	}
 	void set_nonblock()
 	{
 		if(socket_fd!=-1)
 			fcntl(socket_fd, F_SETFL, O_NONBLOCK);
 	}
+	void close()
+	{
+		::close(socket_fd);
+	}
+	~Socket()
+	{
+		log_debug("release socket fd:%d",socket_fd);
+	}
 	int socket_fd;
 	SockAddr addr;
+
 
 };
 

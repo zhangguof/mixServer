@@ -50,8 +50,6 @@ public:
 		{
 			int fd = all_fds[i];
 			auto p_handle = handle_map[fd];
-			log_debug("fd:%d,%0x,%0x",fd,FD_ISSET(fd,&rfds),
-				FD_ISSET(fd,&wfds));
 			p_handle->revents = 0;
 			if(FD_ISSET(fd,&rfds))
 				p_handle->revents |= READ;
@@ -92,7 +90,8 @@ public:
 	{
 		int fd = p_handle->get_fd();
 		auto find_it = handle_map.find(fd);
-		if(handle_map.find(fd) == handle_map.end())
+		log_debug("will rm handle:%d",fd);
+		if(find_it != handle_map.end())
 		{
 			// int idx = p_handle->idx;
 			int idx = p_handle->idx;
@@ -144,12 +143,12 @@ public:
 	{
 		active_handles.clear();
 		select_.select(active_handles);
-		log_debug("do select!!!size:%d",active_handles.size());
+		//log_debug("do select!!!size:%d",active_handles.size());
 		for(auto it = active_handles.begin();it!=active_handles.end();++it)
 		{
 			(*it)->handle_event();
 		}
-		sleep(2);
+		//sleep(2);
 
 	}
 	void regist_handle(ptHandle p_handle)
