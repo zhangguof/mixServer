@@ -16,28 +16,36 @@ class EventLoop;
 class Handle
 {
 public:
-	Handle(int _fd,int e,std::shared_ptr<EventLoop> _loop)
+	Handle()
+	{
+		init(-1,0);
+	}
+	Handle(int _fd,int e)
+	{
+		init(_fd,e);
+	}
+	Handle(int _fd,int e,std::weak_ptr<EventLoop> _loop)
 	{
 		init(_fd,e,_loop);
 	}
-	Handle(std::shared_ptr<EventLoop> _loop)
+	void set_loop(std::weak_ptr<EventLoop> _loop)
 	{
-		init(-1,0,_loop);
+		ploop = _loop;
 	}
-	void init(int _fd,int e,std::shared_ptr<EventLoop> _loop)
+	void init(int _fd,int e,std::weak_ptr<EventLoop> _loop)
+	{
+		init(fd,e);
+		ploop = _loop;
+
+	}
+	void init(int _fd,int e)
 	{
 		fd = _fd;
 		events = e;
 		revents = 0;
 		idx = -1;
-		ploop = _loop;
+	}
 
-	}
-	void set_fd(int _fd,int e)
-	{
-		fd = _fd;
-		events = e;
-	}
 	void handle_event()
 	{
 		// log_debug("handle event!!!:%x",revents);
@@ -77,7 +85,7 @@ public:
 	int idx;
 private:
 	int fd;
-	std::shared_ptr<EventLoop> ploop;
+	std::weak_ptr<EventLoop> ploop;
 	
 
 

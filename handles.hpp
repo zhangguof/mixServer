@@ -8,16 +8,21 @@ class Acceptor:public Handle
 {
 public:
 	Acceptor(std::string ip, int port,
-		std::shared_ptr<EventLoop> loop,
-		TcpServer* _tcpserver);
+		std::weak_ptr<TcpServer> _server);
 	void listen();
 	void handle_read();
 	void handle_write();
 	void handle_error();
+	inline std::shared_ptr<TcpServer> get_server()
+	{
+		auto p = pserver.lock();
+		assert(p);
+		return p;
+	}
 
 	// int socket_fd;
 	std::shared_ptr<Socket> psocket;
-	TcpServer* tcpserver;
+	std::weak_ptr<TcpServer> pserver;
 	// std::shared_ptr<TcpServer> tcpserver;
 };
 
@@ -26,16 +31,21 @@ class TcpStream:public Handle
 public:
 	TcpStream(int fd,
 		int connect_id,
-		std::shared_ptr<EventLoop> loop,
-		TcpServer* _server);
+		std::weak_ptr<TcpServer> _server);
 	~TcpStream();
 	void handle_read();
 	void handle_write();
 	void handle_error();
 	void send(std::shared_ptr<Buffer>  pbuf);
 	void close();
+	inline std::shared_ptr<TcpServer> get_server()
+	{
+		auto p = pserver.lock();
+		assert(p);
+		return p;
+	}
 	std::shared_ptr<Socket> psocket;
-	TcpServer* pserver;
+	std::weak_ptr<TcpServer> pserver;
 	// Buffer write_buf;
 	std::shared_ptr<Buffer> pwrite_buf;
 	Buffer read_buf;

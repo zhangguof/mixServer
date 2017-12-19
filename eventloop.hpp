@@ -21,6 +21,7 @@
 #include <set>
 #include <memory>
 #include <vector>
+#include <utility>
 #include <cassert>
 
 class Select
@@ -36,7 +37,7 @@ public:
 		zero_sec.tv_sec  = 0;
 		zero_sec.tv_usec = 0;
 	}
-	void select(std::vector<ptHandle>& active_handles)
+	void select(std::vector<std::pair<int,int> >& active_fds)
 	{
 		struct fd_set rfds = read_fds;
 		struct fd_set wfds = write_fds;
@@ -49,99 +50,102 @@ public:
 		for(int i=0;i<size;++i)
 		{
 			int fd = all_fds[i];
-			auto p_handle = handle_map[fd];
-			p_handle->revents = 0;
+			int revents = 0;
+			// auto p_handle = handle_map[fd];
+			// p_handle->revents = 0;
 			if(FD_ISSET(fd,&rfds))
-				p_handle->revents |= READ;
+				revents |= READ;
 			if(FD_ISSET(fd,&wfds))
-				p_handle->revents |= WRITE;
+				revents |= WRITE;
 			if(FD_ISSET(fd,&efds))
-				p_handle->revents |= ERROR;
-			if(p_handle->revents)
-				active_handles.push_back(p_handle);
+				revents |= ERROR;
+			if(revents)
+				active_fds.push_back(std::make_pair(fd,revents));
 		}
 
 	}
-	void add_handle(ptHandle p_handle)
+	void add_handle(int fd,int events)
 	{
 		
-		int fd = p_handle->get_fd();
+		// int fd = p_handle->get_fd();
 		assert(fd!=-1);
+		assert(handles.find(fd) == handles.end());
 
-		auto find_it = handle_map.find(fd);
-		if(find_it == handle_map.end())
-		{
-			handle_map[fd] = p_handle;
-			all_fds.push_back(fd);
-			p_handle->idx = all_fds.size()-1;
-			
-		}
-		if(p_handle->events & READ)
+		all_fds.push_back(fd);
+		handles[fd] = all_fds.size()-1;
+		
+		if(events & READ)
 			FD_SET(fd,&read_fds);
-		if(p_handle->events & WRITE)
+		if(events & WRITE)
 			FD_SET(fd,&write_fds);
-		if(p_handle->events & ERROR)
+		if(events & ERROR)
 			FD_SET(fd,&error_fds);
 		log_debug("add_handle:fd:%d,event:%x",
-			fd,p_handle->events);
+			fd,events);
 		// log_debug("is read!!%d",FD_ISSET(fd,&read_fds));
 	}
 	inline void update_fd(int fd,int events,int e,struct fd_set* fds)
 	{
-		if(!FD_ISSET(fd,fds) && (events&e))
+		int is_inset = FD_ISSET(fd,fds);
+		if(is_inset)
+		{
+			if(!(events&e))
+				FD_CLR(fd,fds);
+		}
+		else if(events&e)
+		{
 			FD_SET(fd,fds);
-		else
-			FD_CLR(fd,fds);
+		}
 	}
-	void update_event(ptHandle p_handle)
+	void update_event(int fd,int events)
 	{
-		int fd = p_handle->get_fd();
-		int events = p_handle->events;
+		// int fd = p_handle->get_fd();
+		// int events = p_handle->events;
 		assert(fd!=-1);
 		update_fd(fd,events,READ,&read_fds);
 		update_fd(fd,events,WRITE,&write_fds);
 		update_fd(fd,events,ERROR,&error_fds);
 		log_debug("update_handle:fd:%d,event:%x",
-			fd,p_handle->events);
+			fd,events);
 	}
-	void rm_handle(ptHandle p_handle)
+	void rm_handle(int fd)
 	{
-		int fd = p_handle->get_fd();
-		auto find_it = handle_map.find(fd);
+		// int fd = p_handle->get_fd();
+		// auto find_it = handle_map.find(fd);
 		log_debug("will rm handle:%d",fd);
-		if(find_it != handle_map.end())
+		auto find_it = handles.find(fd);
+		assert(find_it!=handles.end());
+		int idx = (*find_it).second;
+		if(all_fds.size()>1 && idx!=all_fds.size()-1)
 		{
-			// int idx = p_handle->idx;
-			int idx = p_handle->idx;
-			if(all_fds.size()>1 && idx!=all_fds.size()-1)
-			{
-				handle_map[all_fds.back()]->idx = p_handle->idx;
-				all_fds[p_handle->idx] = all_fds.back();
-			}
-			all_fds.pop_back();
-			if(p_handle->events & READ)
-				FD_CLR(fd,&read_fds);
-			if(p_handle->events & WRITE)
-				FD_CLR(fd,&write_fds);
-			if(p_handle->events & ERROR)
-				FD_CLR(fd,&error_fds);
-			handle_map.erase(find_it);
-
-			log_debug("rm_handle:fd",fd);
+			int last_fd = all_fds.back();
+			handles[last_fd] = idx;
+			all_fds[idx] = last_fd;
 		}
+		
+		//clear events
+		update_fd(fd,0,READ,&read_fds);
+		update_fd(fd,0,WRITE,&write_fds);
+		update_fd(fd,0,ERROR,&error_fds);
+
+		all_fds.pop_back();
+		handles.erase(find_it);
+		log_debug("rm_handle:fd",fd);
+
 	}
 public:
 	struct fd_set read_fds;
 	struct fd_set write_fds;
 	struct fd_set error_fds;
 	struct timeval zero_sec;
-	std::map<int,ptHandle> handle_map;
+	// std::map<int,ptHandle> handle_map;
 	std::vector<int> all_fds;
+	std::map<int,int> handles;
 
 };
 
 
-class EventLoop
+class EventLoop:public std::enable_shared_from_this<EventLoop>
 {
 public:
 	
@@ -164,36 +168,54 @@ public:
 		//log_debug("do select!!!size:%d",active_handles.size());
 		for(auto it = active_handles.begin();it!=active_handles.end();++it)
 		{
-			(*it)->handle_event();
+			int fd = (*it).first;
+			int events = (*it).second;
+			// auto p_handle = handles[fd]
+			auto it_handle = handles.find(fd);
+			assert(it_handle!=handles.end());
+
+			auto p_handle = (*it_handle).second;
+			p_handle->revents = events;
+			p_handle->handle_event();
+			// (*it)->handle_event();
 		}
 		// sleep(2);
 
 	}
 	void regist_handle(ptHandle p_handle)
 	{
-		select_.add_handle(p_handle);
-		// handle_map[p_handle->get_fd()] = p_handle;
-		// handles.push_back(p_handle);
-		// select_.add_fd(p_handle->get_fd(),p_handle->events);
+		int fd = p_handle->get_fd();
+		assert(fd!=-1);
+		p_handle->set_loop(shared_from_this());
+		select_.add_handle(fd,p_handle->events);
+
+		handles[fd] = p_handle;
 	}
 	void unregist_handle(ptHandle p_handle)
 	{
-		select_.rm_handle(p_handle);
+		int fd = p_handle->get_fd();
+		select_.rm_handle(p_handle->get_fd());
+		auto it = handles.find(fd);
+		if(it!=handles.end())
+			handles.erase(it);
 	}
 	void update_event(ptHandle p_handle)
 	{
-		select_.update_event(p_handle);
+		select_.update_event(p_handle->get_fd(),p_handle->events);
 	}
 	void shutdown()
 	{
 		log_debug("doing loop shutdown...");
 		_shutdown = false;
 	}
+
 private:
 
 	Select select_;
-	std::vector<ptHandle> active_handles;
+	std::vector<std::pair<int,int> > active_handles;//fd,events
+	std::map<int,ptHandle> handles; //fd:pthandle
 	bool _shutdown;
+	// std::weak_ptr<EventLoop> _this_ptr;
 	
 
 

@@ -24,7 +24,7 @@ enum SERVER_STATE
 	STOP,
 };
 
-class TcpServer
+class TcpServer:public std::enable_shared_from_this<TcpServer>
 {
 public:
 	TcpServer()
@@ -32,8 +32,6 @@ public:
 		state = STOP;
 		max_connect_id = 0;
 		ploop = std::make_shared<EventLoop>();
-		// loop = std::shared_ptr<EventLoop>(new EventLoop());
-
 	}
 	void start()
 	{
@@ -49,10 +47,10 @@ public:
 	{
 		server_ip = ip;
 		server_port = port;
-		acceptor = std::make_shared<Acceptor>(ip,port,ploop,this);
+		acceptor = std::make_shared<Acceptor>(ip,port,get_this());
 		// acceptor = std::shared_ptr<Acceptor>(new Acceptor(ip,port,ploop,this));
+
 		ploop->regist_handle(acceptor);
-		
 
 	}
 	void new_connect(int fd)
@@ -60,7 +58,7 @@ public:
 		// auto p = std::shared_ptr<TcpStream>(new TcpStream(fd,ploop,this));
 		++max_connect_id;
 		auto pstream = std::make_shared<TcpStream>(fd,max_connect_id
-													,ploop,this);
+													,get_this());
 		ploop->regist_handle(pstream);
 		//streams.push_back(pstream);
 		streams[max_connect_id] = pstream;
@@ -104,6 +102,10 @@ public:
 			ploop->update_event(pstream);
 
 		}
+	}
+	std::shared_ptr<TcpServer> get_this()
+	{
+		return shared_from_this();
 	}
 
 	std::string server_ip;

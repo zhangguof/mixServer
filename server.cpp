@@ -16,6 +16,7 @@ int main(int argn,char** argv)
 	std::string ip = "127.0.0.1";
 	int port = 8889;
 	cpp_server->bind(ip,port);
+	// std::cout<<"count:"<<cpp_server->ploop.use_count()<<std::endl;
 
 	cpp_server->start();
 

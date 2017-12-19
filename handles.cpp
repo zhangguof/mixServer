@@ -8,14 +8,12 @@
 
 //class Acceptor
 Acceptor::Acceptor(std::string ip, int port,
-	std::shared_ptr<EventLoop> loop,
-	TcpServer* _tcpserver)
-	:Handle(loop)
+	std::weak_ptr<TcpServer> _server)
 {
 	psocket = std::make_shared<Socket>();
 	psocket->bind(ip,port);
-	set_fd(psocket->socket_fd,READ|ERROR);
-	tcpserver = _tcpserver;
+	init(psocket->socket_fd,READ|ERROR);
+	pserver = _server;
 }
 void Acceptor::listen()
 {
@@ -25,7 +23,8 @@ void Acceptor::listen()
 void Acceptor::handle_read()
 {
 	int fd = psocket->accept();
-	tcpserver->new_connect(fd);
+	// tcpserver->new_connect(fd);
+	get_server()->new_connect(fd);
 	log_debug("Acceptor handle read:%d",fd);
 }
 void Acceptor::handle_write(){}
@@ -35,8 +34,8 @@ void Acceptor::handle_error(){}
 //class TcpStream
 TcpStream::TcpStream(int fd,
 	int _connect_id,
-	std::shared_ptr<EventLoop> loop,TcpServer* _server):
-	Handle(fd,READ|ERROR,loop)
+	std::weak_ptr<TcpServer> _server):
+	Handle(fd,READ|ERROR)
 {
 	psocket = std::make_shared<Socket>(fd);
 	pserver = _server;
@@ -63,7 +62,7 @@ void TcpStream::handle_read()
 	// auto buf = std::make_shared<Buffer>();
 	// buf->append(pbuf,size);
 	// send(buf);
-	pserver->handle_read(connect_id);
+	get_server()->handle_read(connect_id);
 }
 void TcpStream::handle_write(){
 	log_debug("TcpStream::handle_write");
@@ -77,7 +76,7 @@ void TcpStream::handle_write(){
 	}
 	log_debug("write_success!:%d",size);
 	disable_write();
-	pserver->update_event(connect_id);
+	get_server()->update_event(connect_id);
 	
 }
 void TcpStream::handle_error(){
@@ -88,7 +87,7 @@ void TcpStream::send(std::shared_ptr<Buffer> pbuf)
 {
 	enable_write();
 	pwrite_buf = pbuf;
-	pserver->update_event(connect_id);
+	get_server()->update_event(connect_id);
 
 	//psocket->send(buf);
 	// disable_write();
@@ -97,8 +96,9 @@ void TcpStream::send(std::shared_ptr<Buffer> pbuf)
 
 void TcpStream::close()
 {
-	pserver->close_connect(connect_id);
 	psocket->close();
+	get_server()->close_connect(connect_id);
+	
 }
 
 TcpStream::~TcpStream(){
