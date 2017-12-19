@@ -166,7 +166,7 @@ public:
 		{
 			(*it)->handle_event();
 		}
-		sleep(2);
+		// sleep(2);
 
 	}
 	void regist_handle(ptHandle p_handle)
