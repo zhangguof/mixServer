@@ -177,7 +177,7 @@ public:
 		while(1)
 		{
 			n=::recv(socket_fd,rbuf,BUFFER_SIZE,0);
-			log_debug("read once:%d",n);
+			// log_debug("read once:%d",n);
 			if(n<=0)
 				return n;
 			buf.append(rbuf,n);
@@ -199,10 +199,12 @@ public:
 	int send(std::shared_ptr<Buffer> pbuf){
 		int n;
 		int size = pbuf->size();
+		int send_size = 0;
 		while(size>0)
 		{
-			n = ::send(socket_fd,pbuf->get_buf(),BUFFER_SIZE,0);
-			log_debug("send once:%d",n);
+			send_size = BUFFER_SIZE<size?BUFFER_SIZE:size;
+			n = ::send(socket_fd,pbuf->get_buf(),send_size,0);
+			// log_debug("send once:%d",n);
 			if(n<0)
 				return n;
 			size -= n;
