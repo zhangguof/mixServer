@@ -1,6 +1,6 @@
 src_path= .
 # cpp_src=  server.cpp handles.cpp errors.cpp 
-cpp_src= $(wildcard $(src_path)/*.cpp )
+cpp_src= $(wildcard $(src_path)/*.cpp $(src_path)/net/*.cpp)
 objs= $(addsuffix .o,$(basename $(cpp_src)))
 head_src = $(wildcard $(src_path/inlcude/*.hpp))
 
@@ -16,6 +16,9 @@ cppserver: $(objs) $(head_src)
 	$(CC) $(LFALG) $(objs) -o $(@)
 
 $(src_path)/%.o: $(src_path)/%.cpp
+	$(CC) $(CFLAG) -o $@ $^
+
+$(src_path)/net/%.o: $(src_path)/%.cpp
 	$(CC) $(CFLAG) -o $@ $^
 
 clean:
