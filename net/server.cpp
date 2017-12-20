@@ -1,4 +1,14 @@
 #include "server.hpp"
+#include <signal.h>
+class IgnoreSigPipe
+{
+public:
+	IgnoreSigPipe()
+	{
+		::signal(SIGPIPE,SIG_IGN);
+	}
+};
+IgnoreSigPipe ignore_sigpipe;
 
 TcpServer::TcpServer()
 {
@@ -11,6 +21,7 @@ void TcpServer::start()
 	state = RUNNING;
 	log_debug("start tcp server:%s,%d",server_ip.c_str(),
 		server_port);
+	assert(acceptor);
 	acceptor->listen();
 	
 	ploop->do_loop();
@@ -58,11 +69,23 @@ void TcpServer::shutdown()
 void EchoServer::handle_read(std::shared_ptr<TcpStream> pstream)
 {
 	log_debug("echo server handle_read!");
-	int size = pstream->read_buf.size();
-	char *pbuf = pstream->read_buf.read();
+	int size = pstream->pread_buf->size();
+	char *pbuf = pstream->pread_buf->read();
 	pbuf[size] = '\0';
 	printf("read str:%s,%d\n",pbuf,size);
 	auto buf = std::make_shared<Buffer>();
 	buf->append(pbuf,size);
 	pstream->send(buf);
 }
+
+void EchoServer::new_connect(int fd)
+{
+	TcpServer::new_connect(fd);
+	auto pstream = streams[max_connect_id];
+	std::string s = "hello world!";
+	
+	auto pwbuf = std::make_shared<Buffer>();
+	pwbuf->append(s);
+	pstream->send(pwbuf);
+}
+

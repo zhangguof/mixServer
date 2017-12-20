@@ -63,6 +63,7 @@ public:
 	{
 		bind((struct sockaddr_in*) sock_addr);
 	}
+
 	struct sockaddr_in* get_sockin_addr()
 	{
 		return &s_addr;
@@ -89,8 +90,14 @@ public:
 		start_idx = 0;
 		end_idx  = 0;
 		date.resize(BUFFER_SIZE);
+		// set_name(name);
 
 	}
+	// void set_name(std::string _name)
+	// {
+	// 	name = _name;
+	// }
+
 	int size()
 	{
 		return end_idx - start_idx;
@@ -105,12 +112,16 @@ public:
 		if(size()+len < date.capacity())
 			date.resize(size()+len);
 	}
-	void append(char* buf,int len)
+	void append(const char* buf,int len)
 	{
 		make_space(len);
 		std::copy(buf,buf+len,end());
 		end_idx+=len;
 
+	}
+	void append(std::string s)
+	{
+		append(s.c_str(),s.size());
 	}
 	char* end()
 	{
@@ -140,11 +151,13 @@ public:
 		return r;
 	}
 	~Buffer(){
+		// log_debug("release bufferr....:");
 	}
 private:
 	std::vector<char> date;
 	int start_idx;
 	int end_idx;
+	// std::string name;
 	
 };
 
@@ -153,25 +166,32 @@ class Socket
 public:
 	Socket(int fd)
 	{
+		assert(fd!=-1);
 		socket_fd = fd;
+		// SA psa;
+		// unsigned int len = sizeof(SA);
+//int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+		// ::getsockname(fd,&psa,&len);
+		// addr.bind(&psa);
 	}
 	Socket(){
-		socket_fd = -1;
-	}
-	void bind(std::string ip,unsigned short port)
-	{
 		socket_fd = socket(AF_INET,SOCK_STREAM,0);
+	}
+	int bind(std::string ip,unsigned short port)
+	{
+		// socket_fd = socket(AF_INET,SOCK_STREAM,0);
 		assert(socket_fd != -1);
 		addr.bind(ip,port);
-		::bind(socket_fd,addr.get_sa(),addr.get_sa_len());
+		int n =::bind(socket_fd,addr.get_sa(),addr.get_sa_len());
 		set_nonblock();
+		return n;
 	}
 	void listen()
 	{
 		assert(socket_fd!=-1);
 		::listen(socket_fd,LISTENNQ);
 	}
-	int recv(Buffer& buf){
+	int recv(std::shared_ptr<Buffer> pbuf){
 		char rbuf[BUFFER_SIZE];
 		int n;
 		while(1)
@@ -180,7 +200,7 @@ public:
 			// log_debug("read once:%d",n);
 			if(n<=0)
 				return n;
-			buf.append(rbuf,n);
+			pbuf->append(rbuf,n);
 		}
 		return n;
 
@@ -214,10 +234,32 @@ public:
 
 		return n;
 	}
+
+	int connect(std::string ip,unsigned short port)
+	{
+		// int connect(int sockfd, const struct sockaddr *addr,
+  //                  socklen_t addrlen);
+		assert(socket_fd!=-1);
+		addr.bind(ip,port);
+		
+		set_nonblock();
+		int n = ::connect(socket_fd,addr.get_sa(),sizeof(SA));
+		return n;
+		// ::bind(socket_fd,addr.get_sa(),addr.get_sa_len());
+		
+	}
+
 	void set_nonblock()
 	{
 		if(socket_fd!=-1)
 			fcntl(socket_fd, F_SETFL, O_NONBLOCK);
+	}
+	void get_opt(int level,int optname,void *optval,socklen_t *optlen)
+	{
+		// int getsockopt(int sockfd, int level, int optname,
+//                void *optval, socklen_t *optlen);
+		assert(socket_fd!=-1);
+		::getsockopt(socket_fd,level,optname,optval,optlen);
 	}
 	void close()
 	{

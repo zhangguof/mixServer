@@ -47,6 +47,14 @@ public:
 	{
 		disable_event(WRITE);
 	}
+	inline void enable_read()
+	{
+		enable_event(READ);
+	}
+	inline void disable_read()
+	{
+		disable_event(READ);
+	}
 	std::shared_ptr<Handle> get_this()
 	{
 		return shared_from_this();

@@ -67,6 +67,6 @@ void EventLoop::update_event(ptHandle p_handle)
 void EventLoop::shutdown()
 {
 	log_debug("doing loop shutdown...");
-	_shutdown = false;
+	_shutdown = true;
 }
 

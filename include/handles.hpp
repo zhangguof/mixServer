@@ -50,9 +50,9 @@ public:
 	}
 	std::shared_ptr<Socket> psocket;
 	std::weak_ptr<TcpServer> pserver;
-	// Buffer write_buf;
+
 	std::shared_ptr<Buffer> pwrite_buf;
-	Buffer read_buf;
+	std::shared_ptr<Buffer> pread_buf;
 	int connect_id;
 };
 

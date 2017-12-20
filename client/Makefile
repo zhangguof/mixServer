@@ -1,6 +1,6 @@
-src_path= .
+src_path= ..
 # cpp_src=  server.cpp handles.cpp errors.cpp 
-cpp_src= $(wildcard $(src_path)/*.cpp $(src_path)/net/*.cpp)
+cpp_src= $(wildcard $(src_path)/client/*.cpp $(src_path)/net/*.cpp)
 objs= $(addsuffix .o,$(basename $(cpp_src)))
 head_src = $(wildcard $(src_path/inlcude/*.hpp))
 
@@ -8,11 +8,11 @@ head_src = $(wildcard $(src_path/inlcude/*.hpp))
 CC=c++
 LD=ld
 LFALG=
-CFLAG=-c -g -Iinclude/ -std=c++11
+CFLAG=-c -g -I../include/ -std=c++11
 
-all: cppserver
+all: client
 
-cppserver: $(objs) $(head_src)
+client: $(objs) $(head_src)
 	$(CC) $(LFALG) $(objs) -o $(@)
 
 $(src_path)/%.o: $(src_path)/%.cpp
@@ -24,6 +24,6 @@ $(src_path)/net/%.o: $(src_path)/%.cpp
 
 clean:
 	rm $(objs)
-
+	rm client
 
 

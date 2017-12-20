@@ -27,7 +27,7 @@ public:
 	TcpServer();
 	void start();
 	void bind(std::string ip,int port);
-	void new_connect(int fd);
+	virtual void new_connect(int fd);
 	void close_connect(std::shared_ptr<TcpStream> pstream);
 
 	virtual void handle_read(std::shared_ptr<TcpStream> pstream)
@@ -53,7 +53,9 @@ public:
 
 class EchoServer:public TcpServer
 {
+	void new_connect(int fd);
 	void handle_read(std::shared_ptr<TcpStream> pstream);
 };
+
 
 #endif

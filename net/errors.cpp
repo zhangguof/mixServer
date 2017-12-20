@@ -54,7 +54,29 @@ EMSG(enotconn,"ENOTCONN")
  //       ENOTSOCK
  //              The file descriptor sockfd does not refer to a socket.
 EMSG(enotsock,"ENOTSOCK")
+
+
+// EALREADY
+//          The socket is nonblocking and a previous connection attempt
+//          has not yet been completed.
+EMSG(ealready,"EALREADY")
+
+// EINPROGRESS
+//        The socket is nonblocking and the connection cannot be
+//        completed immediately.  It is possible to select(2) or poll(2)
+//        for completion by selecting the socket for writing.  After
+//        select(2) indicates writability, use getsockopt(2) to read the
+//        SO_ERROR option at level SOL_SOCKET to determine whether
+//        connect() completed successfully (SO_ERROR is zero) or
+//        unsuccessfully (SO_ERROR is one of the usual error codes
+//        listed here, explaining the reason for the failure).
+
+EMSG(einprogress,"EINPROGRESS")
+
+
+
 EMSG(default_error,"DEFAULT ERROR")
+
 
 const char* get_error_msg(int eno)
 {
@@ -70,6 +92,8 @@ const char* get_error_msg(int eno)
 		CASEMSG(ENOMEM,enomen)
 		CASEMSG(ENOTCONN,enotconn)
 		CASEMSG(ENOTSOCK,enotsock)
+		CASEMSG(EALREADY,ealready)
+		CASEMSG(EINPROGRESS,einprogress)
 		default:
 			return default_error;
 	}

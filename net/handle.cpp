@@ -20,6 +20,7 @@ void Handle::init(int _fd,int e,std::weak_ptr<EventLoop> _loop)
 }
 void Handle::init(int _fd,int e)
 {
+	// assert(_fd!=-1);
 	fd = _fd;
 	events = e;
 	revents = 0;
