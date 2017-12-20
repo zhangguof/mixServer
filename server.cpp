@@ -1,26 +1,62 @@
-#include <stdio.h>
 #include "server.hpp"
-// #include "channel.hpp"
-#include <string>
-#include <iostream>
-#include <memory>
-#include <time.h>
-#include "log.hpp"
 
-const int max_fds = 1024;
-
-
-int main(int argn,char** argv)
+TcpServer::TcpServer()
 {
-	auto cpp_server = std::make_shared<TcpServer>();
-	std::string ip = "127.0.0.1";
-	int port = 8889;
-	cpp_server->bind(ip,port);
-	// std::cout<<"count:"<<cpp_server->ploop.use_count()<<std::endl;
+	state = STOP;
+	max_connect_id = 0;
+	ploop = std::make_shared<EventLoop>();
+}
+void TcpServer::start()
+{
+	state = RUNNING;
+	log_debug("start tcp server:%s,%d",server_ip.c_str(),
+		server_port);
+	acceptor->listen();
+	
+	ploop->do_loop();
 
-	cpp_server->start();
+}
+void TcpServer::bind(std::string ip,int port)
+{
+	server_ip = ip;
+	server_port = port;
+	acceptor = std::make_shared<Acceptor>(ip,port,get_this());
+	ploop->regist_handle(acceptor);
+
+}
+void TcpServer::new_connect(int fd)
+{
+	// auto p = std::shared_ptr<TcpStream>(new TcpStream(fd,ploop,this));
+	++max_connect_id;
+	auto pstream = std::make_shared<TcpStream>(fd,max_connect_id
+												,get_this());
+	ploop->regist_handle(pstream);
+	//streams.push_back(pstream);
+	streams[max_connect_id] = pstream;
+	log_debug("new connect:%d",max_connect_id);
+
+}
+void TcpServer::close_connect(std::shared_ptr<TcpStream> pstream)
+{
+	int con_id = pstream->connect_id;
+	auto it = streams.find(con_id);
+	assert(it!=streams.end());
+
+	log_debug("close connect:%d,total:%d",pstream->connect_id,streams.size());
+
+	ploop->unregist_handle(pstream);
+	streams.erase(it);
+}
 
 
-	// delete cpp_server;
-	return 0;
+void EchoServer::handle_read(std::shared_ptr<TcpStream> pstream)
+{
+	log_debug("echo server handle_read!");
+	int size = pstream->read_buf.size();
+	char *pbuf = pstream->read_buf.read();
+	pbuf[size] = '\0';
+	printf("read str:%s,%d\n",pbuf,size);
+	auto buf = std::make_shared<Buffer>();
+	buf->append(pbuf,size);
+	pstream->send(buf);
 }

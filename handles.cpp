@@ -45,7 +45,7 @@ TcpStream::TcpStream(int fd,
 }
 void TcpStream::handle_read()
 {
-	log_debug("TcpStream::handle_read");
+	log_debug("TcpStream::handle_read:%d,fd:%d",connect_id,psocket->socket_fd);
 	// Buffer buf;
 	int n = psocket->recv(read_buf);
 	if(n==0 || (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK))
@@ -58,15 +58,13 @@ void TcpStream::handle_read()
 		close();
 		return;
 	}
-
-	// auto buf = std::make_shared<Buffer>();
-	// buf->append(pbuf,size);
-	// send(buf);
-	get_server()->handle_read(connect_id);
+	get_server()->handle_read(get_this());
 }
 void TcpStream::handle_write(){
-	log_debug("TcpStream::handle_write");
+	log_debug("TcpStream::handle_write:%d",connect_id);
+	assert(pwrite_buf);
 	int size = pwrite_buf->size();
+	log_debug("===,buf size:%d",size);
 	int n = psocket->send(pwrite_buf);
 	if(n==0 || (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK))
 	{
@@ -76,28 +74,24 @@ void TcpStream::handle_write(){
 	}
 	log_debug("write_success!:%d",size);
 	disable_write();
-	get_server()->update_event(connect_id);
+	// get_server()->update_event(connect_id);
 	
 }
 void TcpStream::handle_error(){
-	log_debug("TcpStream::handle_error");
+	log_debug("TcpStream::handle_error:%d:%d,%s",psocket->socket_fd,errno,get_error_msg(errno));
 }
 
 void TcpStream::send(std::shared_ptr<Buffer> pbuf)
 {
 	enable_write();
 	pwrite_buf = pbuf;
-	get_server()->update_event(connect_id);
-
-	//psocket->send(buf);
-	// disable_write();
 
 }
 
 void TcpStream::close()
 {
 	psocket->close();
-	get_server()->close_connect(connect_id);
+	get_server()->close_connect(get_this());
 	
 }
 

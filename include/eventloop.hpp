@@ -17,6 +17,7 @@
 #include "log.hpp"
 // #include "channel.hpp"
 #include "handle.hpp"
+#include "errors.hpp"
 #include <map>
 #include <set>
 #include <memory>
@@ -24,10 +25,11 @@
 #include <utility>
 #include <cassert>
 
+
 class Select
 {
 public:
-	static const int maxfds = 1024;
+	static const int maxfds = 65535;
 	Select()
 	{
 		FD_ZERO(&read_fds);
@@ -36,6 +38,7 @@ public:
 
 		zero_sec.tv_sec  = 0;
 		zero_sec.tv_usec = 0;
+		max_fds = 0;
 	}
 	void select(std::vector<std::pair<int,int> >& active_fds)
 	{
@@ -43,8 +46,12 @@ public:
 		struct fd_set wfds = write_fds;
 		struct fd_set efds = error_fds;
 		// log_debug("is read set:%d",FD_ISSET(all_fds[0],&rfds));
-
-		::select(1024,&rfds,&wfds,&efds,&zero_sec);
+		// log_debug("===max_fds:%d",max_fds);
+		int n = ::select(max_fds+1,&rfds,&wfds,&efds,&zero_sec);
+		if(n<0)
+		{
+			log_debug("select error!!!!:%d,%d,%s",n,errno,get_error_msg(errno));
+		}
 		int size = all_fds.size();
 		// log_debug("size:%d",size);
 		for(int i=0;i<size;++i)
@@ -70,6 +77,8 @@ public:
 		// int fd = p_handle->get_fd();
 		assert(fd!=-1);
 		assert(handles.find(fd) == handles.end());
+		if(fd>max_fds)
+			max_fds = fd;
 
 		all_fds.push_back(fd);
 		handles[fd] = all_fds.size()-1;
@@ -130,6 +139,11 @@ public:
 
 		all_fds.pop_back();
 		handles.erase(find_it);
+		if(all_fds.empty())
+			max_fds = 0;
+		else if(fd == max_fds)
+			max_fds = (--handles.end())->first;
+
 		log_debug("rm_handle:fd",fd);
 
 	}
@@ -141,6 +155,7 @@ public:
 	// std::map<int,ptHandle> handle_map;
 	std::vector<int> all_fds;
 	std::map<int,int> handles;
+	int max_fds;
 
 };
 

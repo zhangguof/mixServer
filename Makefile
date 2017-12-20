@@ -8,7 +8,7 @@ head_src = $(wildcard $(src_path/inlcude/*.hpp))
 CC=c++
 LD=ld
 LFALG=
-CFLAG=-c -Iinclude/ -std=c++11
+CFLAG=-c -g -Iinclude/ -std=c++11
 
 all: cppserver
 
@@ -17,6 +17,9 @@ cppserver: $(objs) $(head_src)
 
 $(src_path)/%.o: $(src_path)/%.cpp
 	$(CC) $(CFLAG) -o $@ $^
+
+clean:
+	rm *.o
 
 
 

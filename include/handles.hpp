@@ -19,11 +19,9 @@ public:
 		assert(p);
 		return p;
 	}
-
-	// int socket_fd;
 	std::shared_ptr<Socket> psocket;
 	std::weak_ptr<TcpServer> pserver;
-	// std::shared_ptr<TcpServer> tcpserver;
+
 };
 
 class TcpStream:public Handle
@@ -38,6 +36,11 @@ public:
 	void handle_error();
 	void send(std::shared_ptr<Buffer>  pbuf);
 	void close();
+	std::shared_ptr<TcpStream> get_this()
+	{
+			return std::static_pointer_cast<TcpStream>(
+				shared_from_this());
+	}
 	inline std::shared_ptr<TcpServer> get_server()
 	{
 		auto p = pserver.lock();
