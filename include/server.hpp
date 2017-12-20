@@ -38,6 +38,7 @@ public:
 	{
 		return shared_from_this();
 	}
+	void shutdown();
 
 	std::string server_ip;
 	int server_port;

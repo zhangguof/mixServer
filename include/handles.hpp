@@ -13,6 +13,7 @@ public:
 	void handle_read();
 	void handle_write();
 	void handle_error();
+	void close();
 	inline std::shared_ptr<TcpServer> get_server()
 	{
 		auto p = pserver.lock();

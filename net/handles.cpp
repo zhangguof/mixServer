@@ -29,6 +29,10 @@ void Acceptor::handle_read()
 }
 void Acceptor::handle_write(){}
 void Acceptor::handle_error(){}
+void Acceptor::close()
+{
+	psocket->close();
+}
 
 
 //class TcpStream
@@ -90,7 +94,7 @@ void TcpStream::send(std::shared_ptr<Buffer> pbuf)
 
 void TcpStream::close()
 {
-	psocket->close();
+	// psocket->close();
 	get_server()->close_connect(get_this());
 	
 }

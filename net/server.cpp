@@ -47,6 +47,12 @@ void TcpServer::close_connect(std::shared_ptr<TcpStream> pstream)
 	ploop->unregist_handle(pstream);
 	streams.erase(it);
 }
+void TcpServer::shutdown()
+{
+	log_debug("shutdown server....");
+	ploop->shutdown();
+	// acceptor->close();
+}
 
 
 void EchoServer::handle_read(std::shared_ptr<TcpStream> pstream)

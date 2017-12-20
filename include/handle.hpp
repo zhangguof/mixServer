@@ -30,6 +30,7 @@ public:
 	virtual void handle_read()=0;
 	virtual void handle_write()=0;
 	virtual void handle_error()=0;
+	virtual void close()=0;
 
 	inline int get_fd()
 	{

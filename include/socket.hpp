@@ -221,11 +221,15 @@ public:
 	}
 	void close()
 	{
+		assert(socket_fd!=-1);
 		::close(socket_fd);
+		socket_fd = -1;
 	}
 	~Socket()
 	{
 		log_debug("release socket fd:%d",socket_fd);
+		if(socket_fd!=-1)
+			close();
 	}
 	int socket_fd;
 	SockAddr addr;
