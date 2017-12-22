@@ -105,7 +105,7 @@ void Client::on_connected()
 void Client::on_read()
 {
 	log_debug("client handle read...");
-	int size = pconn->pread_buf->size();
+	int size = pconn->pread_buf->readable_size();
 	char* pbuf = pconn->pread_buf->read();
 	pbuf[size] = '\0';
 	printf("read str:%s,%d\n",pbuf,size);

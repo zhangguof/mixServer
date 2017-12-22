@@ -69,12 +69,12 @@ void TcpServer::shutdown()
 void EchoServer::handle_read(std::shared_ptr<TcpStream> pstream)
 {
 	log_debug("echo server handle_read!");
-	int size = pstream->pread_buf->size();
+	int size = pstream->pread_buf->readable_size();
 	char *pbuf = pstream->pread_buf->read();
 	pbuf[size] = '\0';
 	printf("read str:%s,%d\n",pbuf,size);
 	auto buf = std::make_shared<Buffer>();
-	buf->append(pbuf,size);
+	buf->write(pbuf,size);
 	pstream->send(buf);
 }
 
@@ -85,7 +85,7 @@ void EchoServer::new_connect(int fd)
 	std::string s = "hello world!";
 	
 	auto pwbuf = std::make_shared<Buffer>();
-	pwbuf->append(s);
+	pwbuf->write(s);
 	pstream->send(pwbuf);
 }
 

@@ -71,25 +71,23 @@ void TcpStream::handle_read()
 void TcpStream::handle_write(){
 	log_debug("TcpStream::handle_write:%d",connect_id);
 	assert(pwrite_buf);
-	int size = pwrite_buf->size();
-	log_debug("===,buf size:%d",size);
-	sleep(5);
+	int size = pwrite_buf->readable_size();
 	int n = psocket->send(pwrite_buf);
-	if(n==0 || (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK))
+	if(n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK)
 	{
-		log_debug("error:,no:%d,msg:%s,%s\n",n,errno,
+		log_debug("error:%d,no:%d,msg:%s,%s\n",n,errno,
 			get_error_msg(errno),strerror(errno));
 		close();
 		return;
 	}
+	int remain_size = pwrite_buf->readable_size();
+	if(remain_size<=0)
+	{
+		disable_write();
+	}
 
-	log_debug("write_success!:%d",size);
-	//test signpipe
-	// auto tbuf = std::make_shared<Buffer>();
-	// tbuf->append("ssss",5);
-	// psocket->send(tbuf);
-	// log_debug("test:write agin!!");
-	// disable_write();
+	log_debug("write_success!:has_send:%d,remain:%d",
+		size - remain_size, remain_size);
 	
 }
 void TcpStream::handle_error(){

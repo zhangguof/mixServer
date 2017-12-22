@@ -18,7 +18,7 @@ CFLAG=-c -g -Iinclude/ -std=c++11
 all: cppserver
 
 
-.PHONY: test timer_test
+.PHONY: test timer_test client
 
 test: timer_test
 
@@ -27,6 +27,10 @@ cppserver: $(cpp_server_objs) $(cpp_include_src)
 
 timer_test:
 	make -C $(src_path)/test/$@ src_path=$(src_path)
+
+client:
+	echo making client
+	make -C $(src_path)/client src_path=$(src_path)
 
 
 $(src_path)/%.o: $(src_path)/%.cpp

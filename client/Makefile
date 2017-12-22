@@ -1,6 +1,7 @@
-src_path= ..
-# cpp_src=  server.cpp handles.cpp errors.cpp 
-cpp_src= $(wildcard $(src_path)/client/*.cpp $(src_path)/net/*.cpp)
+src_path= 
+cpp_root_src = $(src_path)/timer.cpp
+cpp_src= $(wildcard $(src_path)/client/*.cpp $(src_path)/net/*.cpp) $(cpp_root_src)
+
 objs= $(addsuffix .o,$(basename $(cpp_src)))
 head_src = $(wildcard $(src_path/inlcude/*.hpp))
 
@@ -18,7 +19,7 @@ client: $(objs) $(head_src)
 $(src_path)/%.o: $(src_path)/%.cpp
 	$(CC) $(CFLAG) -o $@ $^
 
-$(src_path)/net/%.o: $(src_path)/%.cpp
+$(src_path)/net/%.o: $(src_path)/net/%.cpp
 	$(CC) $(CFLAG) -o $@ $^
 
 

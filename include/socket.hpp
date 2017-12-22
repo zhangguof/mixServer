@@ -14,6 +14,7 @@
 #include <algorithm>
 #include "log.hpp"
 #include "errors.hpp"
+#include "buffer.hpp"
 
 typedef struct sockaddr SA;
 
@@ -82,84 +83,7 @@ public:
 	struct sockaddr_in s_addr;
 };
 
-class Buffer
-{
-public:
-	Buffer()
-	{
-		start_idx = 0;
-		end_idx  = 0;
-		date.resize(BUFFER_SIZE);
-		// set_name(name);
 
-	}
-	// void set_name(std::string _name)
-	// {
-	// 	name = _name;
-	// }
-
-	int size()
-	{
-		return end_idx - start_idx;
-	}
-	void clear()
-	{
-		start_idx = 0;
-		end_idx = 0;
-	}
-	void make_space(int len)
-	{
-		if(size()+len < date.capacity())
-			date.resize(size()+len);
-	}
-	void append(const char* buf,int len)
-	{
-		make_space(len);
-		std::copy(buf,buf+len,end());
-		end_idx+=len;
-
-	}
-	void append(std::string s)
-	{
-		append(s.c_str(),s.size());
-	}
-	char* end()
-	{
-		return begin() + end_idx;
-	}
-	char *begin()
-	{
-		return &(*date.begin());
-	}
-	char* read()
-	{
-		char* r = &(*(date.begin()+start_idx));
-		clear();
-		return r;
-	}
-	char* read(int n)
-	{
-		if(start_idx>=end_idx)
-			return 0;
-		char* r = &(*(date.begin()+start_idx));
-		start_idx += n;
-		return r;
-	}
-	char* get_buf()
-	{
-		char* r = &(*(date.begin()+start_idx));
-		return r;
-	}
-	~Buffer(){
-		// log_debug("release bufferr....:");
-	}
-private:
-	std::vector<char> date;
-	int start_idx;
-	int end_idx;
-	// std::string name;
-	
-};
 
 class Socket
 {
@@ -168,11 +92,6 @@ public:
 	{
 		assert(fd!=-1);
 		socket_fd = fd;
-		// SA psa;
-		// unsigned int len = sizeof(SA);
-//int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-		// ::getsockname(fd,&psa,&len);
-		// addr.bind(&psa);
 	}
 	Socket(){
 		socket_fd = socket(AF_INET,SOCK_STREAM,0);
@@ -191,20 +110,6 @@ public:
 		assert(socket_fd!=-1);
 		::listen(socket_fd,LISTENNQ);
 	}
-	int recv(std::shared_ptr<Buffer> pbuf){
-		char rbuf[BUFFER_SIZE];
-		int n;
-		while(1)
-		{
-			n=::recv(socket_fd,rbuf,BUFFER_SIZE,0);
-			// log_debug("read once:%d",n);
-			if(n<=0)
-				return n;
-			pbuf->append(rbuf,n);
-		}
-		return n;
-
-	}
 	int accept()
 	{
 		SA sock_addr;
@@ -215,24 +120,38 @@ public:
 		return fd;
 	}
 
+	int recv(std::shared_ptr<Buffer> pbuf){
+		char rbuf[BUFFER_SIZE];
+		int n;
+		while(1)
+		{
+			n=::recv(socket_fd,rbuf,BUFFER_SIZE,0);
+			// log_debug("read once:%d",n);
+			if(n<=0)
+				return n;
+			pbuf->write(rbuf,n);
+		}
+
+	}
 
 	int send(std::shared_ptr<Buffer> pbuf){
-		int n;
-		int size = pbuf->size();
+		int n = 0;
+		int size = pbuf->readable_size();
 		int send_size = 0;
+		char *buf = pbuf->get_buf();
 		while(size>0)
 		{
 			send_size = BUFFER_SIZE<size?BUFFER_SIZE:size;
-			n = ::send(socket_fd,pbuf->get_buf(),send_size,0);
+			n = ::send(socket_fd,buf,send_size,0);
 			// log_debug("send once:%d",n);
 			if(n<0)
 				return n;
 			size -= n;
-			pbuf->read(n);
-
+			// pbuf->read(n);
+			pbuf->has_read(n);
 		}
 
-		return n;
+		return n; //0=send all!
 	}
 
 	int connect(std::string ip,unsigned short port)
