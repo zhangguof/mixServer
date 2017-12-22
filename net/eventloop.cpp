@@ -3,6 +3,7 @@
 EventLoop::EventLoop()
 {
 	_shutdown = false;
+	ptimer = std::make_shared<Timer>();
 }
 
 void EventLoop::do_loop()
@@ -10,15 +11,20 @@ void EventLoop::do_loop()
 	log_debug("start event loop!");
 	while(!_shutdown)
 	{
-		do_select();
+		update();
 	}
-	log_debug("exiting event loop....");
+	clear();
+
+	log_debug("exit event loop!!");
+}
+void EventLoop::clear()
+{
+	log_debug("clear event loop....");
 	for(auto it=handles.begin();it!=handles.end();++it)
 	{
 		it->second->close();
 	}
-
-	log_debug("exit event loop!!");
+	ptimer->close();	
 }
 void EventLoop::do_select()
 {
@@ -59,10 +65,23 @@ void EventLoop::unregist_handle(ptHandle p_handle)
 		handles.erase(it);
 }
 
+
 void EventLoop::update_event(ptHandle p_handle)
 {
 	select_.update_event(p_handle->get_fd(),p_handle->events);
 }
+
+void EventLoop::update()
+{
+	do_select();
+	ptimer->update();
+}
+
+void EventLoop::start_timer(Timer::time_t t,
+	Timer::handle_t ph)
+	{
+		ptimer->start_timer(t,ph);
+	}
 
 void EventLoop::shutdown()
 {

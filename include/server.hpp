@@ -38,6 +38,10 @@ public:
 	{
 		return shared_from_this();
 	}
+	inline EventLoop::ptloop_t get_loop()
+	{
+		return ploop;
+	}
 	void shutdown();
 
 	std::string server_ip;

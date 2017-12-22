@@ -26,23 +26,31 @@
 #include <vector>
 #include <utility>
 #include <cassert>
+#include "timer.hpp"
 
 
 class EventLoop:public std::enable_shared_from_this<EventLoop>
 {
 public:
+	typedef std::shared_ptr<EventLoop> ptloop_t;
 	EventLoop();
 	void do_loop();
 	void do_select();
 	void regist_handle(ptHandle p_handle);
 	void unregist_handle(ptHandle p_handle);
 	void update_event(ptHandle p_handle);
+
+	void update();
+	void start_timer(Timer::time_t t,Timer::handle_t ph);
+	
 	void shutdown();
+	void clear();
 private:
 	// Select select_;
 	Poll select_;
 	std::vector<std::pair<int,int> > active_handles;//fd,events
 	std::map<int,ptHandle> handles; //fd:pthandle
+	Timer::pttimer_t ptimer;
 	bool _shutdown;
 
 };

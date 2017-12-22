@@ -36,4 +36,5 @@ NotoSansCJKsc-Black.otf
 .tags_sorted_by_file
 cppserver
 *.pyc
-test.cpp
+client/client
+test_

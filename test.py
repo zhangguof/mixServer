@@ -29,8 +29,9 @@ def main():
 		else:
 			send(s,cmd)
 
+
 def main2():
-	n = 2000
+	n = 1000
 	sockets = []
 	cur = time.time()
 	for i in xrange(n):
@@ -43,7 +44,6 @@ def main2():
 		s.connect(host)
 		#print s.getsockname(),s.getpeername() 
 	print "connect all:cost:",time.time()-cur
-	time.sleep(3)
 	cur = time.time()
 	for s in sockets:
 		s.close()
@@ -51,4 +51,4 @@ def main2():
 
 
 if __name__ == '__main__':
-	main2()
+	main()
