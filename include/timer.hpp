@@ -6,6 +6,13 @@
 
 typedef unsigned int u32;
 
+enum CBType
+{
+	CB_ID_TIMER=0,
+	CB_TIMER,
+	CB_VOID,
+};
+
 class Pri_queue;
 class Timer;
 class TimerCB
@@ -26,7 +33,6 @@ public:
 		//printf("release timer cb!\n");
 	}
 };
-typedef void (*TimerHandleCBF)(u32,TimerCB::pttimer_t);
 class Empty{};
 
 template<typename T=Empty>
@@ -35,54 +41,109 @@ class TimerHandle:public TimerCB
 public:
 	typedef std::shared_ptr<TimerHandle<T> > ptTimeHanle;
 	typedef std::shared_ptr<T> ptT;
-	typedef void (T::*MemFun)(u32,pttimer_t);
-	void set_cb(ptT t,MemFun f){
+	typedef void (T::*MemFun_id_timer)(u32,pttimer_t);
+	typedef void (T::*MemFun_timer)(pttimer_t);
+	typedef void (T::*MemFun_void)();
+	template<typename memf_t>
+	void set_cb(ptT t,memf_t f){
 		pObj = t;
-		mcb = f;
+		// mcb = f;
+		_set_cb(t,f);
+	}
+	void _set_cb(MemFun_id_timer f)
+	{
+		cb_tyep = CB_ID_TIMER;
+		mcb.mcb_id_timer = f;		
+	}
+	void _set_cb(MemFun_timer f)
+	{
+		cb_tyep = CB_TIMER;
+		mcb.mcb_timer = f;		
+	}
+	void _set_cb(MemFun_void f)
+	{
+		cb_tyep = CB_VOID;
+		mcb.mcb_void = f;		
 	}
 	void handle(pttimer_t ptimer)
 	{
-		// if(fcb)
-		// 	return fcb(timer_id);
-		// assert(pObj);
-		if(pObj)
-			return (pObj.get()->*mcb)(timer_id,ptimer);
-
+		assert(pObj);
+		switch(cb_tyep)
+		{
+			case CB_ID_TIMER:
+				return ((pObj.get()->*(mcb.mcb_id_timer))) (timer_id,ptimer);
+			case CB_TIMER:
+				return ((pObj.get())->*(mcb.mcb_timer)) (ptimer);				
+			case CB_VOID:
+				return ((pObj.get())->*(mcb.mcb_void)) ();
+		}
 	}
-	// static ptTimeHanle make_ptr(ptTimeHanle p,MemFun f)
-	// {
-	// 	return std::make_shared<TimerHandle<T> >(p,f);
-	// }
-
-	TimerHandle(ptT t,MemFun f):pObj(t),mcb(f){}
+	template<typename memf_t>
+	TimerHandle(ptT t,memf_t f):pObj(t){
+		_set_cb(f);
+	}
 	// TimerHandle(TimerHandleCBF cb):fcb(cb){}
 	TimerHandle():mcb(NULL){}
 	
+	union{
+		MemFun_id_timer mcb_id_timer;
+		MemFun_timer mcb_timer;
+		MemFun_void mcb_void;
+	} mcb;
 	
-	MemFun mcb;
 	// TimerHandleCBF fcb;
 	ptT pObj;
+	CBType cb_tyep;
 
 };
 template<>
 class TimerHandle<Empty>:public TimerCB
 {
 public:
-	void set_cb(TimerHandleCBF cb)
+	typedef std::shared_ptr<TimerHandle<> > ptTimeHanle;
+	typedef void (*handle_cb_id_timer)(u32,TimerCB::pttimer_t);
+	typedef void (*handle_cb_timer)(TimerCB::pttimer_t);
+	typedef void (*handle_cb_void)();
+	template<typename fun_t>
+	TimerHandle(fun_t f){
+		set_cb(f);
+	}
+	// template<typename F>
+	void set_cb(handle_cb_id_timer cb)
 	{
-		fcb = cb;
+		fcb.fcb_id_timer = cb;
+		cb_tyep = CB_ID_TIMER;
+	}
+	void set_cb(handle_cb_timer cb)
+	{
+		fcb.fcb_timer = cb;
+		cb_tyep = CB_TIMER;
+	}
+	void set_cb(handle_cb_void cb)
+	{
+		fcb.fcb_void = cb;
+		cb_tyep = CB_VOID;
 	}
 	void handle(pttimer_t ptimer)
 	{
-		assert(fcb);
-		if(fcb)
-			return fcb(timer_id,ptimer);
+		assert(fcb.fcb_id_timer);
+		switch(cb_tyep)
+		{
+			case CB_ID_TIMER:
+				return fcb.fcb_id_timer(timer_id,ptimer);
+			case CB_TIMER:
+				return fcb.fcb_timer(ptimer);
+			case CB_VOID:
+				return fcb.fcb_void();
+		}
 	}
-	u32 timer_id;
-	TimerHandleCBF fcb;
+	union{
+		handle_cb_id_timer fcb_id_timer;
+		handle_cb_timer fcb_timer;
+		handle_cb_void fcb_void;
+	} fcb;
+	CBType cb_tyep;
 };
-
-
 
 class Timer:public std::enable_shared_from_this<Timer>
 {
@@ -99,20 +160,32 @@ public:
 	{
 		return shared_from_this();
 	}
-	template<typename T>
-	static typename TimerHandle<T>::ptTimeHanle make_handle(std::shared_ptr<T> pobj,typename TimerHandle<T>::MemFun f);
+	template<typename T,typename memf_t>
+	static typename TimerHandle<T>::ptTimeHanle make_handle(std::shared_ptr<T> pobj,memf_t f);
+	
+	template<typename fun_t>
+	static typename TimerHandle<>::ptTimeHanle make_handle(fun_t f);
+
 	static u32 get_now();
 	// std::map<int,TimerCB::Shareptr> handles;
 	u32 max_id;
 	std::shared_ptr<Pri_queue>  pqueue;
 };
 
-template<typename T>
-typename TimerHandle<T>::ptTimeHanle Timer::make_handle(std::shared_ptr<T> pobj,
-	typename TimerHandle<T>::MemFun f)
+template<typename T,typename memf_t>
+typename TimerHandle<T>::ptTimeHanle Timer::make_handle(
+	std::shared_ptr<T> pobj,
+	memf_t f)
 {
 	return std::make_shared<TimerHandle<T> >(pobj,f);
 }
+
+template<typename fun_t>
+typename TimerHandle<>::ptTimeHanle Timer::make_handle(fun_t f)
+{
+	return std::make_shared<TimerHandle<> >(f);
+}
+
 
 
 #endif

@@ -1,4 +1,5 @@
-src_path= .
+ROOT_DIR = $(shell pwd)
+src_path= $(ROOT_DIR)
 cpp_net_src  = $(wildcard $(src_path)/net/*.cpp)
 cpp_test_src = $(wildcard $(src_path)/test/*.cpp) $(cpp_net_src) timer.cpp
 cpp_server_src = $(wildcard $(src_path)/*.cpp) $(cpp_net_src)
@@ -16,11 +17,17 @@ CFLAG=-c -g -Iinclude/ -std=c++11
 
 all: cppserver
 
+
+.PHONY: test timer_test
+
+test: timer_test
+
 cppserver: $(cpp_server_objs) $(cpp_include_src)
 	$(CC) $(LFALG) $(cpp_server_objs) -o $(@)
 
-test: $(cpp_test_objs) $(cpp_include_src)
-	$(CC) $(LFALG) $(cpp_test_objs) -o test_
+timer_test:
+	make -C $(src_path)/test/$@ src_path=$(src_path)
+
 
 $(src_path)/%.o: $(src_path)/%.cpp
 	$(CC) $(CFLAG) -o $@ $^

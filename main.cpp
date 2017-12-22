@@ -14,7 +14,6 @@ class TimerTest:std::enable_shared_from_this<TimerTest>
 		pttimer->start_timer(200,
 			Timer::make_handle(shared_from_this(),&TimerTest::test));
 	}
-	
 };
 
 

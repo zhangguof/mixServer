@@ -37,4 +37,5 @@ NotoSansCJKsc-Black.otf
 cppserver
 *.pyc
 client/client
+timer_test
 test_
