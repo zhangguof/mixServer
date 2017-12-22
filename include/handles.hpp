@@ -35,7 +35,9 @@ public:
 	void handle_read();
 	void handle_write();
 	void handle_error();
-	void send(std::shared_ptr<Buffer>  pbuf);
+	void send(std::string s);
+	void send(const char*p, int size);
+	void send(std::shared_ptr<std::string> ps);
 	void close();
 	std::shared_ptr<TcpStream> get_this()
 	{

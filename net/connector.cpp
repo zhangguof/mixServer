@@ -76,9 +76,42 @@ void Connector::handle_write()
 	}
 	else
 	{
+		// do send here.....
 		log_debug("Conector handle handle_write!");
 		assert(pwrite_buf);
-	}
+		int size = pwrite_buf->readable_size();
+		int n = psocket->send(pwrite_buf);
+		if(n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK)
+		{
+			log_debug("error:%d,no:%d,msg:%s,%s\n",n,errno,
+				get_error_msg(errno),strerror(errno));
+			close();
+			return;
+		}
+		int remain_size = pwrite_buf->readable_size();
+		if(remain_size<=0)
+		{
+			disable_write();
+		}
+
+		log_debug("write_success!:has_send:%d,remain:%d",
+			size - remain_size, remain_size);
+		}
+}
+
+void Connector::send(std::string s)
+{
+	pwrite_buf->write(s);
+	enable_write();
+}
+void Connector::send(const char* p,int size)
+{
+	pwrite_buf->write(p,size);
+	enable_write();
+}
+void Connector::send(std::shared_ptr<std::string> ps)
+{
+	send(*ps);
 }
 void Connector::handle_error(){}
 void Connector::close()
@@ -100,17 +133,55 @@ void Client::on_connected()
 	auto addr = pconn->get_addr();
 	log_debug("Client connected success!!!%s,%d",addr.ip.c_str(),addr.port);
 	//pconn->close();
+	std::string s = "a";
+	ptmsg_t pmsg = std::make_shared<Msg>(s);
+	send_msg(pmsg);
 }
 
 void Client::on_read()
 {
 	log_debug("client handle read...");
-	int size = pconn->pread_buf->readable_size();
-	char* pbuf = pconn->pread_buf->read();
-	pbuf[size] = '\0';
-	printf("read str:%s,%d\n",pbuf,size);
+	auto pbuf = pconn->pread_buf;
+	// int size = pconn->pread_buf->readable_size();
+	// char* pbuf = pconn->pread_buf->read();
+	// pbuf[size] = '\0';
+	// printf("read str:%s,%d\n",pbuf,size);
 	//once read close it.
 	// pconn->close();
+	int msg_len = 0;
+	if(!msg_reading && pbuf->readable_size()>=sizeof(int))
+	{
+		msg_len = pbuf->read_int();
+		log_debug("try read msg:len:%d",msg_len);
+		pmsg = std::make_shared<Msg>(msg_len);
+		msg_reading = true;
+	}
+	if(pmsg && pbuf->readable_size()>=msg_len)
+	{
+		pmsg->write(pbuf->read(msg_len),msg_len);
+		msg_reading = false;
+		on_msg(pmsg);
+	}
+}
+void Client::on_msg(ptmsg_t pmsg)
+{
+	log_debug("client:on_msg:len:%d",
+		pmsg->len);
+	//std::cout<<"msg raw data:"<<*(pmsg->get_data())<<std::endl;
+//pingpong test
+	std::string t = *(pmsg->get_data());
+	t = t+t;
+	ptmsg_t new_pmsg = std::make_shared<Msg>(t);
+	send_msg(new_pmsg);
+}
+void Client::send_msg(ptmsg_t pmsg)
+{
+	pconn->send(pmsg->get_raw());
+}
+void Client::send_msg(const char* p,int size)
+{
+	ptmsg_t pmsg = std::make_shared<Msg>(p,size);
+	send_msg(pmsg);
 }
 void Client::on_close()
 {

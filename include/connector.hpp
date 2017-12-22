@@ -4,7 +4,9 @@
 #include "handle.hpp"
 #include "socket.hpp"
 #include "log.hpp"
+#include "proto.hpp"
 #include <memory>
+#include <iostream>
 
 class Client;
 
@@ -17,6 +19,7 @@ public:
 		CONNECTING = 1,
 		CONNECTED = 2,
 	};
+	typedef std::shared_ptr<Buffer> ptbuffer_t;
 public:
 	Connector(std::weak_ptr<Client> _client);
 
@@ -24,6 +27,9 @@ public:
 	void handle_read();
 	void handle_write();
 	void handle_error();
+	void send(std::string s);
+	void send(std::shared_ptr<std::string> ps);
+	void send(const char* p,int size);
 	void close();
 	std::shared_ptr<Client> get_client()
 	{
@@ -52,15 +58,20 @@ private:
 class Client:public std::enable_shared_from_this<Client>
 {
 public:
+	typedef std::shared_ptr<Msg> ptmsg_t;
 	Client()
 	{
 		ploop = std::make_shared<EventLoop>();
 		// log_debug("after make Connector");
+		msg_reading = false;
 	}
 	void start_connect(std::string ip, unsigned short port);
 	void on_connected();
 	void on_read();
 	void on_close();
+	void on_msg(ptmsg_t pmsg);
+	void send_msg(ptmsg_t pmsg);
+	void send_msg(const char*p, int size);
 	void do_loop()
 	{
 		ploop->do_loop();
@@ -79,6 +90,9 @@ public:
 private:
 	std::shared_ptr<EventLoop> ploop;
 	std::shared_ptr<Connector> pconn;
+	ptmsg_t pmsg;
+	bool msg_reading;
+
 };
 
 

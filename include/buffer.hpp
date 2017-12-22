@@ -3,12 +3,14 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <memory>
 typedef unsigned int u32;
 
 class Buffer
 {
 public:
 	static const int BUFFER_SIZE = 4096;
+	typedef std::shared_ptr<Buffer> ptbuffer_t;
 	Buffer()
 	{
 		start_idx = 0;

@@ -6,6 +6,7 @@
 #include "handles.hpp"
 #include "eventloop.hpp"
 #include "log.hpp"
+#include "proto.hpp"
 
 #include <unistd.h>
 #include <map>
@@ -24,16 +25,17 @@ enum SERVER_STATE
 class TcpServer:public std::enable_shared_from_this<TcpServer>
 {
 public:
+	typedef std::shared_ptr<TcpServer> pttcpsevert_t;
+	typedef std::shared_ptr<TcpStream> pttcpstream_t;
+	typedef std::shared_ptr<Msg> ptmsg_t;
+
 	TcpServer();
 	void start();
 	void bind(std::string ip,int port);
 	virtual void new_connect(int fd);
 	void close_connect(std::shared_ptr<TcpStream> pstream);
 
-	virtual void handle_read(std::shared_ptr<TcpStream> pstream)
-	{
-		log_debug("tcp server handle_read!");
-	}
+	virtual void handle_read(std::shared_ptr<TcpStream> pstream);
 	inline std::shared_ptr<TcpServer> get_this()
 	{
 		return shared_from_this();
@@ -54,11 +56,22 @@ public:
 	std::map<int, std::shared_ptr<TcpStream> > streams;
 
 };
+class MsgServer:public TcpServer
+{
+public:
+	typedef std::shared_ptr<Msg> ptmsg_t;
+	void new_connect(int fd);
+	void handle_read(pttcpstream_t pstream);
+	void handle_msg(int conn_id,ptmsg_t pmsg);
+	void send_msg(int conn_id, ptmsg_t pmsg);
+private:
+	std::map<int,ptmsg_t> conn_msgs;
+};
 
 class EchoServer:public TcpServer
 {
 	void new_connect(int fd);
-	void handle_read(std::shared_ptr<TcpStream> pstream);
+	void handle_read(pttcpstream_t pstream);
 };
 
 

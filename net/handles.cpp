@@ -97,11 +97,19 @@ void TcpStream::handle_error(){
 		);
 }
 
-void TcpStream::send(std::shared_ptr<Buffer> pbuf)
+void TcpStream::send(std::string s)
 {
-	pwrite_buf = pbuf;
+	pwrite_buf->write(s);
 	enable_write();
-
+}
+void TcpStream::send(const char* p,int size)
+{
+	pwrite_buf->write(p,size);
+	enable_write();
+}
+void TcpStream::send(std::shared_ptr<std::string> ps)
+{
+	send(*ps);
 }
 
 void TcpStream::close()

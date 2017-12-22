@@ -19,7 +19,7 @@ class TimerTest:std::enable_shared_from_this<TimerTest>
 
 int main(int argn,char** argv)
 {
-	auto cpp_server = std::make_shared<EchoServer>();
+	auto cpp_server = std::make_shared<MsgServer>();
 	auto ploop = cpp_server->get_loop();
 
 	std::string ip = "127.0.0.1";
