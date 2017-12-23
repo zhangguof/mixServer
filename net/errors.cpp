@@ -2,6 +2,8 @@
 #define _ERRORS_H
 #include <errno.h>
 #include "errors.hpp"
+#include <string.h>
+
 #define EMSG(n,v) const char* n = v;
 #define CASEMSG(n,v) case n:return v;
 
@@ -77,7 +79,6 @@ EMSG(einprogress,"EINPROGRESS")
 
 EMSG(default_error,"DEFAULT ERROR")
 
-
 const char* get_error_msg(int eno)
 {
 	switch(eno)
@@ -95,7 +96,8 @@ const char* get_error_msg(int eno)
 		CASEMSG(EALREADY,ealready)
 		CASEMSG(EINPROGRESS,einprogress)
 		default:
-			return default_error;
+			//return default_error;
+			return strerror(eno);
 	}
 }
 

@@ -9,41 +9,106 @@ Connector::Connector(std::weak_ptr<Client> _client)
 	pwrite_buf = std::make_shared<Buffer>();
 	pread_buf = std::make_shared<Buffer>();
 
-	init(psocket->socket_fd,WRITE); //only write, use for check error.
+
+	init(psocket->socket_fd,WRITE|READ); //only write, use for check error.
 }
-void Connector::connect(std::string ip,unsigned short port)
+int Connector::connect(std::string _ip,unsigned short _port)
 {
 	assert(status == CLOSED);
 	assert(psocket);
+	retry_count = 0;
+	ip 	 = _ip;
+	port = _port;
+	// log_debug("in Connector::connect");
+	get_loop()->start_timer(100*5,get_this(),
+		&Connector::timeout_check);
+	return _connect();
+}
+
+int Connector::_connect()
+{
 	int n = psocket->connect(ip,port);
 	if(n>0){
 		status = CONNECTED;
-		return;
+		return 0;
 	}
 	if(n<0 && (errno==EALREADY || errno==EINPROGRESS))
 	{
 		status = CONNECTING;
-		return;
+		return 0;
 	}
 	log_debug("connect error:%d,%d,%s",n,errno,get_error_msg(errno));
+	return n;
+}
 
+int Connector::retry_connect()
+{
+	assert(status == CLOSED);
+	psocket = std::make_shared<Socket>();
+	init(psocket->socket_fd,WRITE|READ);
+	++retry_count;
+
+	return _connect();
+}
+void Connector::timeout_check(Timer::pttimer_t ptimer)
+{
+	log_debug("timeout_check:!!");
+	const int next_time = 100*5;
+	const int max_retry_cout = 10;
+	if(status==CONNECTED || 
+		retry_count > max_retry_cout)
+		return;
+	if(status == CONNECTING)
+	{
+		close();
+		retry_connect();
+		ptimer->start_timer(100*5,
+			get_this(),
+			&Connector::timeout_check);
+	}
+	else if(status == CLOSED)
+	{
+		retry_connect();
+		ptimer->start_timer(100*5,
+			get_this(),
+			&Connector::timeout_check);
+	}
 }
 
 void Connector::handle_read()
 {
+	assert(status == CONNECTED || status==CONNECTING);
 	log_debug("Connector handle read!!");
-	int n = psocket->recv(pread_buf);
-	if(n==0 || (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK))
+	if(status == CONNECTING)
 	{
+		int n;
+		n = psocket->recv(0);
 		if(n<0)
-			log_debug("error,no:%d,msg:%s\n",errno,get_error_msg(errno));
-		else
-			log_debug("peer close!!!");
-		// log_debug("test:%d,%d,%s",n,errno,get_error_msg(errno));
-		close();
-		return;
+		{
+			log_debug("read try connect error:%d,%s,%s",
+				errno,get_error_msg(errno),strerror(errno)
+				);
+			close();
+			return;
+		}
 	}
-	get_client()->on_read();
+	else if(status == CONNECTED)
+	{
+		int n = psocket->recv(pread_buf);
+		if(n==0 || (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK))
+		{
+			if(n<0)
+				log_debug("error,no:%d,msg:%s:%s",
+					errno,get_error_msg(errno),strerror(errno));
+			else
+				log_debug("peer close!!!");
+			// log_debug("test:%d,%d,%s",n,errno,get_error_msg(errno));
+			close();
+			return;
+		}
+		get_client()->on_read();
+	}
+
 }
 void Connector::handle_write()
 {
@@ -65,12 +130,13 @@ void Connector::handle_write()
 			log_debug("Connector connected success!!");
 			status = CONNECTED;
 			disable_write();
-			enable_read();
+			//enable_read();
 			get_client()->on_connected();
 		}
 		else
 		{
 			log_debug("connect error!!%d:%d,%s",errno,err,get_error_msg(err));
+			close();
 		}
 
 	}
@@ -117,14 +183,29 @@ void Connector::handle_error(){}
 void Connector::close()
 {
 	psocket->close();
+	status = CLOSED;
 	get_client()->on_close();
 }
 
+Client::Client()
+{
+	ploop = std::make_shared<EventLoop>();
+	msg_reading = false;
+	pmsg = std::make_shared<Msg>();
+	log_debug("after make Client");
+}
+Client::~Client()
+{
+	log_debug("release client....:loop:%d",ploop.use_count());
+}
 
 void Client::start_connect(std::string ip, unsigned short port)
 {
 	pconn = std::make_shared<Connector>(get_this());
-	pconn->connect(ip,port);
+	pconn->set_loop(ploop);
+	int n = pconn->connect(ip,port);
+	if(n<0)
+		log_debug("error:%d,%d,%s",n,errno,get_error_msg(errno));
 	ploop->regist_handle(pconn);
 }
 
@@ -132,42 +213,57 @@ void Client::on_connected()
 {
 	auto addr = pconn->get_addr();
 	log_debug("Client connected success!!!%s,%d",addr.ip.c_str(),addr.port);
-	//pconn->close();
-	std::string s = "a";
-	ptmsg_t pmsg = std::make_shared<Msg>(s);
-	send_msg(pmsg);
+
+	std::string s(10,'a');
+
+	printf("new string!!!\n");
+
+
+	// ptmsg_t pmsg = std::make_shared<Msg>(s,1024*1024);
+	ptmsg_t _pmsg = std::make_shared<Msg>(s);
+	printf("new pmsg!!\n");
+	send_msg(_pmsg);
+	printf("after send msg:\n");
 }
 
 void Client::on_read()
 {
 	log_debug("client handle read...");
+	// assert(pconn);
 	auto pbuf = pconn->pread_buf;
-	// int size = pconn->pread_buf->readable_size();
-	// char* pbuf = pconn->pread_buf->read();
-	// pbuf[size] = '\0';
-	// printf("read str:%s,%d\n",pbuf,size);
-	//once read close it.
-	// pconn->close();
-	int msg_len = 0;
-	if(!msg_reading && pbuf->readable_size()>=sizeof(int))
+
+	assert(pmsg);
+	log_debug("===test:%d,%d",pmsg?1:0,pmsg->len);
+
+	if(pmsg->len==0 && pbuf->readable_size()>=sizeof(int))
 	{
-		msg_len = pbuf->read_int();
+		int msg_len = pbuf->read_int();
 		log_debug("try read msg:len:%d",msg_len);
-		pmsg = std::make_shared<Msg>(msg_len);
-		msg_reading = true;
+		pmsg->try_write(msg_len);
 	}
-	if(pmsg && pbuf->readable_size()>=msg_len)
+	int remain_len = pmsg->get_remain_len();
+	int read_size = pbuf->readable_size();
+	if(remain_len>0 && read_size>0)
 	{
-		pmsg->write(pbuf->read(msg_len),msg_len);
-		msg_reading = false;
-		on_msg(pmsg);
+		if(read_size > remain_len)
+			read_size = remain_len;
+		pmsg->write(pbuf->read(read_size),read_size);
+		remain_len = pmsg->get_remain_len();
+		log_debug("===msg write:%d,remain:%d",read_size,remain_len);
+		if(remain_len == 0)
+		{
+			on_msg(pmsg);
+			pmsg->clear();
+		}
 	}
 }
 void Client::on_msg(ptmsg_t pmsg)
 {
 	log_debug("client:on_msg:len:%d",
 		pmsg->len);
+	assert(pmsg->len > 0);
 	//std::cout<<"msg raw data:"<<*(pmsg->get_data())<<std::endl;
+
 //pingpong test
 	std::string t = *(pmsg->get_data());
 	t = t+t;

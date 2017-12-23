@@ -7,9 +7,8 @@ class TcpServer;
 class Acceptor:public Handle
 {
 public:
-	Acceptor(std::string ip, int port,
-		std::weak_ptr<TcpServer> _server);
-	void listen();
+	Acceptor(std::weak_ptr<TcpServer> _server);
+	int listen(std::string ip, int port);
 	void handle_read();
 	void handle_write();
 	void handle_error();

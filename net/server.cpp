@@ -24,7 +24,12 @@ void TcpServer::start()
 	log_debug("start tcp server:%s,%d",server_ip.c_str(),
 		server_port);
 	assert(acceptor);
-	acceptor->listen();
+	int n = acceptor->listen(server_ip,server_port);
+	if(n<0)
+	{
+		log_debug("TcpServer start error!!!");
+		return;
+	}
 	
 	ploop->do_loop();
 
@@ -33,7 +38,7 @@ void TcpServer::bind(std::string ip,int port)
 {
 	server_ip = ip;
 	server_port = port;
-	acceptor = std::make_shared<Acceptor>(ip,port,get_this());
+	acceptor = std::make_shared<Acceptor>(get_this());
 	ploop->regist_handle(acceptor);
 
 }
@@ -79,8 +84,6 @@ void EchoServer::handle_read(pttcpstream_t pstream)
 	char *pbuf = pstream->pread_buf->read();
 	pbuf[size] = '\0';
 	printf("read str:%s,%d\n",pbuf,size);
-	// auto buf = std::make_shared<Buffer>();
-	// buf->write(pbuf,size);
 	pstream->send(pbuf,size);
 }
 
@@ -102,42 +105,61 @@ void MsgServer::handle_read(pttcpstream_t pstream)
 	int conn_id = pstream->connect_id;
 	assert(streams.find(conn_id)!=streams.end());
 
-	ptmsg_t pmsg = conn_msgs[conn_id];
-	auto pbuf = pstream->pread_buf;
-	int msglen=0;
-	if(!pmsg && pbuf->readable_size()>=sizeof(int))
-	{
-		msglen = pbuf->read_int();
-		log_debug("try read msg:len:%d",msglen);
-		pmsg = std::make_shared<Msg>(msglen);
-		conn_msgs[conn_id] = pmsg; //save msg
-	}
-	if(pmsg && pbuf->readable_size()>=msglen)
-	{
-		pmsg->write(pbuf->read(msglen),msglen);
-		handle_msg(conn_id,pmsg);
-		conn_msgs.erase(conn_id);
+	ptmsg_t pmsg;
 
+	auto find_it = conn_msgs.find(conn_id);
+	if(find_it==conn_msgs.end())
+	{
+		pmsg = std::make_shared<Msg>();
+		conn_msgs[conn_id] = pmsg;
+	}
+	else
+	{
+		pmsg = find_it->second;
+	}
+
+	auto pbuf = pstream->pread_buf;
+	// int remain_msg_len = pmsg->get_remain_len();
+	log_debug("===msg_len:%d,%d",pmsg->len,pmsg->get_remain_len());
+	if(pmsg->len==0  && pbuf->readable_size()>=sizeof(int))
+	{
+		int msg_len = pbuf->read_int();
+		log_debug("try read msg:len:%d",msg_len);
+		pmsg->try_write(msg_len);
+	}
+	int remain_len = pmsg->get_remain_len();
+	int read_size = pbuf->readable_size();
+	if(remain_len > 0 && read_size>0)
+	{
+		if(read_size>remain_len)
+			read_size = remain_len;
+		pmsg->write(pbuf->read(read_size),read_size);
+		remain_len = pmsg->get_remain_len();
+		log_debug("==msg write:%d,remain:%d",read_size,
+			remain_len);
+		if(remain_len==0)
+		{
+			handle_msg(conn_id,pmsg);
+			pmsg->clear();
+		}
 	}
 }
 void MsgServer::handle_msg(int conn_id,ptmsg_t pmsg)
 {
 	log_debug("Msg server::handle_msg:%d,len:%d",
-		conn_id,pmsg->len);
-	//std::cout<<"msg raw date:"<<*(pmsg->get_data())<<std::endl;
+		conn_id,pmsg->len);	
 	
-	// ptmsg_t p = std::make_shared<msg
-	//send_msg(conn_id,std::make_shared<Msg>(std::string("hello ghhhhhhhhhhhh")));
 	//pingpong test
-	std::string t = *(pmsg->get_data());
-	t = t+t;
-	ptmsg_t new_pmsg = std::make_shared<Msg>(t);
-	send_msg(conn_id,new_pmsg);
+	// std::string t = *(pmsg->get_data());
+	// t = t+t;
+	// ptmsg_t new_pmsg = std::make_shared<Msg>(t);
+	// send_msg(conn_id,new_pmsg);
 }
-void MsgServer::send_msg(int conn_id,ptmsg_t pmsg)
+void MsgServer::send_msg(int conn_id,const ptmsg_t& pmsg)
 {
 	log_debug("msg server send msg,id:%d,len:%d",
 		conn_id,pmsg->len);
+	assert(pmsg->len > 0);
 	pttcpstream_t pstream = streams[conn_id];
 	assert(pstream);
 	pstream->send(pmsg->get_raw());

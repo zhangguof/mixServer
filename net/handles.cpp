@@ -7,18 +7,32 @@
 
 
 //class Acceptor
-Acceptor::Acceptor(std::string ip, int port,
-	std::weak_ptr<TcpServer> _server)
+Acceptor::Acceptor(std::weak_ptr<TcpServer> _server)
 {
 	psocket = std::make_shared<Socket>();
-	psocket->bind(ip,port);
 	init(psocket->socket_fd,READ|ERROR);
 	pserver = _server;
 }
-void Acceptor::listen()
+int Acceptor::listen(std::string ip, int port)
 {
 	log_debug("start listen!!");
-	psocket->listen();
+	int n = psocket->bind(ip,port);
+	if(n<0)
+	{
+		log_debug("bind error:%d,%s:%s",
+			errno,get_error_msg(errno),strerror(errno));
+		return n;
+	}
+
+	n = psocket->listen();
+	if(n<0)
+	{
+		log_debug("listen error:%d,%s:%s",
+			errno,get_error_msg(errno),strerror(errno)
+			);
+		return n;
+	}
+	return n;
 }
 void Acceptor::handle_read()
 {

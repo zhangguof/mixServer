@@ -18,30 +18,40 @@ class Msg
 public:
 	typedef std::shared_ptr<std::string> ptsting_t;
 	typedef std::shared_ptr<Msg> ptmsg_t;
+	Msg();
 	Msg(int _len);
 	Msg(std::string s);
 	Msg(const char*p, int size);
+	void init_str()
+	{
+		praw_data = std::make_shared<std::string>();
+	}
+	void clear();
+	void try_write(int _len);
 	void read(const char*p, int size);
 	void write(const char*p, int size);
-	void write(std::string s);
-
-	int len;
+	void write(const std::string& s);
+	
 	std::string get_raw()
 	{
 		char buf[sizeof(int)];
-		// printf("===test:%d:%d\n",len,*((int*)buf));
 		pack_int(buf,len);
-		// printf("===test222:%d:%d\n",len,*((int*)buf));
 		return std::string(buf,sizeof(int)) + *praw_data;
 	}
 	ptsting_t get_data()
 	{
 		return praw_data;
 	}
-
+	int get_remain_len()
+	{
+		return len - has_write_size;
+	}
+	int len;
+	bool msg_reading;
 private:
-	
 	ptsting_t praw_data;
+	int has_write_size;
+
 
 };
 #endif

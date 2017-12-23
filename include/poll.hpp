@@ -1,10 +1,6 @@
 #ifndef _POLL_H_
 #define _POLL_H_ value
 
-// #include <fcntl.h>
-// #include <sys/socket.h>
-// #include <netinet/in.h>
-// #include <arpa/inet.h>
 #include <poll.h>
 #include <map>
 #include <set>
@@ -20,6 +16,7 @@
 class Poll
 {
 public:
+	static const int time_out = 10; //ms
 	Poll();
 	void poll(std::vector<std::pair<int,int> >& active_handles);
 	void select(std::vector<std::pair<int,int> >& active_handles);

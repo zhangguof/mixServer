@@ -63,7 +63,7 @@ public:
 	void new_connect(int fd);
 	void handle_read(pttcpstream_t pstream);
 	void handle_msg(int conn_id,ptmsg_t pmsg);
-	void send_msg(int conn_id, ptmsg_t pmsg);
+	void send_msg(int conn_id, const ptmsg_t& pmsg);
 private:
 	std::map<int,ptmsg_t> conn_msgs;
 };

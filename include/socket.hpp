@@ -105,10 +105,10 @@ public:
 		set_nonblock();
 		return n;
 	}
-	void listen()
+	int listen()
 	{
 		assert(socket_fd!=-1);
-		::listen(socket_fd,LISTENNQ);
+		return ::listen(socket_fd,LISTENNQ);
 	}
 	int accept()
 	{
@@ -131,7 +131,11 @@ public:
 				return n;
 			pbuf->write(rbuf,n);
 		}
-
+	}
+	int recv(int size)
+	{
+		char rbuf[size];
+		return ::recv(socket_fd,rbuf,size,0);
 	}
 
 	int send(std::shared_ptr<Buffer> pbuf){
@@ -164,8 +168,12 @@ public:
 		set_nonblock();
 		int n = ::connect(socket_fd,addr.get_sa(),sizeof(SA));
 		return n;
-		// ::bind(socket_fd,addr.get_sa(),addr.get_sa_len());
-		
+		// ::bind(socket_fd,addr.get_sa(),addr.get_sa_len());	
+	}
+	int connect()
+	{
+		assert(socket_fd!=-1);
+		return ::connect(socket_fd,addr.get_sa(),sizeof(SA));
 	}
 
 	void set_nonblock()

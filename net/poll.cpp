@@ -72,7 +72,7 @@ Poll::Poll(){
 void Poll::poll(std::vector<std::pair<int,int> >& active_handles)
 {
 	//fd:events
-	int n = ::poll(&*(pollfds.begin()), pollfds.size(), 0);
+	int n = ::poll(&*(pollfds.begin()), pollfds.size(), time_out);
 	if(n>0)
 	{
 		int enums = n;
@@ -106,7 +106,8 @@ void Poll::add_handle(int fd,int events)
 	pfd.events = to_poll_event(events);
 	pollfds.push_back(pfd);
 	handles[fd] = pollfds.size()-1;
-	log_debug("[poll]add handle:%d,%0x,%0x",fd,events,pfd.events);
+	log_debug("[poll]add handle:fd:%d,events:%0x,pfd.events:%0x",
+		fd,events,pfd.events);
 }
 void Poll::rm_handle(int fd)
 {

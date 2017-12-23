@@ -5,6 +5,10 @@ EventLoop::EventLoop()
 	_shutdown = false;
 	ptimer = std::make_shared<Timer>();
 }
+EventLoop::~EventLoop()
+{
+	log_debug("release eventloop!!");
+}
 
 void EventLoop::do_loop()
 {

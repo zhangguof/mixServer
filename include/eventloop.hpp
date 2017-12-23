@@ -34,6 +34,7 @@ class EventLoop:public std::enable_shared_from_this<EventLoop>
 public:
 	typedef std::shared_ptr<EventLoop> ptloop_t;
 	EventLoop();
+	~EventLoop();
 	void do_loop();
 	void do_select();
 	void regist_handle(ptHandle p_handle);
