@@ -9,16 +9,17 @@
 #include <iostream>
 
 class Client;
+enum STATUS
+{
+	CLOSED = 0,
+	CONNECTING = 1,
+	CONNECTED = 2,
+};
 
 class Connector:public Handle
 {
 public:
-	enum STATUS
-	{
-		CLOSED = 0,
-		CONNECTING = 1,
-		CONNECTED = 2,
-	};
+
 	typedef std::shared_ptr<Buffer> ptbuffer_t;
 	typedef std::shared_ptr<Connector> ptconnector_t;
 public:
@@ -26,8 +27,8 @@ public:
 
 	int connect(std::string ip,unsigned short port);
 	int _connect();
-	int retry_connect();
-	void timeout_check(Timer::pttimer_t ptimer);
+	// int retry_connect();
+	// void timeout_check(Timer::pttimer_t ptimer);
 	void handle_read();
 	void handle_write();
 	void handle_error();
@@ -35,6 +36,10 @@ public:
 	void send(std::shared_ptr<std::string> ps);
 	void send(const char* p,int size);
 	void close();
+	int get_status()
+	{
+		return status;
+	}
 	std::shared_ptr<Client> get_client()
 	{
 		auto p = pclient.lock();
@@ -57,13 +62,14 @@ public:
 	}
 	std::shared_ptr<Buffer> pread_buf;
 	std::shared_ptr<Buffer> pwrite_buf;
+	// int retry_count;
 private:
 	std::shared_ptr<Socket> psocket;
 	std::weak_ptr<Client> pclient;
 	int status;
 	std::string ip;
 	unsigned short port;
-	int retry_count;
+	
 	
 	
 };
@@ -71,11 +77,16 @@ private:
 class Client:public std::enable_shared_from_this<Client>
 {
 public:
+	static const int max_retry_cout = 10;
+	static const int retry_timeout = 100*10;//10s
 	typedef std::shared_ptr<Msg> ptmsg_t;
 	Client();
 	~Client();
-	void start_connect(std::string ip, unsigned short port);
+	int start_connect(std::string ip, unsigned short port);
+	int _start_connect();
 	void on_connected();
+	void do_timeout_check();
+	void _re_connect(Timer::pttimer_t ptimer);
 	void on_read();
 	void on_close();
 	void on_msg(ptmsg_t pmsg);
@@ -94,12 +105,20 @@ public:
 	{
 		return shared_from_this();
 	}
+	inline int get_status()
+	{
+		return status;
+	}
 
 private:
+	int retry_count;
 	std::shared_ptr<EventLoop> ploop;
 	std::shared_ptr<Connector> pconn;
 	ptmsg_t pmsg;
 	int msg_reading;
+	int status;
+	std::string ip;
+	unsigned short port;
 
 };
 

@@ -19,8 +19,9 @@ int main()
 	log_debug("starting client:%s,%d",s_ip.c_str(),port);
 	std::shared_ptr<Client> pclient = std::make_shared<Client>();
 	log_debug("start connect....");
-	pclient->start_connect(s_ip,port);
-	pclient->do_loop();
+	int n = pclient->start_connect(s_ip,port);
+	if(n>0)
+		pclient->do_loop();
 	log_debug("exiting....");
 	return 0;
 }

@@ -16,12 +16,9 @@ int Connector::connect(std::string _ip,unsigned short _port)
 {
 	assert(status == CLOSED);
 	assert(psocket);
-	retry_count = 0;
 	ip 	 = _ip;
 	port = _port;
-	// log_debug("in Connector::connect");
-	get_loop()->start_timer(100*5,get_this(),
-		&Connector::timeout_check);
+
 	return _connect();
 }
 
@@ -39,40 +36,6 @@ int Connector::_connect()
 	}
 	log_debug("connect error:%d,%d,%s",n,errno,get_error_msg(errno));
 	return n;
-}
-
-int Connector::retry_connect()
-{
-	assert(status == CLOSED);
-	psocket = std::make_shared<Socket>();
-	init(psocket->socket_fd,WRITE|READ);
-	++retry_count;
-
-	return _connect();
-}
-void Connector::timeout_check(Timer::pttimer_t ptimer)
-{
-	log_debug("timeout_check:!!");
-	const int next_time = 100*5;
-	const int max_retry_cout = 10;
-	if(status==CONNECTED || 
-		retry_count > max_retry_cout)
-		return;
-	if(status == CONNECTING)
-	{
-		close();
-		retry_connect();
-		ptimer->start_timer(100*5,
-			get_this(),
-			&Connector::timeout_check);
-	}
-	else if(status == CLOSED)
-	{
-		retry_connect();
-		ptimer->start_timer(100*5,
-			get_this(),
-			&Connector::timeout_check);
-	}
 }
 
 void Connector::handle_read()
@@ -192,6 +155,7 @@ Client::Client()
 	ploop = std::make_shared<EventLoop>();
 	msg_reading = false;
 	pmsg = std::make_shared<Msg>();
+	retry_count = 0;
 	log_debug("after make Client");
 }
 Client::~Client()
@@ -199,20 +163,74 @@ Client::~Client()
 	log_debug("release client....:loop:%d",ploop.use_count());
 }
 
-void Client::start_connect(std::string ip, unsigned short port)
+int Client::start_connect(std::string _ip, 
+	unsigned short _port)
 {
+	ip = _ip;
+	port = _port;
+	retry_count = 0;
+	int n = _start_connect();
+	do_timeout_check();
+	return n;
+}
+
+int Client::_start_connect()
+{
+	assert(status==CLOSED);
 	pconn = std::make_shared<Connector>(get_this());
 	pconn->set_loop(ploop);
 	int n = pconn->connect(ip,port);
 	if(n<0)
-		log_debug("error:%d,%d,%s",n,errno,get_error_msg(errno));
+	{
+		log_debug("client connect err!!");
+		// log_debug("error:%d,%d,%s",n,errno,get_error_msg(errno));
+		return n;
+	}
 	ploop->regist_handle(pconn);
+	status = CONNECTING;
+	++retry_count;
+	return 1;
 }
+
+void Client::do_timeout_check()
+{
+	log_debug("first regist timeout check!!");
+	ploop->start_timer(retry_timeout,get_this(),
+		&Client::_re_connect);
+}
+void Client::_re_connect(Timer::pttimer_t ptimer)
+{
+	assert(pconn);
+	log_debug("in _re_connect!!:%d",retry_count);
+	if(retry_count > max_retry_cout)
+	{
+		log_debug("re_connect max times!!");
+		return;
+	}
+
+	if(status == CONNECTED)
+		return;
+	if(status == CONNECTING)
+	{
+		pconn->close();
+
+	}
+	if(status == CLOSED)
+	{
+		_start_connect();
+	}
+	ptimer->start_timer(retry_timeout,get_this(),
+		&Client::_re_connect);
+}
+
+
 
 void Client::on_connected()
 {
 	auto addr = pconn->get_addr();
 	log_debug("Client connected success!!!%s,%d",addr.ip.c_str(),addr.port);
+	retry_count = 0;
+	status = CONNECTED;
 
 	std::string s(10,'a');
 
@@ -225,6 +243,7 @@ void Client::on_connected()
 	send_msg(_pmsg);
 	printf("after send msg:\n");
 }
+
 
 void Client::on_read()
 {
@@ -283,8 +302,16 @@ void Client::on_close()
 {
 	log_debug("close connect!!");
 	ploop->unregist_handle(pconn);
-	ploop->shutdown();
-
+	status = CLOSED;
+	if(retry_count > max_retry_cout)
+	{
+		log_debug("max retry_count!!shutdown");
+		ploop->shutdown();
+	}
+	else
+	{
+		//re_connect();
+	}
 }
 
 
