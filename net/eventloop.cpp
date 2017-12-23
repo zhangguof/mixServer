@@ -77,10 +77,9 @@ void EventLoop::update()
 	ptimer->update();
 }
 
-void EventLoop::start_timer(Timer::time_t t,
-	Timer::handle_t ph)
+void EventLoop::_start_timer(Timer::time_t t,Timer::handle_t ph)
 	{
-		ptimer->start_timer(t,ph);
+		ptimer->_start_timer(t,ph);
 	}
 
 void EventLoop::shutdown()

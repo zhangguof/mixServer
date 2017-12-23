@@ -11,7 +11,7 @@ class TimerTest:std::enable_shared_from_this<TimerTest>
 	void test(u32 _id,Timer::pttimer_t pttimer)
 	{
 		log_debug("===test");
-		pttimer->start_timer(200,
+		pttimer->_start_timer(200,
 			Timer::make_handle(shared_from_this(),&TimerTest::test));
 	}
 };
@@ -26,14 +26,11 @@ int main(int argn,char** argv)
 	int port = 8889;
 	if(argn>1)
 	{
-		// printf("argn:%d,%s",argn,argv[argn-1]);
 		port = atoi(argv[1]);
 	}
 	// ploop->start_timer(200,TimerHandle<TimerTest>::make)
 	cpp_server->bind(ip,port);
 	cpp_server->start();
-
-
 	// delete cpp_server;
 	return 0;
 }

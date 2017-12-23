@@ -152,7 +152,15 @@ public:
 	typedef std::shared_ptr<Timer> pttimer_t;
 	typedef u32 time_t;
 	Timer();
-	u32 start_timer(u32 t,TimerCB::pttimercb_t pHandle);
+	// u32 start_timer_by_handle(u32 t,TimerCB::pttimercb_t pHandle);
+	u32 _start_timer(u32 t,TimerCB::pttimercb_t pHandle);
+
+	template<typename T,typename memf_t>
+	u32 start_timer(u32 t,const std::shared_ptr<T>& pobj,memf_t f);
+
+	template<typename fun_t>
+	u32 start_timer(u32 t,fun_t f);
+
 	void end_timer(TimerCB::pttimercb_t pHandle);
 	void update();
 	void close();
@@ -185,6 +193,19 @@ typename TimerHandle<>::ptTimeHanle Timer::make_handle(fun_t f)
 {
 	return std::make_shared<TimerHandle<> >(f);
 }
+
+template<typename T,typename memf_t>
+u32 Timer::start_timer(u32 t,const std::shared_ptr<T>& pobj,memf_t f)
+{
+	return _start_timer(t,make_handle(pobj,f));
+}
+
+template<typename fun_t>
+u32 Timer::start_timer(u32 t,fun_t f)
+{
+	return _start_timer(t,make_handle(f));
+}
+
 
 
 

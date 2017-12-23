@@ -98,7 +98,7 @@ u32 Timer::get_now()
 			tp.time_since_epoch()).count();
 }
 
-u32 Timer::start_timer(u32 t,TimerCB::pttimercb_t pHandle)
+u32 Timer::_start_timer(u32 t,TimerCB::pttimercb_t pHandle)
 {
 	++max_id;
 	u32 now = get_now();

@@ -41,7 +41,13 @@ public:
 	void update_event(ptHandle p_handle);
 
 	void update();
-	void start_timer(Timer::time_t t,Timer::handle_t ph);
+	void _start_timer(Timer::time_t t,Timer::handle_t ph);
+
+	template<typename T,typename memf_t>
+	u32 start_timer(u32 t, const std::shared_ptr<T>& pobj,memf_t f);
+
+	template<typename fun_t>
+	u32 start_timer(u32 t,fun_t f);
 	
 	void shutdown();
 	void clear();
@@ -54,6 +60,18 @@ private:
 	bool _shutdown;
 
 };
+
+template<typename T,typename memf_t>
+u32 EventLoop::start_timer(u32 t,const std::shared_ptr<T>& pobj,memf_t f)
+{
+	return ptimer->start_timer(t,pobj,f);
+}
+
+template<typename fun_t>
+u32 EventLoop::start_timer(u32 t,fun_t f)
+{
+	return ptimer->start_timer(t,f);
+}
 
 
 #endif

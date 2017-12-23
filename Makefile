@@ -15,7 +15,7 @@ LD=ld
 LFALG=
 CFLAG=-c -g -Iinclude/ -std=c++11
 
-all: cppserver
+all: cppserver client
 
 
 .PHONY: test timer_test client
@@ -43,7 +43,10 @@ $(src_path)/test/%.o: $(src_path)/test/%.cpp
 	$(CC) $(CFLAG) -o $@ $^
 
 clean:
-	rm $(cpp_test_objs)
+	rm $(src_path)/*.o
+	rm $(src_path)/net/*.o
+	rm $(src_path)/test/*.o
+	rm $(src_path)/client/*.o
 
 
 

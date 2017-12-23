@@ -16,7 +16,7 @@ u32 now()
 void test_f(Timer::pttimer_t ptimer)
 {
 	printf("in global func test:%u\n",now());
-	ptimer->start_timer(20,
+	ptimer->_start_timer(20,
 		Timer::make_handle(test_f));
 
 }
@@ -24,12 +24,17 @@ void test_f(Timer::pttimer_t ptimer)
 class Test:public std::enable_shared_from_this<Test>
 {
 public:
+	Test()
+	{
+		printf("Test init!!!!\n");
+	}
 	typedef std::shared_ptr<Test> ptthis_t;
 	// typedef std::shared_ptr<TimerHandle<Test> > PTestHandle;
 	void test_f(u32 timer_id,Timer::pttimer_t pt )
 	{
-		printf("timer cb:%u,%u\n",timer_id,now());
-		pt->start_timer(200,Timer::make_handle(get_this(),&Test::test_f));
+		printf("timer cb!!:%u,%u\n",timer_id,now());
+		// pt->start_timer(200,Timer::make_handle(get_this(),&Test::test_f));
+		pt->start_timer(200,get_this(),&Test::test_f);
 	}
 	ptthis_t get_this()
 	{
@@ -45,14 +50,14 @@ public:
 
 };
 
-
 int main()
 {
 	auto ploop = std::make_shared<EventLoop>();
 	auto ptest = std::make_shared<Test>();
-	ploop->start_timer(2,Timer::make_handle(ptest,&Test::test_f));
+	ploop->_start_timer(200,Timer::make_handle(ptest,&Test::test_f));
 	// ploop->start_timer(3,Timer::make_handle(ptest,&Test::test_f2));
-	ploop->start_timer(100,Timer::make_handle(test_f));
+	// ploop->start_timer(100,Timer::make_handle(test_f));
+	ploop->start_timer(300,test_f);
 	ploop->do_loop();
 
 
