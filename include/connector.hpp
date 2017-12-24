@@ -1,10 +1,12 @@
 #ifndef _CONNECTOR_H_
 #define _CONNECTOR_H_
+#include "types.hpp"
 #include "eventloop.hpp"
 #include "handle.hpp"
 #include "socket.hpp"
 #include "log.hpp"
 #include "proto.hpp"
+
 #include <memory>
 #include <iostream>
 
@@ -25,10 +27,8 @@ public:
 public:
 	Connector(std::weak_ptr<Client> _client);
 
-	int connect(std::string ip,unsigned short port);
+	int connect(std::string ip,port_t port);
 	int _connect();
-	// int retry_connect();
-	// void timeout_check(Timer::pttimer_t ptimer);
 	void handle_read();
 	void handle_write();
 	void handle_error();
@@ -58,11 +58,9 @@ public:
 	~Connector()
 	{
 		log_debug("release Connector!");
-		// log_debug("client:%d",get_loop().use_count());
 	}
 	std::shared_ptr<Buffer> pread_buf;
 	std::shared_ptr<Buffer> pwrite_buf;
-	// int retry_count;
 private:
 	std::shared_ptr<Socket> psocket;
 	std::weak_ptr<Client> pclient;
@@ -82,7 +80,7 @@ public:
 	typedef std::shared_ptr<Msg> ptmsg_t;
 	Client();
 	~Client();
-	int start_connect(std::string ip, unsigned short port);
+	int start_connect(std::string ip, port_t port);
 	int _start_connect();
 	void on_connected();
 	void do_timeout_check();
@@ -118,7 +116,7 @@ private:
 	int msg_reading;
 	int status;
 	std::string ip;
-	unsigned short port;
+	port_t port;
 
 };
 

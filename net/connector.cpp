@@ -12,7 +12,7 @@ Connector::Connector(std::weak_ptr<Client> _client)
 
 	init(psocket->socket_fd,WRITE|READ); //only write, use for check error.
 }
-int Connector::connect(std::string _ip,unsigned short _port)
+int Connector::connect(std::string _ip,port_t _port)
 {
 	assert(status == CLOSED);
 	assert(psocket);
@@ -164,7 +164,7 @@ Client::~Client()
 }
 
 int Client::start_connect(std::string _ip, 
-	unsigned short _port)
+	port_t _port)
 {
 	ip = _ip;
 	port = _port;
@@ -284,10 +284,10 @@ void Client::on_msg(ptmsg_t pmsg)
 	//std::cout<<"msg raw data:"<<*(pmsg->get_data())<<std::endl;
 
 //pingpong test
-	std::string t = *(pmsg->get_data());
-	t = t+t;
-	ptmsg_t new_pmsg = std::make_shared<Msg>(t);
-	send_msg(new_pmsg);
+	// std::string t = *(pmsg->get_data());
+	// t = t+t;
+	// ptmsg_t new_pmsg = std::make_shared<Msg>(t);
+	// send_msg(new_pmsg);
 }
 void Client::send_msg(ptmsg_t pmsg)
 {
