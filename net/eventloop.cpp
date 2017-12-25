@@ -34,7 +34,7 @@ void EventLoop::do_select()
 {
 	active_handles.clear();
 	select_.select(active_handles);
-	log_debug("do select!!!size:%d",active_handles.size());
+	// log_debug("do select!!!size:%d",active_handles.size());
 	for(auto it = active_handles.begin();it!=active_handles.end();++it)
 	{
 		int fd = (*it).first;
@@ -48,7 +48,7 @@ void EventLoop::do_select()
 		p_handle->revents = events;
 		p_handle->handle_event();
 	}
-	sleep(2);
+	// sleep(2);
 }
 
 void EventLoop::regist_handle(ptHandle p_handle)
