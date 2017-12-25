@@ -26,14 +26,14 @@ public:
 	Select();
 	void select(std::vector<std::pair<int,int> >& active_fds);
 	void add_handle(int fd,int events);
-	inline void update_fd(int fd,int events,int e,struct fd_set* fds);
+	inline void update_fd(int fd,int events,int e, fd_set* fds);
 	void update_event(int fd,int events);
 	void rm_handle(int fd);
 public:
-	struct fd_set read_fds;
-	struct fd_set write_fds;
-	struct fd_set error_fds;
-	struct timeval zero_sec;
+	 fd_set read_fds;
+	 fd_set write_fds;
+	 fd_set error_fds;
+	 timeval zero_sec;
 	std::vector<int> all_fds;
 	std::map<int,int> handles; //fd:idx
 	int max_fds;
