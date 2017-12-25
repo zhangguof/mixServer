@@ -67,6 +67,7 @@ void EventLoop::unregist_handle(ptHandle p_handle)
 	auto it = handles.find(fd);
 	if(it!=handles.end())
 		handles.erase(it);
+	p_handle->revents = 0;//不再处理事件。
 }
 
 
