@@ -52,7 +52,6 @@ private:
 	// std::vector<struct pollfd> pollfds;
 	// std::map<int,int> handles; //fd:idx
 
-
 };
 
 

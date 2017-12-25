@@ -19,6 +19,7 @@
 #include "select.hpp"
 #include "poll.hpp"
 #include "epoll.hpp"
+#include "kqueue.hpp"
 
 #include "errors.hpp"
 #include <map>
@@ -55,8 +56,10 @@ public:
 	void clear();
 private:
 	// Select select_;
-#ifdef __linux__
+#if defined(ENABLE_EPOLL)
 	Epoll select_;
+#elif defined(ENABLE_KQUEUE)
+	Kqueue select_;
 #else
 	Poll select_;
 #endif
