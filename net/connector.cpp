@@ -145,7 +145,7 @@ void Connector::send(std::shared_ptr<std::string> ps)
 void Connector::handle_error(){}
 void Connector::close()
 {
-	psocket->close();
+	//psocket->close();
 	status = CLOSED;
 	get_client()->on_close();
 }
