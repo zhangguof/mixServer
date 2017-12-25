@@ -47,13 +47,13 @@ public:
 	}
 private:
 	int efd;
-	std::std::vector<epoll_event> epoll_events;
+	std::vector<epoll_event> epoll_events;
 	int n_events;
 	// std::vector<struct pollfd> pollfds;
 	// std::map<int,int> handles; //fd:idx
 
 
-}
+};
 
 
 

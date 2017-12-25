@@ -2,6 +2,7 @@
 #ifdef __linux__
 Epoll::Epoll()
 {
+	log_debug("EPOL in used!");
 	//int epoll_create(int size);
 	epoll_events.resize(10);
 	n_events = 0; //当前所有的fd数量
@@ -14,7 +15,7 @@ Epoll::Epoll()
 
  // int epoll_wait(int epfd, struct epoll_event *events,
  //                      int maxevents, int timeout);
-Epoll::select(std::vector<std::pair<int,int> >& active_handles )
+void Epoll::select(std::vector<std::pair<int,int> >& active_handles )
 {
 	assert(efd>0);
 
@@ -26,7 +27,7 @@ Epoll::select(std::vector<std::pair<int,int> >& active_handles )
 		{
 			auto epoll_e = epoll_events[i];
 			int fd = epoll_e.data.fd;
-			int e = from_epoll_events(epoll_e.events);
+			int e = from_epoll_event(epoll_e.events);
 
 			active_handles.push_back(std::make_pair(fd,e));
 		}
@@ -64,14 +65,15 @@ void Epoll::epoll_ctl(int op,int fd,int e)
 {
 	assert(fd!=-1 && efd>0);
 	epoll_event event;
-	event.evnets = to_epoll_event(e); 
-	int ret = epoll_ctl(efd,op,fd,&event);
+	event.events = to_epoll_event(e); 
+	int ret = ::epoll_ctl(efd,op,fd,&event);
 	if(ret<0)
 		log_debug("epoll_ctl error!:%d:%d:%d",fd,e,op);
-	assert(ret!=-1)
+	assert(ret!=-1);
 }
 void Epoll::add_handle(int fd,int e)
 {
+	log_debug("[epoll]add_handle:%d,%d",fd,e);
 	
 	epoll_ctl(EPOLL_CTL_ADD,fd,e);
 	++n_events;
@@ -81,11 +83,13 @@ void Epoll::add_handle(int fd,int e)
 
 void Epoll::update_event(int fd, int e)
 {
+	log_debug("update event:%d,%d",fd,e);
 	epoll_ctl(EPOLL_CTL_MOD,fd,e);
 }
 
 void Epoll::rm_handle(int fd)
 {
+	log_debug("rm_handle:%d",fd);
 	epoll_ctl(EPOLL_CTL_DEL,fd,0);
 	--n_events;
 }
