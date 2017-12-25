@@ -66,9 +66,11 @@ void Epoll::epoll_ctl(int op,int fd,int e)
 	assert(fd!=-1 && efd>0);
 	epoll_event event;
 	event.events = to_epoll_event(e); 
+	event.data.fd = fd;
 	int ret = ::epoll_ctl(efd,op,fd,&event);
 	if(ret<0)
-		log_debug("epoll_ctl error!:%d:%d:%d",fd,e,op);
+		log_debug("epoll_ctl error!:%d:%d:%d,err:%d,%s",fd,e,op,
+			 errno,get_error_msg(errno));
 	assert(ret!=-1);
 }
 void Epoll::add_handle(int fd,int e)
