@@ -34,7 +34,7 @@ int Connector::_connect()
 		status = CONNECTING;
 		return 0;
 	}
-	log_debug("connect error:%d,%d,%s",n,errno,get_error_msg(errno));
+	log_debug("connect error:%d,%s",errno,get_error_msg(errno));
 	return n;
 }
 

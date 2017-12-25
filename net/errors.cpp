@@ -75,6 +75,9 @@ EMSG(ealready,"EALREADY")
 
 EMSG(einprogress,"EINPROGRESS")
 
+// ENETUNREACH
+//               Network is unreachable.
+EMSG(enetunreach,"ENETUNREACH")
 
 
 EMSG(default_error,"DEFAULT ERROR")
@@ -95,6 +98,7 @@ const char* get_error_msg(int eno)
 		CASEMSG(ENOTSOCK,enotsock)
 		CASEMSG(EALREADY,ealready)
 		CASEMSG(EINPROGRESS,einprogress)
+		CASEMSG(ENETUNREACH,enetunreach)
 		default:
 			//return default_error;
 			return strerror(eno);

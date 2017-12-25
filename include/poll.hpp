@@ -1,5 +1,5 @@
 #ifndef _POLL_H_
-#define _POLL_H_ value
+#define _POLL_H_
 
 #include <poll.h>
 #include <map>
