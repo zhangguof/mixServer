@@ -11,9 +11,9 @@ Select::Select()
 }
 void Select::select(std::vector<std::pair<int,int> >& active_fds)
 {
-	struct fd_set rfds = read_fds;
-	struct fd_set wfds = write_fds;
-	struct fd_set efds = error_fds;
+	fd_set rfds = read_fds;
+	fd_set wfds = write_fds;
+	fd_set efds = error_fds;
 	// log_debug("is read set:%d",FD_ISSET(all_fds[0],&rfds));
 	int n = ::select(max_fds+1,&rfds,&wfds,&efds,&zero_sec);
 	if(n<0)
