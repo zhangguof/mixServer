@@ -18,6 +18,7 @@
 #include "handle.hpp"
 #include "select.hpp"
 #include "poll.hpp"
+#include "epoll.hpp"
 
 #include "errors.hpp"
 #include <map>
@@ -54,7 +55,11 @@ public:
 	void clear();
 private:
 	// Select select_;
+#ifdef __linux__
+	Epoll select_;
+#else
 	Poll select_;
+#endif
 	std::vector<std::pair<int,int> > active_handles;//fd,events
 	std::map<int,ptHandle> handles; //fd:pthandle
 	Timer::pttimer_t ptimer;
