@@ -55,7 +55,7 @@ void Select::add_handle(int fd,int events)
 		fd,events);
 	// log_debug("is read!!%d",FD_ISSET(fd,&read_fds));
 }
-inline void Select::update_fd(int fd,int events,int e,struct fd_set* fds)
+inline void Select::update_fd(int fd,int events,int e,fd_set* fds)
 {
 	int is_inset = FD_ISSET(fd,fds);
 	if(is_inset)
