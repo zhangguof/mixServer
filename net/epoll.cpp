@@ -20,7 +20,7 @@ void Epoll::select(std::vector<std::pair<int,int> >& active_handles )
 	assert(efd>0);
 
 	int n = ::epoll_wait(efd,&*(epoll_events.begin()),
-					   n_events,time_out);
+					   n_events+1,time_out);
 	if(n>0)
 	{
 		for(int i=0;i<n;++i)
