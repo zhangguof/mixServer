@@ -156,6 +156,7 @@ Client::Client()
 	msg_reading = false;
 	pmsg = std::make_shared<Msg>();
 	retry_count = 0;
+	status = CLOSED;
 	log_debug("after make Client");
 }
 Client::~Client()

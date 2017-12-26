@@ -40,7 +40,6 @@ void EventLoop::do_select()
 		int fd = (*it).first;
 		int events = (*it).second;
 		log_debug("do select:%d,%d",fd,events);
-		// auto p_handle = handles[fd]
 		auto it_handle = handles.find(fd);
 		assert(it_handle!=handles.end());
 

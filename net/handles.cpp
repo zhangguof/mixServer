@@ -39,7 +39,7 @@ void Acceptor::handle_read()
 	int fd = psocket->accept();
 	// tcpserver->new_connect(fd);
 	get_server()->new_connect(fd);
-	log_debug("Acceptor handle read:%d",fd);
+	log_debug("Acceptor handle read:fd:%d",fd);
 }
 void Acceptor::handle_write(){}
 void Acceptor::handle_error(){}

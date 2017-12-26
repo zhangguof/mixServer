@@ -31,41 +31,47 @@
 class Kqueue
 {
 public:
-	static const int time_out = 10;//ms
+	static const int timeout = 10;//ms
 	Kqueue();
 	void select(std::vector<std::pair<int,int> >& active_handles);
 	void add_handle(int fd,int events);
 	void update_event(int fd,int events);
 	void rm_handle(int fd);
 	void set_kevent(int fd,int e,u16 flags);
-	inline u16 to_kqueue_event(int events)
-	{
-		u16 e = 0;
-		if(events & READ)
-			e|=EVFILT_READ;
-		if(events & WRITE)
-			e|=EVFILT_WRITE;
-		return e;
-	}
+	// inline u16 to_kqueue_event(int events)
+	// {
+	// 	u16 e = 0;
+	// 	if(events & READ)
+	// 		e|=EVFILT_READ;
+	// 	if(events & WRITE)
+	// 		e|=EVFILT_WRITE;
+	// 	return e;
+	// }
 
-	inline int from_kqueue_event(u16 events)
+	inline int from_kqueue_event(short filter,u16 flags)
 	{
 		int e = 0;
-		if(events & EVFILT_READ)
+		assert(filter == EVFILT_READ || filter == EVFILT_WRITE);
+		if(filter == EVFILT_READ)
 			e|=READ;
-		if(events & EVFILT_WRITE)
+		else if(filter == EVFILT_WRITE)
 			e|=WRITE;
-		if(events & EV_ERROR)
+		if(flags & EV_ERROR)
 			e|=ERROR;
 		return e;
 	}
+
 private:
 	int kfd;
 	std::vector<struct kevent> k_events;
 	int n_events;
+
 	// std::vector<struct pollfd> pollfds;
 	std::map<int,int> revents; //fd:events
-
+	std::map<int,int> enable_events;//fd:events
+	std::map<int,int> _active_handles;
+	struct timespec _timeout;
+	
 };
 
 
