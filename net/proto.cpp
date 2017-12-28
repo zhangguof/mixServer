@@ -9,7 +9,7 @@ Msg::Msg():len(0),msg_reading(false),has_write_size(0)
 Msg::Msg(int _len):len(_len),msg_reading(false){
 	init_str();
 }
-Msg::Msg(std::string s)
+Msg::Msg(const std::string& s)
 {
 	init_str();
 	len = s.size();

@@ -7,6 +7,7 @@
 #include "eventloop.hpp"
 #include "log.hpp"
 #include "proto.hpp"
+#include "services.hpp"
 
 #include <unistd.h>
 #include <map>
@@ -60,12 +61,17 @@ class MsgServer:public TcpServer
 {
 public:
 	typedef std::shared_ptr<Msg> ptmsg_t;
+	typedef std::shared_ptr<ProtoMsg> ptpmsg_t;
+	// typedef const ptpmsg_t cptpmsg_t;
+	MsgServer();
 	void new_connect(int fd);
 	void handle_read(pttcpstream_t pstream);
-	void handle_msg(int conn_id,ptmsg_t pmsg);
+	void handle_msg(int conn_id,const ptmsg_t&  pmsg);
 	void send_msg(int conn_id, const ptmsg_t& pmsg);
 private:
 	std::map<int,ptmsg_t> conn_msgs;
+	std::shared_ptr<Proto> proto;
+	std::shared_ptr<Test> ps_test;
 };
 
 class EchoServer:public TcpServer

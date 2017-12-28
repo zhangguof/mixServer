@@ -117,6 +117,7 @@ private:
 	int status;
 	std::string ip;
 	port_t port;
+	// Proto* proto;
 
 };
 

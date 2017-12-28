@@ -1,5 +1,6 @@
 
 #include "connector.hpp"
+#include "services.hpp"
 
 Connector::Connector(std::weak_ptr<Client> _client)
 {
@@ -239,9 +240,13 @@ void Client::on_connected()
 
 
 	// ptmsg_t pmsg = std::make_shared<Msg>(s,1024*1024);
-	ptmsg_t _pmsg = std::make_shared<Msg>(s);
+	Proto proto;
+	auto ptest = std::make_shared<Test>(&proto);
+	ptest->init();
+	auto pmsg  = ptest->send_echo(s);
+	// ptmsg_t _pmsg = std::make_shared<Msg>(s);
 	printf("new pmsg!!\n");
-	send_msg(_pmsg);
+	send_msg(pmsg);
 	printf("after send msg:\n");
 }
 
@@ -299,6 +304,7 @@ void Client::send_msg(const char* p,int size)
 	ptmsg_t pmsg = std::make_shared<Msg>(p,size);
 	send_msg(pmsg);
 }
+
 void Client::on_close()
 {
 	log_debug("close connect!!");

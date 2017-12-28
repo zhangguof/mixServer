@@ -98,6 +98,12 @@ void EchoServer::new_connect(int fd)
 	pstream->send(s);
 }
 
+MsgServer::MsgServer():TcpServer()
+{
+	proto = std::make_shared<Proto>();
+	ps_test = std::make_shared<Test>(proto.get());
+	ps_test->init();
+}
 
 void MsgServer::handle_read(pttcpstream_t pstream)
 {
@@ -144,10 +150,12 @@ void MsgServer::handle_read(pttcpstream_t pstream)
 		}
 	}
 }
-void MsgServer::handle_msg(int conn_id,ptmsg_t pmsg)
+void MsgServer::handle_msg(int conn_id,const ptmsg_t& pmsg)
 {
 	log_debug("Msg server::handle_msg:%d,len:%d",
 		conn_id,pmsg->len);	
+
+	proto->on_msg(pmsg);
 	
 	//pingpong test
 	// std::string t = *(pmsg->get_data());
