@@ -10,7 +10,7 @@ void Test::init()
 
 }
 
-void Test::on_echo(std::shared_ptr<Echo> p)
+void Test::on_echo(std::unique_ptr<Echo> p)
 {
 	printf("on echo:%s\n",p->msg().c_str());
 }

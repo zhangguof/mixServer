@@ -35,6 +35,6 @@ void Proto::dispatch_msg(int s_id,int c_id,const ptpmsg_t& pmsg)
 	auto msg_handle = it_cb->second;
 	auto p_ptmessage = msg_handle->get_ptmessage(pmsg);
 
-	msg_handle->handle(s_id,c_id,p_ptmessage);
+	(*msg_handle)(s_id,c_id,std::move(p_ptmessage));
 }
 

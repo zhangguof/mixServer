@@ -18,7 +18,7 @@ public:
 	}
 	void init();
 
-	void on_echo(std::shared_ptr<Echo> p);
+	void on_echo(std::unique_ptr<Echo> p);
 	std::shared_ptr<ProtoMsg> send_echo(const std::string& msg);
 	
 private:

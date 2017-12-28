@@ -2,9 +2,11 @@
 #define _PROTO_H
 #include <string>
 #include <memory>
+#include <functional>
 
 #include "proto/test.pb.h"
 // #include <google/protobuf/message.h>
+
 
 class HandleBase;
 class Msg;
@@ -12,10 +14,14 @@ class ProtoMsg;
 
 typedef ::google::protobuf::Message Message;
 typedef std::shared_ptr<Message> ptmessage_t;
+typedef std::unique_ptr<Message> unipt_message_t;
 
 typedef std::shared_ptr<HandleBase> ptHandleBase_t;
 typedef std::shared_ptr<Msg> ptmsg_t;
 typedef std::shared_ptr<ProtoMsg> ptpmsg_t;
+
+
+typedef std::function<void(unipt_message_t)> Function;
 
 template<typename T>
 void pack_int(char*p,T a)
@@ -127,9 +133,8 @@ class HandleBase
 {
 public:
 	// HandleBase(){}
-	// virtual void operator()(int s_id,int c_id,ptmessage_t p)=0;
-	virtual void handle(int s_id,int c_id,ptmessage_t p)=0;
-	virtual ptmessage_t get_ptmessage(const ptpmsg_t& pmsg)=0;
+	virtual void operator()(int s_id,int c_id,unipt_message_t p)=0;
+	virtual unipt_message_t get_ptmessage(const ptpmsg_t& pmsg)=0;
 	// virtual ~HandleBase(){}
 };
 
@@ -139,34 +144,35 @@ class MsgHanle:public HandleBase
 {
 public:
 	typedef std::shared_ptr<MT> ptMT_T;
+	typedef std::unique_ptr<MT> uniptMT_T;
 	typedef std::shared_ptr<T> ptT_t;
-	typedef void (T::*memf_t)(ptMT_T p);
+	typedef void (T::*memf_t)(uniptMT_T p);
 
 	MsgHanle(ptT_t t,memf_t _cb):pt(t),cb(_cb){}
 
-	void handle(int s_id,int c_id,ptmessage_t p);
-	ptmessage_t get_ptmessage(const ptpmsg_t& pmsg)
+	void operator()(int s_id,int c_id,unipt_message_t p);
+	unipt_message_t get_ptmessage(const ptpmsg_t& pmsg)
 	{
-		auto pt = std::make_shared<MT>();
+		auto pt = std::unique_ptr<MT>(new MT());
 		pt->ParseFromString(*(pmsg->get_data()));
-		return pt;
+		return std::move(pt);
 	}
 	memf_t cb;
 	ptT_t pt; 
 };
 
 template<typename T,typename MT>
-void MsgHanle<T,MT>::handle(int s_id,int c_id,ptmessage_t p)
+void MsgHanle<T,MT>::operator()(int s_id,int c_id,unipt_message_t p)
 {
+	std::unique_ptr<MT> p_mt(static_cast<MT*>(p.release()));
 
-	return ((pt.get())->*cb)(std::static_pointer_cast<MT>(p));
+	return ((pt.get())->*cb)(std::move(p_mt));
 }
 
 class Proto
 {
 public:
 	//regist<MT>(xx,xxx,xx,xx);
-
 	template<typename MT,typename T,typename memf_t>
 	void regist(int s_id, int c_id,std::shared_ptr<T> pt,memf_t t);
 
