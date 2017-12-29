@@ -52,7 +52,7 @@ public:
 	template<typename fun_t>
 	u32 start_timer(u32 t,fun_t f);
 	
-	void shutdown();
+	static void shutdown();
 	void clear();
 private:
 	// Select select_;
@@ -66,7 +66,7 @@ private:
 	std::vector<std::pair<int,int> > active_handles;//fd,events
 	std::map<int,ptHandle> handles; //fd:pthandle
 	Timer::pttimer_t ptimer;
-	bool _shutdown;
+	static bool _shutdown;
 
 };
 
