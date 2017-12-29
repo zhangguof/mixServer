@@ -6,6 +6,7 @@
 #include "socket.hpp"
 #include "log.hpp"
 #include "proto.hpp"
+#include "services.hpp"
 
 #include <memory>
 #include <iostream>
@@ -78,6 +79,7 @@ public:
 	static const int max_retry_cout = 10;
 	static const int retry_timeout = 100*10;//10s
 	typedef std::shared_ptr<Msg> ptmsg_t;
+	typedef void (Client::*send_memf)(const ptmsg_t&);
 	Client();
 	~Client();
 	int start_connect(std::string ip, port_t port);
@@ -88,7 +90,7 @@ public:
 	void on_read();
 	void on_close();
 	void on_msg(ptmsg_t pmsg);
-	void send_msg(ptmsg_t pmsg);
+	void send_msg(const ptmsg_t& pmsg);
 	void send_msg(const char*p, int size);
 	void do_loop()
 	{
@@ -117,7 +119,8 @@ private:
 	int status;
 	std::string ip;
 	port_t port;
-	// Proto* proto;
+	std::shared_ptr<Proto> proto;
+	std::shared_ptr<Test> ps_test;
 
 };
 
