@@ -5,6 +5,7 @@ import subprocess
 
 pbs_path = "./pbs" #protobuffer path
 cpp_path = "./cpp"
+python_path = "../../script/protos"
 src_path = "./protos"
 tempalte_path = "jinja"
 
@@ -91,8 +92,8 @@ def gen_pb2cpp(pb_src_path,cpp_dst_path):
 				filepath = os.path.join(root,filename)
 				pb_files.append(filepath)
 	pbs = " ".join(pb_files)
-	args = "--proto_path=%s --cpp_out=%s %s"% \
-			(pb_src_path,cpp_dst_path,pbs)
+	args = "--proto_path=%s --cpp_out=%s --python_out=%s %s"% \
+			(pb_src_path,cpp_dst_path,python_path,pbs)
 	cmd = "%s %s"%(proto_bin,args)
 	print subprocess.check_output(cmd, shell=True)
 	print "gen cpp from pb:%s-->%s"%(pb_src_path,cpp_dst_path)

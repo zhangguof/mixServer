@@ -5,9 +5,6 @@
 #include <cassert>
 
 
-// class Message;
-// typedef void (*OnMsgCallBack)(int,int,Message*);
-
 void Proto::_regist(int s_id,int c_id,std::shared_ptr<HandleBase> cb)
 {
 	auto key = std::make_pair(s_id,c_id);

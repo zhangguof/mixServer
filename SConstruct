@@ -31,9 +31,32 @@ def add_paths(root_path,paths,exclude_files = []):
 # env.Append( CPPPATH=list(chain(include_path,cpp_path)) )
 # env.Program(target=target, source=cpp_src, CCFLAGS=cc_flags, LINKFLAGS=link_flags,
 # 		LIBS = libs, LIBPATH = lib_path)
-google_buffer_src = "/Users/tony/newwork/github/cpp/protobuf-3.5.1/src"
-google_buffer_libpath = "/Users/tony/newwork/github/cpp/protobuf-3.5.1/cmake_build"
+google_buffer_src = "/Users/tony/newwork/github/py/protobuf-3.5.1/src"
+google_buffer_libpath = "/Users/tony/newwork/github/py/protobuf-3.5.1"
+
+python_src= "/Users/tony/workspace/github/Python-2.7.14"
+SSL="/usr/local/opt/openssl"
+
+py_include_path = [python_src,python_src+"/Include",SSL+"/include",SSL+"/include/openssl"]
+py_lib_path = [python_src,SSL+"/lib"]
+py_libs = ["python2.7","ssl","crypto","z"]
+
 proto_path = ["proto","proto/gen_proto/cpp"]
+
+def build_pyext_static(target,root_path,paths,src_files=[],exclude_files=[]):
+	srcs = add_paths(root_path,paths,exclude_files)
+	srcs.extend(src_files)
+	include_path = [root_path+"/python",root_path+"/src"]
+	env = Environment(CC = 'c++',CXX='c++',
+                   CCFLAGS = '-g -std=c++11')
+	env.Append(CPPPATH=list(chain(include_path,paths,
+		py_include_path))
+	)
+	#-lprotobuf -L$(google_buffer_libpath)
+	env.StaticLibrary(target, srcs, 
+		LIBS=list(chain(["protobuf","python2.7"],py_libs)),
+		LIBPATH=list(chain([google_buffer_libpath],py_lib_path)))
+
 def build(target,paths,exclude_files=[]):
 	#paths = [".","net"]
 	#target = "cppserver"
@@ -41,14 +64,25 @@ def build(target,paths,exclude_files=[]):
 	include_path = ["include",".","services","proto",google_buffer_src]
 	env = Environment(CC = 'c++',CXX='c++',
                    CCFLAGS = '-g -std=c++11')
-	env.Append(CPPPATH=list(chain(include_path,paths,proto_path)))
+	env.Append(CPPPATH=list(chain(include_path,paths,py_include_path))
+	)
 	#-lprotobuf -L$(google_buffer_libpath)
-	env.Program(target, srcs, LIBS=["protobuf"],LIBPATH=[google_buffer_libpath,])
+	env.Program(target, srcs, 
+		LIBS=list(chain(["protobuf","python2.7","pypbext"],py_libs)),
+		LIBPATH=list(chain([".",google_buffer_libpath],py_lib_path)))
 
 def build_main():
-	build("cppserver",list(chain([".","net","services"],proto_path)))
-	build("client/client",list(chain([".","net","client","services"],proto_path)),["./main.cpp"])
+	build("cppserver",list(chain([".","net","services","pyengine"],proto_path)))
+	# build("client/client",list(chain([".","net","client","services"],proto_path)),["./main.cpp"])
 	# build("timer_test",[".","net","test/timer_test"],["./main.cpp"])
+	
+	# google_buffer_root = "/Users/tony/newwork/github/py/protobuf-3.5.1"
+	# build_pyext_static("pypbext",
+	# 	google_buffer_root,
+	# 	[google_buffer_root+"/python/google/protobuf/pyext",
+	# 	 ],
+	# 	 [google_buffer_root+"/python/google/protobuf/internal/api_implementation.cc",]
+	# 	)
 build_main()
 
 

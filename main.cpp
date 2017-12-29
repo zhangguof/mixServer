@@ -6,6 +6,8 @@
 #include <time.h>
 #include "log.hpp"
 
+void init_py(int argn,char** argv);
+
 class TimerTest:std::enable_shared_from_this<TimerTest>
 {
 	void test(u32 _id,Timer::pttimer_t pttimer)
@@ -15,7 +17,6 @@ class TimerTest:std::enable_shared_from_this<TimerTest>
 			Timer::make_handle(shared_from_this(),&TimerTest::test));
 	}
 };
-
 
 int main(int argn,char** argv)
 {
@@ -28,6 +29,8 @@ int main(int argn,char** argv)
 	{
 		port = atoi(argv[1]);
 	}
+	log_debug("init py!!");
+	init_py(argn,argv);
 	// ploop->start_timer(200,TimerHandle<TimerTest>::make)
 	cpp_server->bind(ip,port);
 	cpp_server->start();
