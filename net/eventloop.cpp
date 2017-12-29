@@ -1,8 +1,10 @@
 #include "eventloop.hpp"
 
+
+bool EventLoop::_shutdown = false;
 EventLoop::EventLoop()
 {
-	_shutdown = false;
+	// _shutdown = false;
 	ptimer = std::make_shared<Timer>();
 }
 EventLoop::~EventLoop()
