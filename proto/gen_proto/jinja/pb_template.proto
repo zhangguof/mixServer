@@ -1,0 +1,12 @@
+syntax = "proto2";
+package proto;
+{% for msg in messages %}
+message {{msg.name}}
+{
+	optional int32 service_id = 1 [default = {{msg.service_id}}];
+	optional int32 command_id = 2 [default = {{msg.command_id}}];
+	{% for arg in msg.args %}
+	{{arg.required}} {{arg.type}} {{arg.name}} = {{arg.idx}};
+	{% endfor %}
+}
+{% endfor %}

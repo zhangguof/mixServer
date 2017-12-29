@@ -33,6 +33,7 @@ def add_paths(root_path,paths,exclude_files = []):
 # 		LIBS = libs, LIBPATH = lib_path)
 google_buffer_src = "/Users/tony/newwork/github/cpp/protobuf-3.5.1/src"
 google_buffer_libpath = "/Users/tony/newwork/github/cpp/protobuf-3.5.1/cmake_build"
+proto_path = ["proto","proto/gen_proto/cpp"]
 def build(target,paths,exclude_files=[]):
 	#paths = [".","net"]
 	#target = "cppserver"
@@ -40,13 +41,13 @@ def build(target,paths,exclude_files=[]):
 	include_path = ["include",".","services","proto",google_buffer_src]
 	env = Environment(CC = 'c++',CXX='c++',
                    CCFLAGS = '-g -std=c++11')
-	env.Append(CPPPATH=list(chain(include_path,paths)))
+	env.Append(CPPPATH=list(chain(include_path,paths,proto_path)))
 	#-lprotobuf -L$(google_buffer_libpath)
 	env.Program(target, srcs, LIBS=["protobuf"],LIBPATH=[google_buffer_libpath,])
 
 def build_main():
-	build("cppserver",[".","net","services","proto"])
-	build("client/client",[".","net","client","services","proto"],["./main.cpp"])
+	build("cppserver",list(chain([".","net","services"],proto_path)))
+	build("client/client",list(chain([".","net","client","services"],proto_path)),["./main.cpp"])
 	# build("timer_test",[".","net","test/timer_test"],["./main.cpp"])
 build_main()
 

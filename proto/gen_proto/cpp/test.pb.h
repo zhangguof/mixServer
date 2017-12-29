@@ -36,48 +36,57 @@ namespace protobuf_test_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[2];
+  static const ::google::protobuf::internal::ParseTable schema[3];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
 };
 void AddDescriptors();
-void InitDefaultsBASEImpl();
-void InitDefaultsBASE();
+void InitDefaultsAddRetImpl();
+void InitDefaultsAddRet();
+void InitDefaultsAddImpl();
+void InitDefaultsAdd();
 void InitDefaultsEchoImpl();
 void InitDefaultsEcho();
 inline void InitDefaults() {
-  InitDefaultsBASE();
+  InitDefaultsAddRet();
+  InitDefaultsAdd();
   InitDefaultsEcho();
 }
 }  // namespace protobuf_test_2eproto
-class BASE;
-class BASEDefaultTypeInternal;
-extern BASEDefaultTypeInternal _BASE_default_instance_;
+namespace proto {
+class Add;
+class AddDefaultTypeInternal;
+extern AddDefaultTypeInternal _Add_default_instance_;
+class AddRet;
+class AddRetDefaultTypeInternal;
+extern AddRetDefaultTypeInternal _AddRet_default_instance_;
 class Echo;
 class EchoDefaultTypeInternal;
 extern EchoDefaultTypeInternal _Echo_default_instance_;
+}  // namespace proto
+namespace proto {
 
 // ===================================================================
 
-class BASE : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:BASE) */ {
+class AddRet : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:proto.AddRet) */ {
  public:
-  BASE();
-  virtual ~BASE();
+  AddRet();
+  virtual ~AddRet();
 
-  BASE(const BASE& from);
+  AddRet(const AddRet& from);
 
-  inline BASE& operator=(const BASE& from) {
+  inline AddRet& operator=(const AddRet& from) {
     CopyFrom(from);
     return *this;
   }
   #if LANG_CXX11
-  BASE(BASE&& from) noexcept
-    : BASE() {
+  AddRet(AddRet&& from) noexcept
+    : AddRet() {
     *this = ::std::move(from);
   }
 
-  inline BASE& operator=(BASE&& from) noexcept {
+  inline AddRet& operator=(AddRet&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -94,30 +103,30 @@ class BASE : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const BASE& default_instance();
+  static const AddRet& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const BASE* internal_default_instance() {
-    return reinterpret_cast<const BASE*>(
-               &_BASE_default_instance_);
+  static inline const AddRet* internal_default_instance() {
+    return reinterpret_cast<const AddRet*>(
+               &_AddRet_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
     0;
 
-  void Swap(BASE* other);
-  friend void swap(BASE& a, BASE& b) {
+  void Swap(AddRet* other);
+  friend void swap(AddRet& a, AddRet& b) {
     a.Swap(&b);
   }
 
   // implements Message ----------------------------------------------
 
-  inline BASE* New() const PROTOBUF_FINAL { return New(NULL); }
+  inline AddRet* New() const PROTOBUF_FINAL { return New(NULL); }
 
-  BASE* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  AddRet* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
   void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
   void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const BASE& from);
-  void MergeFrom(const BASE& from);
+  void CopyFrom(const AddRet& from);
+  void MergeFrom(const AddRet& from);
   void Clear() PROTOBUF_FINAL;
   bool IsInitialized() const PROTOBUF_FINAL;
 
@@ -133,7 +142,7 @@ class BASE : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(BASE* other);
+  void InternalSwap(AddRet* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return NULL;
@@ -149,26 +158,174 @@ class BASE : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
 
   // accessors -------------------------------------------------------
 
-  // required int32 service_id = 1;
+  // required int32 ret = 3;
+  bool has_ret() const;
+  void clear_ret();
+  static const int kRetFieldNumber = 3;
+  ::google::protobuf::int32 ret() const;
+  void set_ret(::google::protobuf::int32 value);
+
+  // optional int32 service_id = 1 [default = 1];
   bool has_service_id() const;
   void clear_service_id();
   static const int kServiceIdFieldNumber = 1;
   ::google::protobuf::int32 service_id() const;
   void set_service_id(::google::protobuf::int32 value);
 
-  // required int32 command_id = 2;
+  // optional int32 command_id = 2 [default = 1002];
   bool has_command_id() const;
   void clear_command_id();
   static const int kCommandIdFieldNumber = 2;
   ::google::protobuf::int32 command_id() const;
   void set_command_id(::google::protobuf::int32 value);
 
-  // @@protoc_insertion_point(class_scope:BASE)
+  // @@protoc_insertion_point(class_scope:proto.AddRet)
  private:
   void set_has_service_id();
   void clear_has_service_id();
   void set_has_command_id();
   void clear_has_command_id();
+  void set_has_ret();
+  void clear_has_ret();
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable int _cached_size_;
+  ::google::protobuf::int32 ret_;
+  ::google::protobuf::int32 service_id_;
+  ::google::protobuf::int32 command_id_;
+  friend struct ::protobuf_test_2eproto::TableStruct;
+  friend void ::protobuf_test_2eproto::InitDefaultsAddRetImpl();
+};
+// -------------------------------------------------------------------
+
+class Add : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:proto.Add) */ {
+ public:
+  Add();
+  virtual ~Add();
+
+  Add(const Add& from);
+
+  inline Add& operator=(const Add& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  Add(Add&& from) noexcept
+    : Add() {
+    *this = ::std::move(from);
+  }
+
+  inline Add& operator=(Add&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Add& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Add* internal_default_instance() {
+    return reinterpret_cast<const Add*>(
+               &_Add_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    1;
+
+  void Swap(Add* other);
+  friend void swap(Add& a, Add& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Add* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  Add* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const Add& from);
+  void MergeFrom(const Add& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(Add* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int32 add1 = 3;
+  bool has_add1() const;
+  void clear_add1();
+  static const int kAdd1FieldNumber = 3;
+  ::google::protobuf::int32 add1() const;
+  void set_add1(::google::protobuf::int32 value);
+
+  // required int32 add2 = 4;
+  bool has_add2() const;
+  void clear_add2();
+  static const int kAdd2FieldNumber = 4;
+  ::google::protobuf::int32 add2() const;
+  void set_add2(::google::protobuf::int32 value);
+
+  // optional int32 service_id = 1 [default = 1];
+  bool has_service_id() const;
+  void clear_service_id();
+  static const int kServiceIdFieldNumber = 1;
+  ::google::protobuf::int32 service_id() const;
+  void set_service_id(::google::protobuf::int32 value);
+
+  // optional int32 command_id = 2 [default = 1001];
+  bool has_command_id() const;
+  void clear_command_id();
+  static const int kCommandIdFieldNumber = 2;
+  ::google::protobuf::int32 command_id() const;
+  void set_command_id(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:proto.Add)
+ private:
+  void set_has_service_id();
+  void clear_has_service_id();
+  void set_has_command_id();
+  void clear_has_command_id();
+  void set_has_add1();
+  void clear_has_add1();
+  void set_has_add2();
+  void clear_has_add2();
 
   // helper for ByteSizeLong()
   size_t RequiredFieldsByteSizeFallback() const;
@@ -176,14 +333,16 @@ class BASE : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable int _cached_size_;
+  ::google::protobuf::int32 add1_;
+  ::google::protobuf::int32 add2_;
   ::google::protobuf::int32 service_id_;
   ::google::protobuf::int32 command_id_;
   friend struct ::protobuf_test_2eproto::TableStruct;
-  friend void ::protobuf_test_2eproto::InitDefaultsBASEImpl();
+  friend void ::protobuf_test_2eproto::InitDefaultsAddImpl();
 };
 // -------------------------------------------------------------------
 
-class Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:Echo) */ {
+class Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:proto.Echo) */ {
  public:
   Echo();
   virtual ~Echo();
@@ -225,7 +384,7 @@ class Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
                &_Echo_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    1;
+    2;
 
   void Swap(Echo* other);
   friend void swap(Echo& a, Echo& b) {
@@ -287,21 +446,21 @@ class Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::std::string* release_msg();
   void set_allocated_msg(::std::string* msg);
 
-  // required int32 service_id = 1;
+  // optional int32 service_id = 1 [default = 1];
   bool has_service_id() const;
   void clear_service_id();
   static const int kServiceIdFieldNumber = 1;
   ::google::protobuf::int32 service_id() const;
   void set_service_id(::google::protobuf::int32 value);
 
-  // required int32 command_id = 2;
+  // optional int32 command_id = 2 [default = 1];
   bool has_command_id() const;
   void clear_command_id();
   static const int kCommandIdFieldNumber = 2;
   ::google::protobuf::int32 command_id() const;
   void set_command_id(::google::protobuf::int32 value);
 
-  // @@protoc_insertion_point(class_scope:Echo)
+  // @@protoc_insertion_point(class_scope:proto.Echo)
  private:
   void set_has_service_id();
   void clear_has_service_id();
@@ -309,9 +468,6 @@ class Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   void clear_has_command_id();
   void set_has_msg();
   void clear_has_msg();
-
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
@@ -331,61 +487,185 @@ class Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// BASE
+// AddRet
 
-// required int32 service_id = 1;
-inline bool BASE::has_service_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void BASE::set_has_service_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void BASE::clear_has_service_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void BASE::clear_service_id() {
-  service_id_ = 0;
-  clear_has_service_id();
-}
-inline ::google::protobuf::int32 BASE::service_id() const {
-  // @@protoc_insertion_point(field_get:BASE.service_id)
-  return service_id_;
-}
-inline void BASE::set_service_id(::google::protobuf::int32 value) {
-  set_has_service_id();
-  service_id_ = value;
-  // @@protoc_insertion_point(field_set:BASE.service_id)
-}
-
-// required int32 command_id = 2;
-inline bool BASE::has_command_id() const {
+// optional int32 service_id = 1 [default = 1];
+inline bool AddRet::has_service_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void BASE::set_has_command_id() {
+inline void AddRet::set_has_service_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void BASE::clear_has_command_id() {
+inline void AddRet::clear_has_service_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void BASE::clear_command_id() {
-  command_id_ = 0;
+inline void AddRet::clear_service_id() {
+  service_id_ = 1;
+  clear_has_service_id();
+}
+inline ::google::protobuf::int32 AddRet::service_id() const {
+  // @@protoc_insertion_point(field_get:proto.AddRet.service_id)
+  return service_id_;
+}
+inline void AddRet::set_service_id(::google::protobuf::int32 value) {
+  set_has_service_id();
+  service_id_ = value;
+  // @@protoc_insertion_point(field_set:proto.AddRet.service_id)
+}
+
+// optional int32 command_id = 2 [default = 1002];
+inline bool AddRet::has_command_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void AddRet::set_has_command_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void AddRet::clear_has_command_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void AddRet::clear_command_id() {
+  command_id_ = 1002;
   clear_has_command_id();
 }
-inline ::google::protobuf::int32 BASE::command_id() const {
-  // @@protoc_insertion_point(field_get:BASE.command_id)
+inline ::google::protobuf::int32 AddRet::command_id() const {
+  // @@protoc_insertion_point(field_get:proto.AddRet.command_id)
   return command_id_;
 }
-inline void BASE::set_command_id(::google::protobuf::int32 value) {
+inline void AddRet::set_command_id(::google::protobuf::int32 value) {
   set_has_command_id();
   command_id_ = value;
-  // @@protoc_insertion_point(field_set:BASE.command_id)
+  // @@protoc_insertion_point(field_set:proto.AddRet.command_id)
+}
+
+// required int32 ret = 3;
+inline bool AddRet::has_ret() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void AddRet::set_has_ret() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void AddRet::clear_has_ret() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void AddRet::clear_ret() {
+  ret_ = 0;
+  clear_has_ret();
+}
+inline ::google::protobuf::int32 AddRet::ret() const {
+  // @@protoc_insertion_point(field_get:proto.AddRet.ret)
+  return ret_;
+}
+inline void AddRet::set_ret(::google::protobuf::int32 value) {
+  set_has_ret();
+  ret_ = value;
+  // @@protoc_insertion_point(field_set:proto.AddRet.ret)
+}
+
+// -------------------------------------------------------------------
+
+// Add
+
+// optional int32 service_id = 1 [default = 1];
+inline bool Add::has_service_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Add::set_has_service_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Add::clear_has_service_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Add::clear_service_id() {
+  service_id_ = 1;
+  clear_has_service_id();
+}
+inline ::google::protobuf::int32 Add::service_id() const {
+  // @@protoc_insertion_point(field_get:proto.Add.service_id)
+  return service_id_;
+}
+inline void Add::set_service_id(::google::protobuf::int32 value) {
+  set_has_service_id();
+  service_id_ = value;
+  // @@protoc_insertion_point(field_set:proto.Add.service_id)
+}
+
+// optional int32 command_id = 2 [default = 1001];
+inline bool Add::has_command_id() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void Add::set_has_command_id() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void Add::clear_has_command_id() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void Add::clear_command_id() {
+  command_id_ = 1001;
+  clear_has_command_id();
+}
+inline ::google::protobuf::int32 Add::command_id() const {
+  // @@protoc_insertion_point(field_get:proto.Add.command_id)
+  return command_id_;
+}
+inline void Add::set_command_id(::google::protobuf::int32 value) {
+  set_has_command_id();
+  command_id_ = value;
+  // @@protoc_insertion_point(field_set:proto.Add.command_id)
+}
+
+// required int32 add1 = 3;
+inline bool Add::has_add1() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Add::set_has_add1() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Add::clear_has_add1() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Add::clear_add1() {
+  add1_ = 0;
+  clear_has_add1();
+}
+inline ::google::protobuf::int32 Add::add1() const {
+  // @@protoc_insertion_point(field_get:proto.Add.add1)
+  return add1_;
+}
+inline void Add::set_add1(::google::protobuf::int32 value) {
+  set_has_add1();
+  add1_ = value;
+  // @@protoc_insertion_point(field_set:proto.Add.add1)
+}
+
+// required int32 add2 = 4;
+inline bool Add::has_add2() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Add::set_has_add2() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Add::clear_has_add2() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Add::clear_add2() {
+  add2_ = 0;
+  clear_has_add2();
+}
+inline ::google::protobuf::int32 Add::add2() const {
+  // @@protoc_insertion_point(field_get:proto.Add.add2)
+  return add2_;
+}
+inline void Add::set_add2(::google::protobuf::int32 value) {
+  set_has_add2();
+  add2_ = value;
+  // @@protoc_insertion_point(field_set:proto.Add.add2)
 }
 
 // -------------------------------------------------------------------
 
 // Echo
 
-// required int32 service_id = 1;
+// optional int32 service_id = 1 [default = 1];
 inline bool Echo::has_service_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -396,20 +676,20 @@ inline void Echo::clear_has_service_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void Echo::clear_service_id() {
-  service_id_ = 0;
+  service_id_ = 1;
   clear_has_service_id();
 }
 inline ::google::protobuf::int32 Echo::service_id() const {
-  // @@protoc_insertion_point(field_get:Echo.service_id)
+  // @@protoc_insertion_point(field_get:proto.Echo.service_id)
   return service_id_;
 }
 inline void Echo::set_service_id(::google::protobuf::int32 value) {
   set_has_service_id();
   service_id_ = value;
-  // @@protoc_insertion_point(field_set:Echo.service_id)
+  // @@protoc_insertion_point(field_set:proto.Echo.service_id)
 }
 
-// required int32 command_id = 2;
+// optional int32 command_id = 2 [default = 1];
 inline bool Echo::has_command_id() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -420,17 +700,17 @@ inline void Echo::clear_has_command_id() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline void Echo::clear_command_id() {
-  command_id_ = 0;
+  command_id_ = 1;
   clear_has_command_id();
 }
 inline ::google::protobuf::int32 Echo::command_id() const {
-  // @@protoc_insertion_point(field_get:Echo.command_id)
+  // @@protoc_insertion_point(field_get:proto.Echo.command_id)
   return command_id_;
 }
 inline void Echo::set_command_id(::google::protobuf::int32 value) {
   set_has_command_id();
   command_id_ = value;
-  // @@protoc_insertion_point(field_set:Echo.command_id)
+  // @@protoc_insertion_point(field_set:proto.Echo.command_id)
 }
 
 // required string msg = 3;
@@ -448,41 +728,41 @@ inline void Echo::clear_msg() {
   clear_has_msg();
 }
 inline const ::std::string& Echo::msg() const {
-  // @@protoc_insertion_point(field_get:Echo.msg)
+  // @@protoc_insertion_point(field_get:proto.Echo.msg)
   return msg_.GetNoArena();
 }
 inline void Echo::set_msg(const ::std::string& value) {
   set_has_msg();
   msg_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:Echo.msg)
+  // @@protoc_insertion_point(field_set:proto.Echo.msg)
 }
 #if LANG_CXX11
 inline void Echo::set_msg(::std::string&& value) {
   set_has_msg();
   msg_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Echo.msg)
+  // @@protoc_insertion_point(field_set_rvalue:proto.Echo.msg)
 }
 #endif
 inline void Echo::set_msg(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   set_has_msg();
   msg_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Echo.msg)
+  // @@protoc_insertion_point(field_set_char:proto.Echo.msg)
 }
 inline void Echo::set_msg(const char* value, size_t size) {
   set_has_msg();
   msg_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Echo.msg)
+  // @@protoc_insertion_point(field_set_pointer:proto.Echo.msg)
 }
 inline ::std::string* Echo::mutable_msg() {
   set_has_msg();
-  // @@protoc_insertion_point(field_mutable:Echo.msg)
+  // @@protoc_insertion_point(field_mutable:proto.Echo.msg)
   return msg_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Echo::release_msg() {
-  // @@protoc_insertion_point(field_release:Echo.msg)
+  // @@protoc_insertion_point(field_release:proto.Echo.msg)
   clear_has_msg();
   return msg_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -493,7 +773,7 @@ inline void Echo::set_allocated_msg(::std::string* msg) {
     clear_has_msg();
   }
   msg_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), msg);
-  // @@protoc_insertion_point(field_set_allocated:Echo.msg)
+  // @@protoc_insertion_point(field_set_allocated:proto.Echo.msg)
 }
 
 #ifdef __GNUC__
@@ -501,9 +781,12 @@ inline void Echo::set_allocated_msg(::std::string* msg) {
 #endif  // __GNUC__
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace proto
 
 // @@protoc_insertion_point(global_scope)
 
