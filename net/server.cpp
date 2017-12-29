@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include <signal.h>
 #include <iostream>
+#include <functional>
 
 class IgnoreSigPipe
 {
@@ -97,11 +98,14 @@ void EchoServer::new_connect(int fd)
 	// pwbuf->write(s);
 	pstream->send(s);
 }
+typedef std::function<void(int,const ptmsg_t& )> Sender_t;
 
 MsgServer::MsgServer():TcpServer()
 {
+	using namespace std::placeholders;
 	proto = std::make_shared<Proto>();
-	ps_test = std::make_shared<Test>(proto.get());
+	Sender_t f = std::bind(&MsgServer::send_msg,this,_1,_2);
+	ps_test = std::make_shared<Test>(proto.get(),f);
 	ps_test->init();
 }
 
@@ -155,7 +159,7 @@ void MsgServer::handle_msg(int conn_id,const ptmsg_t& pmsg)
 	log_debug("Msg server::handle_msg:%d,len:%d",
 		conn_id,pmsg->len);	
 
-	proto->on_msg(pmsg);
+	proto->on_msg(conn_id,pmsg);
 	
 	//pingpong test
 	// std::string t = *(pmsg->get_data());

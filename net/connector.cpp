@@ -1,6 +1,7 @@
 
 #include "connector.hpp"
 #include "services.hpp"
+#include <functional>
 
 Connector::Connector(std::weak_ptr<Client> _client)
 {
@@ -153,11 +154,18 @@ void Connector::close()
 
 Client::Client()
 {
+	using namespace std::placeholders;
+
 	ploop = std::make_shared<EventLoop>();
 	msg_reading = false;
 	pmsg = std::make_shared<Msg>();
 	retry_count = 0;
 	status = CLOSED;
+
+	proto = std::make_shared<Proto>();
+	Sender f = std::bind((send_memf)&Client::send_msg,this,_2);
+	ps_test = std::make_shared<Test>(proto.get(),f);
+	ps_test->init();
 	log_debug("after make Client");
 }
 Client::~Client()
@@ -240,14 +248,16 @@ void Client::on_connected()
 
 
 	// ptmsg_t pmsg = std::make_shared<Msg>(s,1024*1024);
-	Proto proto;
-	auto ptest = std::make_shared<Test>(&proto);
-	ptest->init();
-	auto pmsg  = ptest->send_echo(s);
+	// Proto proto;
+	// auto ptest = std::make_shared<Test>(&proto);
+	// ptest->init();
+	// auto pmsg  = ptest->send_echo(s);
 	// ptmsg_t _pmsg = std::make_shared<Msg>(s);
 	printf("new pmsg!!\n");
-	send_msg(pmsg);
+	// send_msg(pmsg);
+	ps_test->send_add(0,10,20);
 	printf("after send msg:\n");
+
 }
 
 
@@ -287,6 +297,7 @@ void Client::on_msg(ptmsg_t pmsg)
 	log_debug("client:on_msg:len:%d",
 		pmsg->len);
 	assert(pmsg->len > 0);
+	proto->on_msg(0,pmsg);
 	//std::cout<<"msg raw data:"<<*(pmsg->get_data())<<std::endl;
 
 //pingpong test
@@ -295,7 +306,7 @@ void Client::on_msg(ptmsg_t pmsg)
 	// ptmsg_t new_pmsg = std::make_shared<Msg>(t);
 	// send_msg(new_pmsg);
 }
-void Client::send_msg(ptmsg_t pmsg)
+void Client::send_msg(const ptmsg_t& pmsg)
 {
 	pconn->send(pmsg->get_raw());
 }
