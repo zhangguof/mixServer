@@ -162,10 +162,11 @@ Client::Client()
 	retry_count = 0;
 	status = CLOSED;
 
-	proto = std::make_shared<Proto>();
+	// proto = std::make_shared<Proto>();
 	Sender f = std::bind((send_memf)&Client::send_msg,this,_2);
-	ps_test = std::make_shared<Test>(proto.get(),f);
-	ps_test->init();
+	// ps_test = std::make_shared<Test>(proto.get(),f);
+	// ps_test->init();
+	Test::get_inst()->init(f);
 	log_debug("after make Client");
 }
 Client::~Client()
@@ -241,23 +242,9 @@ void Client::on_connected()
 	log_debug("Client connected success!!!%s,%d",addr.ip.c_str(),addr.port);
 	retry_count = 0;
 	status = CONNECTED;
-
-	std::string s(10,'a');
-
-	printf("new string!!!\n");
-
-
-	// ptmsg_t pmsg = std::make_shared<Msg>(s,1024*1024);
-	// Proto proto;
-	// auto ptest = std::make_shared<Test>(&proto);
-	// ptest->init();
-	// auto pmsg  = ptest->send_echo(s);
-	// ptmsg_t _pmsg = std::make_shared<Msg>(s);
-	printf("new pmsg!!\n");
-	// send_msg(pmsg);
-	ps_test->send_add(0,10,20);
-	printf("after send msg:\n");
-
+	std::string s = "hell world!!";
+	Test::get_inst()->send_echo(0,s);
+	Test::get_inst()->send_add(0,10,20);
 }
 
 
@@ -289,6 +276,8 @@ void Client::on_read()
 		{
 			on_msg(pmsg);
 			pmsg->clear();
+			if(pbuf->readable_size()>=sizeof(int))
+				on_read();
 		}
 	}
 }
@@ -297,7 +286,7 @@ void Client::on_msg(ptmsg_t pmsg)
 	log_debug("client:on_msg:len:%d",
 		pmsg->len);
 	assert(pmsg->len > 0);
-	proto->on_msg(0,pmsg);
+	Proto::get_inst()->on_msg(0,pmsg);
 	//std::cout<<"msg raw data:"<<*(pmsg->get_data())<<std::endl;
 
 //pingpong test
