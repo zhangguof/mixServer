@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "test.pb.h"
+#include "utils.hpp"
 
 class HandleBase;
 class Msg;
@@ -172,7 +173,7 @@ void MsgHanle<T,MT>::operator()(int s_id,int c_id,int uid,unipt_message_t p)
 	return ((pt.get())->*cb)(uid,std::move(p_mt));
 }
 
-class Proto
+class Proto:public Singleton<Proto>
 {
 public:
 	//regist<MT>(xx,xxx,xx,xx);

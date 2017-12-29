@@ -70,8 +70,8 @@ public:
 	void send_msg(int conn_id, const ptmsg_t& pmsg);
 private:
 	std::map<int,ptmsg_t> conn_msgs;
-	std::shared_ptr<Proto> proto;
-	std::shared_ptr<Test> ps_test;
+	// std::shared_ptr<Proto> proto;
+	// std::shared_ptr<Test> ps_test;
 };
 
 class EchoServer:public TcpServer

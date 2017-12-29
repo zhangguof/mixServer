@@ -119,9 +119,6 @@ private:
 	int status;
 	std::string ip;
 	port_t port;
-	std::shared_ptr<Proto> proto;
-	std::shared_ptr<Test> ps_test;
-
 };
 
 

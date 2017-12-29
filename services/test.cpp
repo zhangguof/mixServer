@@ -4,9 +4,20 @@
 #include "services.hpp"
 #include "log.hpp"
 
+void Test::init(Sender s)
+{
+	sender = s;
+	init_commands();
+}
+
 void Test::on_echo(int _id,std::unique_ptr<proto::Echo> p)
 {
 	printf("on echo:%s\n",p->msg().c_str());
+	if(_id>0)
+	{
+		//in server part;
+		send_echo(_id,"echo:"+p->msg());
+	}
 }
 
 void Test::on_add(int uid,std::unique_ptr<proto::Add> p)
@@ -38,11 +49,11 @@ std::shared_ptr<ProtoMsg> make_proto_msg(int s_id,int c_id,const Message& p)
 	return pm;
 }
 
-void Test::send_echo(const std::string& msg)
+void Test::send_echo(int uid,const std::string& msg)
 {
 	proto::Echo p;
 	p.set_msg(msg);
-	send_msg(0,p.service_id(),p.command_id(),p);
+	send_msg(uid,p.service_id(),p.command_id(),p);
 
 }
 
