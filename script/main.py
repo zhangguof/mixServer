@@ -57,5 +57,8 @@ def main():
 	# get_msg(s)
 	# search_copy_mods()
 
+def update(interval):
+	pass
+
 
 

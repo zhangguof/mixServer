@@ -1,11 +1,14 @@
 #include "eventloop.hpp"
 
+extern int g_py_init;
+extern void on_update(int);
 
 bool EventLoop::_shutdown = false;
 EventLoop::EventLoop()
 {
 	// _shutdown = false;
 	ptimer = std::make_shared<Timer>();
+	now =  ptimer->get_now();
 }
 EventLoop::~EventLoop()
 {
@@ -80,8 +83,16 @@ void EventLoop::update_event(ptHandle p_handle)
 
 void EventLoop::update()
 {
+	u32 cur = ptimer->get_now();
 	do_select();
 	ptimer->update();
+	if(g_py_init && (cur-now) >= 5) //20 fps
+	{
+		on_update(cur - now);
+		now = cur;
+	}
+
+
 }
 
 void EventLoop::_start_timer(Timer::time_t t,Timer::handle_t ph)

@@ -67,6 +67,7 @@ private:
 	std::map<int,ptHandle> handles; //fd:pthandle
 	Timer::pttimer_t ptimer;
 	static bool _shutdown;
+	u32 now;
 
 };
 
