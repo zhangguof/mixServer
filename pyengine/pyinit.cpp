@@ -1,4 +1,7 @@
 #include "Python.h"
+#include <memory>
+#include "proto.hpp"
+#include "services.hpp"
 
 #include "stdio.h"
 const char* py_str = "import sys\n"\
@@ -121,6 +124,33 @@ void handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 static PyObject* _sender_send(PyObject* self,PyObject* args)
 {
 	printf("in _sender_send!!!!!\n");
+	int uid;
+	int s_id;
+	int c_id;
+	int size;
+	char* s;
+	//_send.send(uid,pb_str)
+	int r = PyArg_ParseTuple(args,"iiis#",
+		&uid,&s_id,&c_id,&s,&size); 
+	if(r)
+	{
+		printf("on _sender:send:%d,s_id:%d,c_id:%d,len:%d\n",
+			uid,s_id,c_id,size);
+		assert(strlen(s)==size);
+
+		auto pm = std::make_shared<ProtoMsg>(s_id,c_id);
+		pm->write(s,size);
+		Services::get_inst()->sender(uid,pm);
+		// return Py_BuildValue("i",size);
+
+	}
+	else
+	{
+		printf("sneder:send err!\n");
+		PyErr_SetString(PyExc_RuntimeError,"_sender:send err!!");
+		return NULL;
+	}
+	Py_RETURN_NONE;
 }
 
 static PyObject* test_foo(PyObject* self,PyObject* args)

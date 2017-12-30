@@ -104,7 +104,8 @@ MsgServer::MsgServer():TcpServer()
 {
 	using namespace std::placeholders;
 	Sender_t f = std::bind(&MsgServer::send_msg,this,_1,_2);
-	Test::get_inst()->init(f);
+	Test::get_inst()->init();
+	Services::get_inst()->init(f);
 }
 
 void MsgServer::handle_read(pttcpstream_t pstream)

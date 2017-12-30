@@ -21,10 +21,6 @@ def add_paths(root_path,paths,exclude_files = []):
 			break
 	return list(s)
 
-# cppserver_paths = [".","net","include"]
-# exclude_files = []
-# cppsever_src = add_paths(src_path,cppserver_paths,exclude_files)
-
 
 # env = Environment(TARGET_ARCH=arch_target,CPPDEFINES=[])
 
@@ -57,13 +53,17 @@ def build_pyext_static(target,root_path,paths,src_files=[],exclude_files=[]):
 		LIBS=list(chain(["protobuf","python2.7"],py_libs)),
 		LIBPATH=list(chain([google_buffer_libpath],py_lib_path)))
 
-def build(target,paths,exclude_files=[]):
+# def build_common():
+# 	target = "common"
+
+
+def build(target,paths,cflags = "",exclude_files=[]):
 	#paths = [".","net"]
 	#target = "cppserver"
 	srcs = add_paths(src_path,paths,exclude_files)
 	include_path = ["include",".","services","proto",google_buffer_src]
 	env = Environment(CC = 'c++',CXX='c++',
-                   CCFLAGS = '-g -std=c++11')
+                   CCFLAGS = '-g -std=c++11 '+cflags)
 	env.Append(CPPPATH=list(chain(include_path,paths,py_include_path))
 	)
 	#-lprotobuf -L$(google_buffer_libpath)
@@ -72,8 +72,13 @@ def build(target,paths,exclude_files=[]):
 		LIBPATH=list(chain([".",google_buffer_libpath],py_lib_path)))
 
 def build_main():
-	build("cppserver",list(chain([".","net","services","pyengine"],proto_path)))
-	# build("client/client",list(chain([".","net","client","services"],proto_path)),["./main.cpp"])
+	build("cppserver",list(chain([".","net","services","pyengine"],
+		proto_path)))
+	
+	# build("client/client",list(chain([".","net","client","services","pyengine"],
+	# 	proto_path)),
+	# ["./main.cpp"])
+	
 	# build("timer_test",[".","net","test/timer_test"],["./main.cpp"])
 	
 	# google_buffer_root = "/Users/tony/newwork/github/py/protobuf-3.5.1"

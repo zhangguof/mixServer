@@ -1,5 +1,6 @@
 #-*- coding:utf-8 -*-
 from protos import test_pb2
+import proto
 import _sender #_sender.send(uid,msg_str)
 
 def on_echo(uid,pb_m):
@@ -7,7 +8,8 @@ def on_echo(uid,pb_m):
 	print "echo %s"%msg
 	n_msg = test_pb2.Echo()
 	n_msg.msg = "echo :%s"%msg
-	_sender.send(uid,n_msg.SerializeToString())
+	proto.send_msg(uid,n_msg)
+	
 
 def on_add(uid,pb_m):
 	add1 = pb_m.add1

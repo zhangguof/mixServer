@@ -2,3 +2,5 @@
 
 def init():
 	print "===in py init!"
+	import sys
+	sys.path.append("/Users/tony/workspace/github/Python-2.7.14/Lib")

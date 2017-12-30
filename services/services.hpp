@@ -7,11 +7,11 @@ typedef std::function<void(int,const std::shared_ptr<ProtoMsg>&)> Sender;
 
 class MsgServer;
 
-class Services
+class Services:public Singleton<Services>
 {
 public:
-	void init();
-
+	void init(Sender s);
+	Sender sender;
 };
 
 class Test:public Singleton<Test>
@@ -20,7 +20,7 @@ public:
 	const static int service_id;
 	void init_commands();
 
-	void init(Sender s);
+	void init();
 
 	void on_echo(int uid,std::unique_ptr<proto::Echo> p);
 	void send_echo(int uid,const std::string& msg);
@@ -33,6 +33,6 @@ public:
 	
 private:
 	MsgServer* pserver;
-	Sender sender;
+	//Sender sender;
 };
 #endif

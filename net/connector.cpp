@@ -166,7 +166,8 @@ Client::Client()
 	Sender f = std::bind((send_memf)&Client::send_msg,this,_2);
 	// ps_test = std::make_shared<Test>(proto.get(),f);
 	// ps_test->init();
-	Test::get_inst()->init(f);
+	Test::get_inst()->init();
+	Services::get_inst()->init(f);
 	log_debug("after make Client");
 }
 Client::~Client()

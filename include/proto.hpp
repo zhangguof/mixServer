@@ -68,6 +68,7 @@ public:
 	void reset_len()
 	{
 		len = praw_data->size();
+		has_write_size = len;
 	}
 	int get_remain_len()
 	{
@@ -120,6 +121,11 @@ public:
 	void write(const Message& pbmsg)
 	{
 		pbmsg.SerializeToString(get_ptdata());
+		reset_len();
+	}
+	void write(const char*s ,int size)
+	{
+		Msg::write(s,size);
 		reset_len();
 	}
 

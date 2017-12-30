@@ -4,9 +4,9 @@
 #include "services.hpp"
 #include "log.hpp"
 
-void Test::init(Sender s)
+void Test::init()
 {
-	sender = s;
+	// sender = s;
 	init_commands();
 }
 
@@ -59,5 +59,5 @@ void Test::send_echo(int uid,const std::string& msg)
 
 void Test::send_msg(int uid,int sid,int cid,const Message& p)
 {
-	sender(uid,make_proto_msg(sid,cid,p));
+	Services::get_inst()->sender(uid,make_proto_msg(sid,cid,p));
 }

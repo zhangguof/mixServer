@@ -1,5 +1,6 @@
 #-*- coding:utf-8 -*-
 from protos import test_pb2
+import _sender
 
 protos = {
 	
@@ -18,5 +19,13 @@ def HandleMsg(s_id,c_id,uid,pb_msg_str):
 	msg_t, handle = protos[k]
 	m = msg_t()
 	m.ParseFromString(pb_msg_str)
-	return handle(uid,m)
+	handle(uid,m)
+
+
+def send_msg(uid,p_msg):
+	s = p_msg.SerializeToString()
+	_sender.send(uid,
+			p_msg.service_id,
+			p_msg.command_id,
+			s)
 	
