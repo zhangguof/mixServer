@@ -15,11 +15,12 @@ def HandleMsg(s_id,c_id,uid,pb_msg_str):
 	k = (s_id,c_id)
 	if k not in protos:
 		print "Warn:can't find proto:%d,%d"%(s_id,c_id)
-		return
+		return 0
 	msg_t, handle = protos[k]
 	m = msg_t()
 	m.ParseFromString(pb_msg_str)
 	handle(uid,m)
+	return 1
 
 def send_msg(uid,p_msg):
 	s = p_msg.SerializeToString()

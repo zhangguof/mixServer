@@ -6,7 +6,7 @@
 #include "log.hpp"
 
 //python handle msg!
-void handle_pb_msg(int s_id,int c_id,int uid,const char* s);
+int handle_pb_msg(int s_id,int c_id,int uid,const char* s);
 
 
 void Proto::_regist(int s_id,int c_id,std::shared_ptr<HandleBase> cb)
@@ -36,7 +36,15 @@ void Proto::on_msg(int uid,const ptmsg_t& pmsg)
 	}
 	else
 	{
-		handle_pb_msg(s_id,c_id,uid,p->get_data()->c_str());
+		int r = handle_pb_msg(s_id,c_id,uid,p->get_data()->c_str());
+		if(r)
+		{
+			log_debug("py handle success!!");
+		}
+		else
+		{
+			log_debug("py handle err!!!");
+		}
 	}
 }
 

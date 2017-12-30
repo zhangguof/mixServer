@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='test.proto',
   package='proto',
   syntax='proto2',
-  serialized_pb=_b('\n\ntest.proto\x12\x05proto\"F\n\x06\x41\x64\x64Ret\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x32\x12\x0b\n\x03ret\x18\x03 \x02(\x05\"A\n\x04\x45\x63ho\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x15\n\ncommand_id\x18\x02 \x01(\x05:\x01\x31\x12\x0b\n\x03msg\x18\x03 \x02(\t\"C\n\x06\x43_Echo\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x15\n\ncommand_id\x18\x02 \x01(\x05:\x01\x32\x12\x0b\n\x03msg\x18\x03 \x02(\t\"R\n\x03\x41\x64\x64\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x31\x12\x0c\n\x04\x61\x64\x64\x31\x18\x03 \x02(\x05\x12\x0c\n\x04\x61\x64\x64\x32\x18\x04 \x02(\x05')
+  serialized_pb=_b('\n\ntest.proto\x12\x05proto\"I\n\x06\x41\x64\x64Ret\x12\x18\n\nservice_id\x18\x01 \x01(\x05:\x04\x31\x30\x30\x30\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x32\x12\x0b\n\x03ret\x18\x03 \x02(\x05\"D\n\x04\x45\x63ho\x12\x18\n\nservice_id\x18\x01 \x01(\x05:\x04\x31\x30\x30\x30\x12\x15\n\ncommand_id\x18\x02 \x01(\x05:\x01\x31\x12\x0b\n\x03msg\x18\x03 \x02(\t\"F\n\x06\x43_Echo\x12\x18\n\nservice_id\x18\x01 \x01(\x05:\x04\x31\x30\x30\x30\x12\x15\n\ncommand_id\x18\x02 \x01(\x05:\x01\x32\x12\x0b\n\x03msg\x18\x03 \x02(\t\"U\n\x03\x41\x64\x64\x12\x18\n\nservice_id\x18\x01 \x01(\x05:\x04\x31\x30\x30\x30\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x31\x12\x0c\n\x04\x61\x64\x64\x31\x18\x03 \x02(\x05\x12\x0c\n\x04\x61\x64\x64\x32\x18\x04 \x02(\x05')
 )
 
 
@@ -35,7 +35,7 @@ _ADDRET = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='service_id', full_name='proto.AddRet.service_id', index=0,
       number=1, type=5, cpp_type=1, label=1,
-      has_default_value=True, default_value=1,
+      has_default_value=True, default_value=1000,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -66,7 +66,7 @@ _ADDRET = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=21,
-  serialized_end=91,
+  serialized_end=94,
 )
 
 
@@ -80,7 +80,7 @@ _ECHO = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='service_id', full_name='proto.Echo.service_id', index=0,
       number=1, type=5, cpp_type=1, label=1,
-      has_default_value=True, default_value=1,
+      has_default_value=True, default_value=1000,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -110,8 +110,8 @@ _ECHO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=93,
-  serialized_end=158,
+  serialized_start=96,
+  serialized_end=164,
 )
 
 
@@ -125,7 +125,7 @@ _C_ECHO = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='service_id', full_name='proto.C_Echo.service_id', index=0,
       number=1, type=5, cpp_type=1, label=1,
-      has_default_value=True, default_value=1,
+      has_default_value=True, default_value=1000,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -155,8 +155,8 @@ _C_ECHO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=160,
-  serialized_end=227,
+  serialized_start=166,
+  serialized_end=236,
 )
 
 
@@ -170,7 +170,7 @@ _ADD = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='service_id', full_name='proto.Add.service_id', index=0,
       number=1, type=5, cpp_type=1, label=1,
-      has_default_value=True, default_value=1,
+      has_default_value=True, default_value=1000,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -207,8 +207,8 @@ _ADD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=229,
-  serialized_end=311,
+  serialized_start=238,
+  serialized_end=323,
 )
 
 DESCRIPTOR.message_types_by_name['AddRet'] = _ADDRET

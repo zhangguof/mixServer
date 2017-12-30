@@ -212,17 +212,18 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\ntest.proto\022\005proto\"F\n\006AddRet\022\025\n\nservice"
-      "_id\030\001 \001(\005:\0011\022\030\n\ncommand_id\030\002 \001(\005:\0041002\022\013"
-      "\n\003ret\030\003 \002(\005\"A\n\004Echo\022\025\n\nservice_id\030\001 \001(\005:"
-      "\0011\022\025\n\ncommand_id\030\002 \001(\005:\0011\022\013\n\003msg\030\003 \002(\t\"C"
-      "\n\006C_Echo\022\025\n\nservice_id\030\001 \001(\005:\0011\022\025\n\ncomma"
-      "nd_id\030\002 \001(\005:\0012\022\013\n\003msg\030\003 \002(\t\"R\n\003Add\022\025\n\nse"
-      "rvice_id\030\001 \001(\005:\0011\022\030\n\ncommand_id\030\002 \001(\005:\0041"
-      "001\022\014\n\004add1\030\003 \002(\005\022\014\n\004add2\030\004 \002(\005"
+      "\n\ntest.proto\022\005proto\"I\n\006AddRet\022\030\n\nservice"
+      "_id\030\001 \001(\005:\0041000\022\030\n\ncommand_id\030\002 \001(\005:\004100"
+      "2\022\013\n\003ret\030\003 \002(\005\"D\n\004Echo\022\030\n\nservice_id\030\001 \001"
+      "(\005:\0041000\022\025\n\ncommand_id\030\002 \001(\005:\0011\022\013\n\003msg\030\003"
+      " \002(\t\"F\n\006C_Echo\022\030\n\nservice_id\030\001 \001(\005:\0041000"
+      "\022\025\n\ncommand_id\030\002 \001(\005:\0012\022\013\n\003msg\030\003 \002(\t\"U\n\003"
+      "Add\022\030\n\nservice_id\030\001 \001(\005:\0041000\022\030\n\ncommand"
+      "_id\030\002 \001(\005:\0041001\022\014\n\004add1\030\003 \002(\005\022\014\n\004add2\030\004 "
+      "\002(\005"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 311);
+      descriptor, 323);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "test.proto", &protobuf_RegisterTypes);
 }
@@ -273,7 +274,7 @@ AddRet::AddRet(const AddRet& from)
 void AddRet::SharedCtor() {
   _cached_size_ = 0;
   ret_ = 0;
-  service_id_ = 1;
+  service_id_ = 1000;
   command_id_ = 1002;
 }
 
@@ -317,7 +318,7 @@ void AddRet::Clear() {
   cached_has_bits = _has_bits_[0];
   if (cached_has_bits & 7u) {
     ret_ = 0;
-    service_id_ = 1;
+    service_id_ = 1000;
     command_id_ = 1002;
   }
   _has_bits_.Clear();
@@ -334,7 +335,7 @@ bool AddRet::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional int32 service_id = 1 [default = 1];
+      // optional int32 service_id = 1 [default = 1000];
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
@@ -403,7 +404,7 @@ void AddRet::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000002u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->service_id(), output);
   }
@@ -433,7 +434,7 @@ void AddRet::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000002u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->service_id(), target);
   }
@@ -472,7 +473,7 @@ size_t AddRet::ByteSizeLong() const {
         this->ret());
   }
   if (_has_bits_[0 / 32] & 6u) {
-    // optional int32 service_id = 1 [default = 1];
+    // optional int32 service_id = 1 [default = 1000];
     if (has_service_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
@@ -607,7 +608,7 @@ Echo::Echo(const Echo& from)
 void Echo::SharedCtor() {
   _cached_size_ = 0;
   msg_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  service_id_ = 1;
+  service_id_ = 1000;
   command_id_ = 1;
 }
 
@@ -655,7 +656,7 @@ void Echo::Clear() {
       GOOGLE_DCHECK(!msg_.IsDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited()));
       (*msg_.UnsafeRawStringPointer())->clear();
     }
-    service_id_ = 1;
+    service_id_ = 1000;
     command_id_ = 1;
   }
   _has_bits_.Clear();
@@ -672,7 +673,7 @@ bool Echo::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional int32 service_id = 1 [default = 1];
+      // optional int32 service_id = 1 [default = 1000];
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
@@ -743,7 +744,7 @@ void Echo::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000002u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->service_id(), output);
   }
@@ -778,7 +779,7 @@ void Echo::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000002u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->service_id(), target);
   }
@@ -823,7 +824,7 @@ size_t Echo::ByteSizeLong() const {
         this->msg());
   }
   if (_has_bits_[0 / 32] & 6u) {
-    // optional int32 service_id = 1 [default = 1];
+    // optional int32 service_id = 1 [default = 1000];
     if (has_service_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
@@ -959,7 +960,7 @@ C_Echo::C_Echo(const C_Echo& from)
 void C_Echo::SharedCtor() {
   _cached_size_ = 0;
   msg_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  service_id_ = 1;
+  service_id_ = 1000;
   command_id_ = 2;
 }
 
@@ -1007,7 +1008,7 @@ void C_Echo::Clear() {
       GOOGLE_DCHECK(!msg_.IsDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited()));
       (*msg_.UnsafeRawStringPointer())->clear();
     }
-    service_id_ = 1;
+    service_id_ = 1000;
     command_id_ = 2;
   }
   _has_bits_.Clear();
@@ -1024,7 +1025,7 @@ bool C_Echo::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional int32 service_id = 1 [default = 1];
+      // optional int32 service_id = 1 [default = 1000];
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
@@ -1095,7 +1096,7 @@ void C_Echo::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000002u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->service_id(), output);
   }
@@ -1130,7 +1131,7 @@ void C_Echo::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000002u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->service_id(), target);
   }
@@ -1175,7 +1176,7 @@ size_t C_Echo::ByteSizeLong() const {
         this->msg());
   }
   if (_has_bits_[0 / 32] & 6u) {
-    // optional int32 service_id = 1 [default = 1];
+    // optional int32 service_id = 1 [default = 1000];
     if (has_service_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(
@@ -1310,7 +1311,7 @@ void Add::SharedCtor() {
   ::memset(&add1_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&add2_) -
       reinterpret_cast<char*>(&add1_)) + sizeof(add2_));
-  service_id_ = 1;
+  service_id_ = 1000;
   command_id_ = 1001;
 }
 
@@ -1356,7 +1357,7 @@ void Add::Clear() {
     ::memset(&add1_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&add2_) -
         reinterpret_cast<char*>(&add1_)) + sizeof(add2_));
-    service_id_ = 1;
+    service_id_ = 1000;
     command_id_ = 1001;
   }
   _has_bits_.Clear();
@@ -1373,7 +1374,7 @@ bool Add::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional int32 service_id = 1 [default = 1];
+      // optional int32 service_id = 1 [default = 1000];
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
@@ -1456,7 +1457,7 @@ void Add::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000004u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->service_id(), output);
   }
@@ -1491,7 +1492,7 @@ void Add::SerializeWithCachedSizes(
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   if (cached_has_bits & 0x00000004u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->service_id(), target);
   }
@@ -1563,7 +1564,7 @@ size_t Add::ByteSizeLong() const {
     total_size += RequiredFieldsByteSizeFallback();
   }
   if (_has_bits_[0 / 32] & 12u) {
-    // optional int32 service_id = 1 [default = 1];
+    // optional int32 service_id = 1 [default = 1000];
     if (has_service_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int32Size(

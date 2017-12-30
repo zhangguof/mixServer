@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 from types import *
-SERVICE_ID = 1
+SERVICE_ID = 1000
 
 Echo = {
 	"cmd_id":1,

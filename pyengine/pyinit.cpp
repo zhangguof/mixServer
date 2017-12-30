@@ -89,13 +89,14 @@ int init_py(int argc,char** argv)
 	return 0;
 }
 
-void handle_pb_msg(int s_id,int c_id,int uid,const char* s)
+int handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 {
 	if(!g_py_init)
 	{
 		printf("py not init!!!!");
-		return;
+		return 0;
 	}
+	int ret = 0;
 	//imoprt proto;
 	//proto.HandleMsg(sid,cid,pbstr)
 	PyObject* pmod = PyImport_ImportModule("proto");
@@ -109,23 +110,30 @@ void handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 			printf("call HandleMsg err!\n");
 			PyObject* p = PyErr_Occurred();
 			if(p)
+			{
 				PyErr_Print();
+			}
+			ret = 0;
 		}
+		else
+		{
+			ret = PyInt_AsLong(pr);
+		}
+		Py_XDECREF(pr);
 	}
-	else
-	{
-		printf("handle_msg error!:%d,%d\n",s_id,c_id);
-	}
+
 	Py_XDECREF(args);
 	Py_XDECREF(pfun);
 	Py_XDECREF(pmod);
 	// PyObject* args = PyTuple_New(3);
 	// PyObject* pv = PyInt_FromLong(s_id);
 	// PyTuple_SetItem(args,0,pv); //steal the ref.
-	
 	// pv = PyInt_FromLong(c_id);
 	// PyTuple_SetItem(args,1,pv);
 	
+	if(!ret)
+		printf("handle_msg error!:%d,%d\n",s_id,c_id);
+	return ret;
 
 }
 

@@ -171,7 +171,7 @@ class AddRet : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::google::protobuf::int32 ret() const;
   void set_ret(::google::protobuf::int32 value);
 
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   bool has_service_id() const;
   void clear_service_id();
   static const int kServiceIdFieldNumber = 1;
@@ -309,7 +309,7 @@ class Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::std::string* release_msg();
   void set_allocated_msg(::std::string* msg);
 
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   bool has_service_id() const;
   void clear_service_id();
   static const int kServiceIdFieldNumber = 1;
@@ -447,7 +447,7 @@ class C_Echo : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
   ::std::string* release_msg();
   void set_allocated_msg(::std::string* msg);
 
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   bool has_service_id() const;
   void clear_service_id();
   static const int kServiceIdFieldNumber = 1;
@@ -584,7 +584,7 @@ class Add : public ::google::protobuf::Message /* @@protoc_insertion_point(class
   ::google::protobuf::int32 add2() const;
   void set_add2(::google::protobuf::int32 value);
 
-  // optional int32 service_id = 1 [default = 1];
+  // optional int32 service_id = 1 [default = 1000];
   bool has_service_id() const;
   void clear_service_id();
   static const int kServiceIdFieldNumber = 1;
@@ -633,7 +633,7 @@ class Add : public ::google::protobuf::Message /* @@protoc_insertion_point(class
 #endif  // __GNUC__
 // AddRet
 
-// optional int32 service_id = 1 [default = 1];
+// optional int32 service_id = 1 [default = 1000];
 inline bool AddRet::has_service_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -644,7 +644,7 @@ inline void AddRet::clear_has_service_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void AddRet::clear_service_id() {
-  service_id_ = 1;
+  service_id_ = 1000;
   clear_has_service_id();
 }
 inline ::google::protobuf::int32 AddRet::service_id() const {
@@ -709,7 +709,7 @@ inline void AddRet::set_ret(::google::protobuf::int32 value) {
 
 // Echo
 
-// optional int32 service_id = 1 [default = 1];
+// optional int32 service_id = 1 [default = 1000];
 inline bool Echo::has_service_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -720,7 +720,7 @@ inline void Echo::clear_has_service_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void Echo::clear_service_id() {
-  service_id_ = 1;
+  service_id_ = 1000;
   clear_has_service_id();
 }
 inline ::google::protobuf::int32 Echo::service_id() const {
@@ -824,7 +824,7 @@ inline void Echo::set_allocated_msg(::std::string* msg) {
 
 // C_Echo
 
-// optional int32 service_id = 1 [default = 1];
+// optional int32 service_id = 1 [default = 1000];
 inline bool C_Echo::has_service_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -835,7 +835,7 @@ inline void C_Echo::clear_has_service_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void C_Echo::clear_service_id() {
-  service_id_ = 1;
+  service_id_ = 1000;
   clear_has_service_id();
 }
 inline ::google::protobuf::int32 C_Echo::service_id() const {
@@ -939,7 +939,7 @@ inline void C_Echo::set_allocated_msg(::std::string* msg) {
 
 // Add
 
-// optional int32 service_id = 1 [default = 1];
+// optional int32 service_id = 1 [default = 1000];
 inline bool Add::has_service_id() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -950,7 +950,7 @@ inline void Add::clear_has_service_id() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline void Add::clear_service_id() {
-  service_id_ = 1;
+  service_id_ = 1000;
   clear_has_service_id();
 }
 inline ::google::protobuf::int32 Add::service_id() const {
