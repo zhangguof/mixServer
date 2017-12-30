@@ -10,6 +10,24 @@ message AddRet
 	
 }
 
+message Echo
+{
+	optional int32 service_id = 1 [default = 1];
+	optional int32 command_id = 2 [default = 1];
+	
+	required string msg = 3;
+	
+}
+
+message C_Echo
+{
+	optional int32 service_id = 1 [default = 1];
+	optional int32 command_id = 2 [default = 2];
+	
+	required string msg = 3;
+	
+}
+
 message Add
 {
 	optional int32 service_id = 1 [default = 1];
@@ -18,14 +36,5 @@ message Add
 	required int32 add1 = 3;
 	
 	required int32 add2 = 4;
-	
-}
-
-message Echo
-{
-	optional int32 service_id = 1 [default = 1];
-	optional int32 command_id = 2 [default = 1];
-	
-	required string msg = 3;
 	
 }

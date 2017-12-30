@@ -1,8 +1,11 @@
 #-*- coding:utf-8 -*-
+from types import *
 SERVICE_ID = 1
 
 Echo = {
 	"cmd_id":1,
+	"side":SERVER,
+	"handle":PY,
 	"mod":"Test",
 	"func":"on_echo",
 	"args":(
@@ -10,8 +13,22 @@ Echo = {
 		)
 }
 
+C_Echo = {
+	"cmd_id":2,
+	"side":CLIENT,
+	"handle":CPP,
+	"mod":"Test",
+	"func":"on_echo",
+	"args":(
+		(str,"msg"),
+		)
+}
+
+
 Add = {
 	"cmd_id":1001,
+	"side":SERVER,
+	"handle":PY,
 	"mod":"Test",
 	"func":"on_add",
 	"args":(
@@ -22,6 +39,8 @@ Add = {
 
 AddRet = {
 	"cmd_id":1002,
+	"side":CLIENT|SERVER,
+	"handle":CPP,
 	"mod":"Test",
 	"func":"on_addret",
 	"args":(

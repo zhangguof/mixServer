@@ -12,6 +12,7 @@ char* pyhome = "./script";
 
 void inittest();
 void init_sender();
+int g_py_init = 0;
 
 extern"C" {
 	extern void init_message(void);
@@ -75,6 +76,7 @@ void run_py()
 
 int init_py(int argc,char** argv)
 {
+
 	init_python(argc,argv);
 	// printf("Hello !!!\n");
 	run_py();
@@ -83,11 +85,17 @@ int init_py(int argc,char** argv)
 	//main.main()
 	PyRun_SimpleString("import main\nmain.main()\n");
 	// Py_Exit(0);
+	g_py_init = 1;
 	return 0;
 }
 
 void handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 {
+	if(!g_py_init)
+	{
+		printf("py not init!!!!");
+		return;
+	}
 	//imoprt proto;
 	//proto.HandleMsg(sid,cid,pbstr)
 	PyObject* pmod = PyImport_ImportModule("proto");
@@ -137,10 +145,10 @@ static PyObject* _sender_send(PyObject* self,PyObject* args)
 		printf("on _sender:send:%d,s_id:%d,c_id:%d,len:%d\n",
 			uid,s_id,c_id,size);
 		assert(strlen(s)==size);
-
 		auto pm = std::make_shared<ProtoMsg>(s_id,c_id);
 		pm->write(s,size);
 		Services::get_inst()->sender(uid,pm);
+		
 		// return Py_BuildValue("i",size);
 
 	}

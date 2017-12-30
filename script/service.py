@@ -3,9 +3,9 @@ import proto
 from protos import test_pb2
 import services
 import services.Test
+import services.gen_service as gen_service
 
 
 def init():
-	proto.regist(1,1,test_pb2.Echo,services.Test.on_echo)
-
+	gen_service.init()
 

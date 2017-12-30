@@ -7,10 +7,6 @@ print "src_path:",src_path
 def add_paths(root_path,paths,exclude_files = []):
 	s = set()
 	for path in paths:
-		# if path == ".":
-		# 	path = root_path
-		# else:
-		# 	path = os.path.join(root_path,path)
 		for root,dirs,files in os.walk(path):
 			for f in files:
 				f = os.path.join(root,f)
@@ -57,27 +53,30 @@ def build_pyext_static(target,root_path,paths,src_files=[],exclude_files=[]):
 # 	target = "common"
 
 
-def build(target,paths,cflags = "",exclude_files=[]):
+def build(target,paths,exclude_files=[]):
 	#paths = [".","net"]
 	#target = "cppserver"
 	srcs = add_paths(src_path,paths,exclude_files)
-	include_path = ["include",".","services","proto",google_buffer_src]
+	include_path = ["include",google_buffer_src]
 	env = Environment(CC = 'c++',CXX='c++',
-                   CCFLAGS = '-g -std=c++11 '+cflags)
-	env.Append(CPPPATH=list(chain(include_path,paths,py_include_path))
-	)
+                   CCFLAGS = '-g -std=c++11 ')
+	env.Append(CPPPATH=list(chain(include_path,paths,py_include_path)))
+	
 	#-lprotobuf -L$(google_buffer_libpath)
 	env.Program(target, srcs, 
 		LIBS=list(chain(["protobuf","python2.7","pypbext"],py_libs)),
-		LIBPATH=list(chain([".",google_buffer_libpath],py_lib_path)))
+		LIBPATH=list(chain([".",google_buffer_libpath],py_lib_path))
+		)
 
 def build_main():
-	build("cppserver",list(chain([".","net","services","pyengine"],
+	build("cppserver",list(
+		chain([".","net","services","pyengine","proto/gen_proto/cpp/server"],
 		proto_path)))
 	
-	# build("client/client",list(chain([".","net","client","services","pyengine"],
-	# 	proto_path)),
-	# ["./main.cpp"])
+	build("client/client",list(
+		chain([".","net","client","client/services","pyengine","proto/gen_proto/cpp/client"],
+		proto_path)),
+	["./main.cpp"])
 	
 	# build("timer_test",[".","net","test/timer_test"],["./main.cpp"])
 	

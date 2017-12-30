@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='test.proto',
   package='proto',
   syntax='proto2',
-  serialized_pb=_b('\n\ntest.proto\x12\x05proto\"F\n\x06\x41\x64\x64Ret\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x32\x12\x0b\n\x03ret\x18\x03 \x02(\x05\"R\n\x03\x41\x64\x64\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x31\x12\x0c\n\x04\x61\x64\x64\x31\x18\x03 \x02(\x05\x12\x0c\n\x04\x61\x64\x64\x32\x18\x04 \x02(\x05\"A\n\x04\x45\x63ho\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x15\n\ncommand_id\x18\x02 \x01(\x05:\x01\x31\x12\x0b\n\x03msg\x18\x03 \x02(\t')
+  serialized_pb=_b('\n\ntest.proto\x12\x05proto\"F\n\x06\x41\x64\x64Ret\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x32\x12\x0b\n\x03ret\x18\x03 \x02(\x05\"A\n\x04\x45\x63ho\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x15\n\ncommand_id\x18\x02 \x01(\x05:\x01\x31\x12\x0b\n\x03msg\x18\x03 \x02(\t\"C\n\x06\x43_Echo\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x15\n\ncommand_id\x18\x02 \x01(\x05:\x01\x32\x12\x0b\n\x03msg\x18\x03 \x02(\t\"R\n\x03\x41\x64\x64\x12\x15\n\nservice_id\x18\x01 \x01(\x05:\x01\x31\x12\x18\n\ncommand_id\x18\x02 \x01(\x05:\x04\x31\x30\x30\x31\x12\x0c\n\x04\x61\x64\x64\x31\x18\x03 \x02(\x05\x12\x0c\n\x04\x61\x64\x64\x32\x18\x04 \x02(\x05')
 )
 
 
@@ -70,6 +70,96 @@ _ADDRET = _descriptor.Descriptor(
 )
 
 
+_ECHO = _descriptor.Descriptor(
+  name='Echo',
+  full_name='proto.Echo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='service_id', full_name='proto.Echo.service_id', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='command_id', full_name='proto.Echo.command_id', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='msg', full_name='proto.Echo.msg', index=2,
+      number=3, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=93,
+  serialized_end=158,
+)
+
+
+_C_ECHO = _descriptor.Descriptor(
+  name='C_Echo',
+  full_name='proto.C_Echo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='service_id', full_name='proto.C_Echo.service_id', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='command_id', full_name='proto.C_Echo.command_id', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=True, default_value=2,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='msg', full_name='proto.C_Echo.msg', index=2,
+      number=3, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=160,
+  serialized_end=227,
+)
+
+
 _ADD = _descriptor.Descriptor(
   name='Add',
   full_name='proto.Add',
@@ -117,58 +207,14 @@ _ADD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=93,
-  serialized_end=175,
-)
-
-
-_ECHO = _descriptor.Descriptor(
-  name='Echo',
-  full_name='proto.Echo',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='service_id', full_name='proto.Echo.service_id', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=True, default_value=1,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='command_id', full_name='proto.Echo.command_id', index=1,
-      number=2, type=5, cpp_type=1, label=1,
-      has_default_value=True, default_value=1,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='msg', full_name='proto.Echo.msg', index=2,
-      number=3, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=177,
-  serialized_end=242,
+  serialized_start=229,
+  serialized_end=311,
 )
 
 DESCRIPTOR.message_types_by_name['AddRet'] = _ADDRET
-DESCRIPTOR.message_types_by_name['Add'] = _ADD
 DESCRIPTOR.message_types_by_name['Echo'] = _ECHO
+DESCRIPTOR.message_types_by_name['C_Echo'] = _C_ECHO
+DESCRIPTOR.message_types_by_name['Add'] = _ADD
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 AddRet = _reflection.GeneratedProtocolMessageType('AddRet', (_message.Message,), dict(
@@ -178,19 +224,26 @@ AddRet = _reflection.GeneratedProtocolMessageType('AddRet', (_message.Message,),
   ))
 _sym_db.RegisterMessage(AddRet)
 
-Add = _reflection.GeneratedProtocolMessageType('Add', (_message.Message,), dict(
-  DESCRIPTOR = _ADD,
-  __module__ = 'test_pb2'
-  # @@protoc_insertion_point(class_scope:proto.Add)
-  ))
-_sym_db.RegisterMessage(Add)
-
 Echo = _reflection.GeneratedProtocolMessageType('Echo', (_message.Message,), dict(
   DESCRIPTOR = _ECHO,
   __module__ = 'test_pb2'
   # @@protoc_insertion_point(class_scope:proto.Echo)
   ))
 _sym_db.RegisterMessage(Echo)
+
+C_Echo = _reflection.GeneratedProtocolMessageType('C_Echo', (_message.Message,), dict(
+  DESCRIPTOR = _C_ECHO,
+  __module__ = 'test_pb2'
+  # @@protoc_insertion_point(class_scope:proto.C_Echo)
+  ))
+_sym_db.RegisterMessage(C_Echo)
+
+Add = _reflection.GeneratedProtocolMessageType('Add', (_message.Message,), dict(
+  DESCRIPTOR = _ADD,
+  __module__ = 'test_pb2'
+  # @@protoc_insertion_point(class_scope:proto.Add)
+  ))
+_sym_db.RegisterMessage(Add)
 
 
 # @@protoc_insertion_point(module_scope)

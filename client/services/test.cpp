@@ -10,25 +10,20 @@ void Test::init()
 	init_commands();
 }
 
-void Test::on_echo(int _id,std::unique_ptr<proto::Echo> p)
+void Test::on_echo(int _id,std::unique_ptr<proto::C_Echo> p)
 {
 	printf("on echo:%s\n",p->msg().c_str());
-	if(_id>0)
-	{
-		//in server part;
-		send_echo(_id,"echo:"+p->msg());
-	}
 }
 
-void Test::on_add(int uid,std::unique_ptr<proto::Add> p)
-{
-	int a = p->add1();
-	int b = p->add2();
-	int s = a+b;
-	proto::AddRet pr;
-	pr.set_ret(s);
-	send_msg(uid,pr.service_id(),pr.command_id(),pr);
-}
+// void Test::on_add(int uid,std::unique_ptr<proto::Add> p)
+// {
+// 	int a = p->add1();
+// 	int b = p->add2();
+// 	int s = a+b;
+// 	proto::AddRet pr;
+// 	pr.set_ret(s);
+// 	send_msg(uid,pr.service_id(),pr.command_id(),pr);
+// }
 void Test::on_addret(int uid,std::unique_ptr<proto::AddRet> p)
 {
 	printf("Test:addret:uid:%d,%d\n",uid,p->ret());
@@ -51,7 +46,7 @@ std::shared_ptr<ProtoMsg> make_proto_msg(int s_id,int c_id,const Message& p)
 
 void Test::send_echo(int uid,const std::string& msg)
 {
-	proto::C_Echo p;
+	proto::Echo p;
 	p.set_msg(msg);
 	send_msg(uid,p.service_id(),p.command_id(),p);
 

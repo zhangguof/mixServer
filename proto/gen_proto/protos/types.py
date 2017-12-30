@@ -1,0 +1,6 @@
+#-*- coding:utf-8 -*-
+SERVER = 0x1 
+CLIENT = 0x2
+
+PY = 0x1
+CPP = 0x2

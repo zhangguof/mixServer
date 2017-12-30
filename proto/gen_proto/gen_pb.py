@@ -2,10 +2,12 @@
 from jinja2 import Environment, FileSystemLoader
 import os
 import subprocess
+from protos.types import *
 
 pbs_path = "./pbs" #protobuffer path
 cpp_path = "./cpp"
 python_path = "../../script/protos"
+py_services_path = "../../script/services"
 src_path = "./protos"
 tempalte_path = "jinja"
 
@@ -49,35 +51,65 @@ def gen_pb(mod_name):
 	with open(pb_file_path,"wb") as f:
 		f.write(s)
 	print "gen pb:%s->%s"%(mod_name,pb_file_path)
+
+def init_mod(mod,mod_name,service_id,file_name):
+	mod['name'] = mod_name
+	mod['methods'] = []
+	mod['service_id'] = service_id
+	mod['file_name'] = file_name
 	
-def gen_cpp(mod_name):
-	cpp_file_path  = os.path.join(cpp_path,"gen_"+mod_name+".cpp")
+def gen_cpp_py(_mod_name):
+	cpp_server_file_path = os.path.join(cpp_path,"server","gen_"+_mod_name+".cpp")
+	cpp_client_file_path = os.path.join(cpp_path,"client","gen_"+_mod_name+".cpp")
+	py_file_path = os.path.join(py_services_path,"gen_service.py")
 	cpp_template = env.get_template("cpp_template.cpp")
-	proto_mod = __import__("protos."+mod_name,globals(),locals(),-1)
+	py_template = env.get_template("py_template.py")
+
+	proto_mod = __import__("protos."+_mod_name,globals(),locals(),-1)
 	service_id =  proto_mod.SERVICE_ID
-	mods = {} #modname:mod
+	# mods = {} #modname:mod
+	file_name = _mod_name
+	client_mods = {}
+	server_mods = {}
 	for d in proto_mod.__dict__:
 		msg = getattr(proto_mod,d)
 		msg_name = d
 		if isinstance(msg,dict) and msg.get("cmd_id"):
 			mod_name = msg['mod']
-			mod = mods.get(mod_name,{})
-			if len(mod) == 0:
-				mod['name'] = mod_name
-				mod['methods'] = []
-				mod['service_id'] = service_id
-				mods[mod_name] = mod
-			mod['methods'].append(
-				{"name":msg['func'],
+			cmod = client_mods.get(mod_name,{})
+			smod = server_mods.get(mod_name,{})
+			if len(cmod) == 0:
+				init_mod(cmod,mod_name,service_id,file_name)
+				client_mods[mod_name] = cmod
+			if len(smod) == 0:
+				init_mod(smod,mod_name,service_id,file_name)
+				server_mods[mod_name] = smod
+			method = {"name":msg['func'],
 				"command_id":msg['cmd_id'],
-				"msg_name":msg_name}
-				)
+				"msg_name":msg_name,
+				"side":msg['side'],
+				"handle":"py" if msg['handle']==PY else "cpp",
+				}
+			if msg['side'] & SERVER:
+				smod['methods'].append(method)
 
+			if msg['side'] & CLIENT:
+				cmod['methods'].append(method)
 
-	s = cpp_template.render(mods=mods.values())
-	with open(cpp_file_path,"wb") as f:
+	s = cpp_template.render(mods=client_mods.values())
+	with open(cpp_client_file_path,"wb") as f:
 		f.write(s)
-	print "gen cpp:%s->%s"%(mod_name,cpp_file_path)
+	print "gen client cpp:%s->%s"%(_mod_name,cpp_client_file_path)
+
+	s = cpp_template.render(mods=server_mods.values())
+	with open(cpp_server_file_path,"wb") as f:
+		f.write(s)
+	print "gen server cpp:%s->%s"%(_mod_name,cpp_server_file_path)
+
+	s = py_template.render(mods=server_mods.values())
+	with open(py_file_path,"wb") as f:
+		f.write(s)
+	print "gen server py:%s->%s"%(_mod_name,py_file_path)
 
 # bin/protoc --proto_path=proto \
 # --cpp_out=proto \
@@ -104,10 +136,12 @@ def gen_pb2cpp(pb_src_path,cpp_dst_path):
 def gen_files(src_proto_path):
 	for _,_,files in os.walk(src_proto_path):
 		for filename in files:
-			if filename.endswith(".py") and filename!="__init__.py":
+			if filename.endswith(".py") and \
+			   filename!="__init__.py" and \
+			   filename!="types.py":
 				mod_name = os.path.splitext(filename)[0]
 				gen_pb(mod_name)
-				gen_cpp(mod_name)
+				gen_cpp_py(mod_name)
 		break
 
 
