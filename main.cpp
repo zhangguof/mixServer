@@ -7,6 +7,7 @@
 #include "log.hpp"
 
 void init_py(int argn,char** argv);
+extern EventLoop* g_event_loop;
 
 class TimerTest:std::enable_shared_from_this<TimerTest>
 {
@@ -22,6 +23,7 @@ int main(int argn,char** argv)
 {
 	auto cpp_server = std::make_shared<MsgServer>();
 	auto ploop = cpp_server->get_loop();
+	g_event_loop = ploop.get();
 
 	std::string ip = "127.0.0.1";
 	int port = 8889;

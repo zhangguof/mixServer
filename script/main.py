@@ -42,6 +42,11 @@ def get_msg(s):
 	h.ParseFromString(s)
 	print h
 
+def test(t):
+	print "in test",t
+	# import _engine
+	# _engine.regist_timer(200,test)
+
 def main():
 	print "in main....."
 	import service
@@ -56,6 +61,8 @@ def main():
 	# print [s]
 	# get_msg(s)
 	# search_copy_mods()
+	import _engine
+	_engine.regist_timer(200,test)
 
 def update(interval):
 	pass

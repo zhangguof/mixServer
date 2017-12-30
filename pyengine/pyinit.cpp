@@ -1,9 +1,15 @@
 #include "Python.h"
 #include <memory>
+#include <stdarg.h>
+#include "stdio.h"
+
 #include "proto.hpp"
 #include "services.hpp"
+#include "timer.hpp"
+#include "eventloop.hpp"
 
-#include "stdio.h"
+
+
 const char* py_str = "import sys\n"\
 					 "sys.path.insert(0,'./script')\n"\
 					 "import init\n"\
@@ -12,7 +18,9 @@ char* pyhome = "./script";
 
 void inittest();
 void init_sender();
+void init_engine();
 int g_py_init = 0;
+EventLoop* g_event_loop = NULL;
 
 extern"C" {
 	extern void init_message(void);
@@ -36,6 +44,7 @@ void init_python(int argc,char** argv)
 	PySys_SetArgvEx(argc, argv, 0);
 	// inittest();
 	init_sender();
+	init_engine();
 
 }
 void run_py()
@@ -89,6 +98,49 @@ int init_py(int argc,char** argv)
 	return 0;
 }
 
+PyObject* call_py_obj(const char* modname,
+	const char* fun_name,
+	const char* args_fmt,...)
+{
+	PyObject* pmod = PyImport_ImportModule(modname);
+	PyObject* pfun = PyObject_GetAttrString(pmod,fun_name);
+	PyObject* args;
+	PyObject* pr = NULL;
+
+	//build  args
+	va_list vargs;
+	va_start( vargs, args_fmt );
+	args = Py_VaBuildValue( args_fmt, vargs );
+	va_end(vargs);
+
+	if(args && pfun && PyCallable_Check(pfun))
+	{
+		pr =  PyObject_CallObject(pfun,args);
+		if(!pr)
+		{
+			printf("call py obj err!\n");
+			PyObject* p = PyErr_Occurred();
+			if(p)
+			{
+				PyErr_Print();
+			}
+		}
+		Py_XDECREF(pr);
+	}
+
+	Py_XDECREF(args);
+	Py_XDECREF(pfun);
+	Py_XDECREF(pmod);
+	return pr;
+}
+
+void on_update(int interval)
+{
+	if(!g_py_init)
+		return;
+	call_py_obj("main","update","(i)",interval);
+}
+
 int handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 {
 	if(!g_py_init)
@@ -99,32 +151,13 @@ int handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 	int ret = 0;
 	//imoprt proto;
 	//proto.HandleMsg(sid,cid,pbstr)
-	PyObject* pmod = PyImport_ImportModule("proto");
-	PyObject* pfun = PyObject_GetAttrString(pmod,"HandleMsg");
-	PyObject* args = Py_BuildValue("(iiis)",s_id,c_id,uid,s);
-	if(args && pfun && PyCallable_Check(pfun))
+	PyObject* pr = call_py_obj("proto","HandleMsg","(iiis)",
+							  s_id,c_id,uid,s);
+	if(pr)
 	{
-		PyObject* pr =  PyObject_CallObject(pfun,args);
-		if(!pr)
-		{
-			printf("call HandleMsg err!\n");
-			PyObject* p = PyErr_Occurred();
-			if(p)
-			{
-				PyErr_Print();
-			}
-			ret = 0;
-		}
-		else
-		{
-			ret = PyInt_AsLong(pr);
-		}
-		Py_XDECREF(pr);
+		ret = PyInt_AsLong(pr);
 	}
 
-	Py_XDECREF(args);
-	Py_XDECREF(pfun);
-	Py_XDECREF(pmod);
 	// PyObject* args = PyTuple_New(3);
 	// PyObject* pv = PyInt_FromLong(s_id);
 	// PyTuple_SetItem(args,0,pv); //steal the ref.
@@ -169,6 +202,46 @@ static PyObject* _sender_send(PyObject* self,PyObject* args)
 	Py_RETURN_NONE;
 }
 
+class PyTimerCb
+{
+public:
+	PyTimerCb(PyObject* _f):pfun(_f){}
+	void on_handle(u32 timer_id,std::shared_ptr<Timer> ptimer)
+	{
+		PyObject* pargs = Py_BuildValue("(i)",timer_id);
+		PyObject_CallObject(pfun,pargs);
+		Py_XDECREF(pargs);
+		// Py_XDECREF(pfun);
+
+	}
+	PyObject* pfun;
+};
+
+static PyObject* _engine_regist_timer(PyObject* self,PyObject* args)
+{
+	int t;
+	PyObject* pyf;
+	int t_id;
+	int r = PyArg_ParseTuple(args,"iO",&t,&pyf);
+	//add ref pyf??
+	if(r && pyf && PyCallable_Check(pyf))
+	{
+		printf("on _engine regist_timer:%d\n",t);
+		auto pobj = std::make_shared<PyTimerCb>(pyf);
+		g_event_loop->start_timer((u32)t,pobj,&PyTimerCb::on_handle);
+
+		// PyObject* pargs = Py_BuildValue("(i)",t_id);
+		// PyObject_CallObject(pyf,pargs);
+	}
+	else
+	{
+		printf("parse args error!\n");
+		PyErr_SetString(PyExc_RuntimeError,"_engine_regist_timer err!!");
+		return NULL;
+	}
+	Py_RETURN_NONE;
+}
+
 static PyObject* test_foo(PyObject* self,PyObject* args)
 {
 	return PyInt_FromLong(42);
@@ -186,6 +259,13 @@ static PyMethodDef _sender_methods[] = {
     {NULL,              NULL}           /* sentinel */
 };
 
+static PyMethodDef _engine_methods[] = {
+    {"regist_timer", _engine_regist_timer, METH_VARARGS,
+     "do send!!."},
+    {NULL,              NULL}           /* sentinel */
+};
+
+
 //static module
 void inittest()
 {
@@ -197,5 +277,11 @@ void init_sender()
 {
 	PyImport_AddModule("_sender");
 	Py_InitModule("_sender",_sender_methods);
+}
+
+void init_engine()
+{
+	PyImport_AddModule("_engine");
+	Py_InitModule("_engine",_engine_methods);
 }
 
