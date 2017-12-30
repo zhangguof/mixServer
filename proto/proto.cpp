@@ -4,6 +4,8 @@
 #include <memory>
 #include <cassert>
 
+//python handle msg!
+void handle_pb_msg(int s_id,int c_id,int uid,const char* s);
 
 void Proto::_regist(int s_id,int c_id,std::shared_ptr<HandleBase> cb)
 {
@@ -19,8 +21,9 @@ void Proto::on_msg(int uid,const ptmsg_t& pmsg)
 	p->read_ids();
 	printf("Proto::om_msg::s_id:%d,c_id:%d\n",p->service_id,p->command_id);
 
+	handle_pb_msg(p->service_id,p->command_id,uid,p->get_data()->c_str());
 
-	dispatch_msg(p->service_id,p->command_id,uid,p);
+	//dispatch_msg(p->service_id,p->command_id,uid,p);
 }
 
 
