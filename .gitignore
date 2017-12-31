@@ -39,3 +39,8 @@ cppserver
 client/client
 timer_test
 test_
+script/google
+script/lib
+test/test
+test/protocolBuffer
+test.cpp
