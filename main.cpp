@@ -22,9 +22,15 @@ public:
 
 int main(int argn,char** argv)
 {
-	auto cpp_server = std::make_shared<MsgServer>();
-	auto ploop = cpp_server->get_loop();
+	auto msg_server = std::make_shared<MsgServer>();
+	// auto echo_server = std::make_shared<EchoServer>();
+
+	auto ploop = std::make_shared<EventLoop>();
 	g_event_loop = ploop.get();
+	// auto ploop = cpp_server->get_loop();
+	msg_server->set_loop(ploop);
+	// echo_server->set_loop(ploop);
+	
 
 	std::string ip = "127.0.0.1";
 	int port = 8889;
@@ -37,8 +43,16 @@ int main(int argn,char** argv)
 	// auto ptest = std::make_shared<TimerTest>();
 	// ploop->start_timer(200,ptest,&TimerTest::test);
 
-	cpp_server->bind(ip,port);
-	cpp_server->start();
+	msg_server->bind(ip,port);
+	int n = msg_server->start();
+	if(n<0)
+	{
+		return 0;
+	}
+
+	// echo_server->bind(ip,port+1);
+	// echo_server->start();
+	ploop->do_loop();
 	// delete cpp_server;
 	return 0;
 }

@@ -70,7 +70,7 @@ def build(target,paths,exclude_files=[]):
 
 def build_main():
 	build("cppserver",list(
-		chain([".","net","services","pyengine","proto/gen_proto/cpp/server"],
+		chain([".","net","services","server","pyengine","proto/gen_proto/cpp/server"],
 		proto_path)))
 	
 	build("client/client",list(

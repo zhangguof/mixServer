@@ -31,12 +31,17 @@ public:
 	typedef std::shared_ptr<Msg> ptmsg_t;
 
 	TcpServer();
-	void start();
+	int start();
 	void bind(std::string ip,int port);
-	virtual void new_connect(int fd);
 	void close_connect(std::shared_ptr<TcpStream> pstream);
-
+	
 	virtual void handle_read(std::shared_ptr<TcpStream> pstream);
+	virtual void new_connect(int fd);
+
+	void set_loop(EventLoop::ptloop_t _ploop)
+	{
+		ploop = _ploop;
+	}
 	inline std::shared_ptr<TcpServer> get_this()
 	{
 		return shared_from_this();
@@ -52,7 +57,6 @@ public:
 	SERVER_STATE state;
 	std::shared_ptr<EventLoop> ploop;
 	std::shared_ptr<Acceptor> acceptor;
-	// std::weak_ptr<TcpServer> _this;
 	int max_connect_id;
 	std::map<int, std::shared_ptr<TcpStream> > streams;
 
@@ -62,7 +66,6 @@ class MsgServer:public TcpServer
 public:
 	typedef std::shared_ptr<Msg> ptmsg_t;
 	typedef std::shared_ptr<ProtoMsg> ptpmsg_t;
-	// typedef const ptpmsg_t cptpmsg_t;
 	MsgServer();
 	void new_connect(int fd);
 	void handle_read(pttcpstream_t pstream);
@@ -70,8 +73,7 @@ public:
 	void send_msg(int conn_id, const ptmsg_t& pmsg);
 private:
 	std::map<int,ptmsg_t> conn_msgs;
-	// std::shared_ptr<Proto> proto;
-	// std::shared_ptr<Test> ps_test;
+
 };
 
 class EchoServer:public TcpServer

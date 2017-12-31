@@ -46,6 +46,7 @@ void Acceptor::handle_error(){}
 void Acceptor::close()
 {
 	//psocket->close();
+	get_server()->shutdown();
 }
 
 
