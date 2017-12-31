@@ -25,8 +25,8 @@ typedef std::chrono::steady_clock clock_type;
 
 struct TimerCompare
 {
-	const bool operator()(const TimerCB::pttimercb_t p1, 
-		const TimerCB::pttimercb_t p2)
+	const bool operator()(const TimerHandle::pttimerhandle_t p1, 
+		const TimerHandle::pttimerhandle_t p2)
 	{
 		return p1->expired > p2->expired;
 	}
@@ -35,7 +35,7 @@ struct TimerCompare
 class Pri_queue
 {
 public:
-	typedef TimerCB::pttimercb_t T;
+	typedef TimerHandle::pttimerhandle_t T;
 	
 	void push(const T& t){
 		min_heap.push_back(t);
@@ -98,7 +98,7 @@ u32 Timer::get_now()
 			tp.time_since_epoch()).count();
 }
 
-u32 Timer::_start_timer(u32 t,TimerCB::pttimercb_t pHandle)
+u32 Timer::_start_timer(u32 t,TimerHandle::pttimercb_t pHandle)
 {
 	++max_id;
 	u32 now = get_now();
@@ -112,7 +112,7 @@ u32 Timer::_start_timer(u32 t,TimerCB::pttimercb_t pHandle)
 	return max_id;
 }
 
-void Timer::end_timer(TimerCB::pttimercb_t pHandle)
+void Timer::end_timer(TimerHandle::pttimercb_t pHandle)
 {
 	// auto find_it = handles.find(pHandle->timer_id);
 	// assert(find_it!=handles.end());
@@ -128,7 +128,8 @@ void Timer::update()
 	while(!pqueue->empty() && min_expired <= now)
 	{
 		auto p = pqueue->top();
-		p->handle(get_this());
+		// p->handle(get_this());
+		(*p)(get_this());
 		pqueue->pop();
 
 		min_expired = pqueue->get_min();

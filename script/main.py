@@ -4,6 +4,8 @@ import sys
 import os
 import encodings #init codes?
 from protos import test_pb2
+import time
+import _engine
 
 def do_copy(src,dst):
 	import shutil
@@ -42,10 +44,11 @@ def get_msg(s):
 	h.ParseFromString(s)
 	print h
 
-def test(t):
-	print "in test",t
+def test():
+	print "in test!!",time.time()
 	# import _engine
-	# _engine.regist_timer(200,test)
+	t = _engine.start_timer(300,test)
+	print "t_id:",t
 
 def main():
 	print "in main....."
@@ -61,8 +64,9 @@ def main():
 	# print [s]
 	# get_msg(s)
 	# search_copy_mods()
-	import _engine
-	_engine.start_timer(300,test)
+	
+	# t = _engine.start_timer(300,test)
+	# print "t_id:",t
 
 def update(interval):
 	pass

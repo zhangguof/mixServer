@@ -9,9 +9,10 @@
 void init_py(int argn,char** argv);
 extern EventLoop* g_event_loop;
 
-class TimerTest:std::enable_shared_from_this<TimerTest>
+class TimerTest:public std::enable_shared_from_this<TimerTest>
 {
-	void test(u32 _id,Timer::pttimer_t pttimer)
+public:
+	void test(Timer::pttimer_t pttimer)
 	{
 		log_debug("===test");
 		pttimer->_start_timer(200,
@@ -33,7 +34,9 @@ int main(int argn,char** argv)
 	}
 	log_debug("init py!!");
 	init_py(argn,argv);
-	// ploop->start_timer(200,TimerHandle<TimerTest>::make)
+	// auto ptest = std::make_shared<TimerTest>();
+	// ploop->start_timer(200,ptest,&TimerTest::test);
+
 	cpp_server->bind(ip,port);
 	cpp_server->start();
 	// delete cpp_server;

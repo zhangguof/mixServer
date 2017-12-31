@@ -200,11 +200,21 @@ class PyTimerCb
 {
 public:
 	PyTimerCb(PyObject* _f):pfun(_f){}
-	void on_handle(u32 timer_id,std::shared_ptr<Timer> ptimer)
+	void on_handle(std::shared_ptr<Timer> ptimer)
 	{
-		PyObject* pargs = Py_BuildValue("(i)",timer_id);
-		PyObject_CallObject(pfun,pargs);
-		Py_XDECREF(pargs);
+		// PyObject* pargs = Py_BuildValue("(i)",timer_id);
+		PyObject* pr =  PyObject_CallObject(pfun,NULL);
+		if(!pr)
+		{
+			printf("call py obj err!\n");
+			PyObject* p = PyErr_Occurred();
+			if(p)
+			{
+				PyErr_Print();
+			}
+		}
+		Py_XDECREF(pr);
+		// Py_XDECREF(pargs);
 		// Py_XDECREF(pfun);
 
 	}
@@ -222,7 +232,8 @@ static PyObject* _engine_start_timer(PyObject* self,PyObject* args)
 	{
 		printf("on _engine start_timer:%d\n",t);
 		auto pobj = std::make_shared<PyTimerCb>(pyf);
-		g_event_loop->start_timer((u32)t,pobj,&PyTimerCb::on_handle);
+		u32 timer_id = g_event_loop->start_timer((u32)t,pobj,&PyTimerCb::on_handle);
+		return Py_BuildValue("i",timer_id);
 
 		// PyObject* pargs = Py_BuildValue("(i)",t_id);
 		// PyObject_CallObject(pyf,pargs);
@@ -233,7 +244,7 @@ static PyObject* _engine_start_timer(PyObject* self,PyObject* args)
 		PyErr_SetString(PyExc_RuntimeError,"_engine_start_timer err!!");
 		return NULL;
 	}
-	Py_RETURN_NONE;
+	// Py_RETURN_NONE;
 }
 
 
