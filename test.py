@@ -4,7 +4,7 @@ import time
 
 # print s.getsockname(),s.getpeername()
 # s.send("sssss")
-host = ("127.0.0.1",8889)
+
 
 def do_recv(s,n):
 	return s.recv(n)
@@ -16,6 +16,8 @@ def new_s():
 	return socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
 def main():
+	#echi client
+	host = ("127.0.0.1",8889+1)
 	s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 	s.connect(host)
 	print s.getsockname(),s.getpeername()
@@ -31,6 +33,7 @@ def main():
 
 
 def main2():
+	host = ("127.0.0.1",8889)
 	n = 1000
 	sockets = []
 	cur = time.time()
