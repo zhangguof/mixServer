@@ -1,7 +1,6 @@
 #-*- coding:utf-8 -*-
 from protos import test_pb2
 import proto
-import _sender #_sender.send(uid,msg_str)
 
 def on_echo(uid,pb_m):
 	msg = pb_m.msg

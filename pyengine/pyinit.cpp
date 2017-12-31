@@ -16,8 +16,7 @@ const char* py_str = "import sys\n"\
 					 "init.init()\n";
 char* pyhome = "./script";
 
-void inittest();
-void init_sender();
+
 void init_engine();
 int g_py_init = 0;
 EventLoop* g_event_loop = NULL;
@@ -42,8 +41,7 @@ void init_python(int argc,char** argv)
 
 	Py_Initialize();
 	PySys_SetArgvEx(argc, argv, 0);
-	// inittest();
-	init_sender();
+
 	init_engine();
 
 }
@@ -158,11 +156,7 @@ int handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 		ret = PyInt_AsLong(pr);
 	}
 
-	// PyObject* args = PyTuple_New(3);
-	// PyObject* pv = PyInt_FromLong(s_id);
-	// PyTuple_SetItem(args,0,pv); //steal the ref.
-	// pv = PyInt_FromLong(c_id);
-	// PyTuple_SetItem(args,1,pv);
+
 	
 	if(!ret)
 		printf("handle_msg error!:%d,%d\n",s_id,c_id);
@@ -170,7 +164,7 @@ int handle_pb_msg(int s_id,int c_id,int uid,const char* s)
 
 }
 
-static PyObject* _sender_send(PyObject* self,PyObject* args)
+static PyObject* _engine_send(PyObject* self,PyObject* args)
 {
 	printf("in _sender_send!!!!!\n");
 	int uid;
@@ -217,7 +211,7 @@ public:
 	PyObject* pfun;
 };
 
-static PyObject* _engine_regist_timer(PyObject* self,PyObject* args)
+static PyObject* _engine_start_timer(PyObject* self,PyObject* args)
 {
 	int t;
 	PyObject* pyf;
@@ -226,7 +220,7 @@ static PyObject* _engine_regist_timer(PyObject* self,PyObject* args)
 	//add ref pyf??
 	if(r && pyf && PyCallable_Check(pyf))
 	{
-		printf("on _engine regist_timer:%d\n",t);
+		printf("on _engine start_timer:%d\n",t);
 		auto pobj = std::make_shared<PyTimerCb>(pyf);
 		g_event_loop->start_timer((u32)t,pobj,&PyTimerCb::on_handle);
 
@@ -236,48 +230,22 @@ static PyObject* _engine_regist_timer(PyObject* self,PyObject* args)
 	else
 	{
 		printf("parse args error!\n");
-		PyErr_SetString(PyExc_RuntimeError,"_engine_regist_timer err!!");
+		PyErr_SetString(PyExc_RuntimeError,"_engine_start_timer err!!");
 		return NULL;
 	}
 	Py_RETURN_NONE;
 }
 
-static PyObject* test_foo(PyObject* self,PyObject* args)
-{
-	return PyInt_FromLong(42);
-}
-
-static PyMethodDef test_methods[] = {
-    {"foo",             test_foo,      METH_NOARGS,
-     "Return the meaning of everything."},
-    {NULL,              NULL}           /* sentinel */
-};
-
-static PyMethodDef _sender_methods[] = {
-    {"send",             _sender_send,      METH_VARARGS,
-     "do send!!."},
-    {NULL,              NULL}           /* sentinel */
-};
 
 static PyMethodDef _engine_methods[] = {
-    {"regist_timer", _engine_regist_timer, METH_VARARGS,
-     "do send!!."},
+    {"start_timer", _engine_start_timer, METH_VARARGS,
+     "start_timer!!."},
+    {"send",        _engine_send,      METH_VARARGS,
+     "do send msg."},
     {NULL,              NULL}           /* sentinel */
 };
 
 
-//static module
-void inittest()
-{
-	PyImport_AddModule("test");
-	Py_InitModule("test",test_methods);
-}
-
-void init_sender()
-{
-	PyImport_AddModule("_sender");
-	Py_InitModule("_sender",_sender_methods);
-}
 
 void init_engine()
 {

@@ -62,7 +62,7 @@ def main():
 	# get_msg(s)
 	# search_copy_mods()
 	import _engine
-	_engine.regist_timer(200,test)
+	_engine.start_timer(300,test)
 
 def update(interval):
 	pass
