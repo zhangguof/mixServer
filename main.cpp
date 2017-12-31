@@ -22,7 +22,8 @@ public:
 
 int main(int argn,char** argv)
 {
-	auto msg_server = std::make_shared<MsgServer>();
+	// auto msg_server = std::make_shared<MsgServer>();
+	auto msg_server = std::make_shared<HttpServer>();
 	// auto echo_server = std::make_shared<EchoServer>();
 
 	auto ploop = std::make_shared<EventLoop>();

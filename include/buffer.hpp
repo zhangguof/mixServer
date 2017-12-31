@@ -22,6 +22,7 @@ public:
 	{
 		return end_idx;
 	}
+	int find_CRLF();
 	void clear()
 	{
 		start_idx = 0;
