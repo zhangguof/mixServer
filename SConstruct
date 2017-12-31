@@ -25,6 +25,7 @@ def add_paths(root_path,paths,exclude_files = []):
 # 		LIBS = libs, LIBPATH = lib_path)
 google_buffer_src = "../protobuf-3.5.1/src"
 google_buffer_libpath = "../protobuf-3.5.1"
+google_pb_root = "../protobuf-3.5.1"
 
 python_src= "../Python-2.7.14"
 SSL="/usr/local/opt/openssl"
@@ -69,6 +70,13 @@ def build(target,paths,exclude_files=[]):
 		)
 
 def build_main():
+	build_pyext_static("pypbext",
+		google_pb_root,
+		[google_pb_root+"/python/google/protobuf/pyext",
+		 ],
+		 [google_pb_root+"/python/google/protobuf/internal/api_implementation.cc",]
+		)
+	
 	build("cppserver",list(
 		chain([".","net","services","server","pyengine","proto/gen_proto/cpp/server"],
 		proto_path)))
@@ -80,13 +88,8 @@ def build_main():
 	
 	# build("timer_test",[".","net","test/timer_test"],["./main.cpp"])
 	
-	# google_buffer_root = "/Users/tony/newwork/github/py/protobuf-3.5.1"
-	# build_pyext_static("pypbext",
-	# 	google_buffer_root,
-	# 	[google_buffer_root+"/python/google/protobuf/pyext",
-	# 	 ],
-	# 	 [google_buffer_root+"/python/google/protobuf/internal/api_implementation.cc",]
-	# 	)
+	
+
 build_main()
 
 
