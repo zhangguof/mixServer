@@ -23,10 +23,10 @@ def add_paths(root_path,paths,exclude_files = []):
 # env.Append( CPPPATH=list(chain(include_path,cpp_path)) )
 # env.Program(target=target, source=cpp_src, CCFLAGS=cc_flags, LINKFLAGS=link_flags,
 # 		LIBS = libs, LIBPATH = lib_path)
-google_buffer_src = "/Users/tony/newwork/github/py/protobuf-3.5.1/src"
-google_buffer_libpath = "/Users/tony/newwork/github/py/protobuf-3.5.1"
+google_buffer_src = "../protobuf-3.5.1/src"
+google_buffer_libpath = "../protobuf-3.5.1"
 
-python_src= "/Users/tony/workspace/github/Python-2.7.14"
+python_src= "../Python-2.7.14"
 SSL="/usr/local/opt/openssl"
 
 py_include_path = [python_src,python_src+"/Include",SSL+"/include",SSL+"/include/openssl"]
