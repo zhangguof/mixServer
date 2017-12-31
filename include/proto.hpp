@@ -4,7 +4,7 @@
 #include <memory>
 #include <functional>
 
-#include "test.pb.h"
+#include "protos.hpp"
 #include "utils.hpp"
 
 class HandleBase;

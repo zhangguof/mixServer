@@ -4,8 +4,11 @@ import os
 import subprocess
 from protos.types import *
 
+#dst path
 pbs_path = "./pbs" #protobuffer path
 cpp_path = "./cpp"
+hpp_path = "../../include"
+
 python_path = "../../script/protos"
 py_services_path = "../../script/services"
 src_path = "./protos"
@@ -62,6 +65,7 @@ def gen_cpp_py(_mod_name):
 	cpp_server_file_path = os.path.join(cpp_path,"server","gen_"+_mod_name+".cpp")
 	cpp_client_file_path = os.path.join(cpp_path,"client","gen_"+_mod_name+".cpp")
 	py_file_path = os.path.join(py_services_path,"gen_service.py")
+	
 	cpp_template = env.get_template("cpp_template.cpp")
 	py_template = env.get_template("py_template.py")
 
@@ -131,6 +135,22 @@ def gen_pb2cpp(pb_src_path,cpp_dst_path):
 	print "gen cpp from pb:%s-->%s"%(pb_src_path,cpp_dst_path)
 	print "gen from files:%s"%(pbs)
 
+def gen_proto_hpp(cpp_pb_path):
+	hpp_file_path = os.path.join(hpp_path,"protos.hpp")
+	hpp_template = env.get_template("protos_hpp_template.hpp")
+	head_files = []
+	for _,_,files in os.walk(cpp_pb_path):
+		for filename in files:
+			if filename.endswith(".pb.h"):
+				head_files.append(filename)
+
+		break
+	s = hpp_template.render(head_files=head_files)
+	with open(hpp_file_path,"wb") as f:
+		f.write(s)
+	print "gen head file:%s"%hpp_file_path
+
+
 
 
 def gen_files(src_proto_path):
@@ -148,6 +168,7 @@ def gen_files(src_proto_path):
 def main():
 	gen_files(src_path)
 	gen_pb2cpp(pbs_path,cpp_path)
+	gen_proto_hpp(cpp_path)
 
 
 if __name__ == '__main__':
