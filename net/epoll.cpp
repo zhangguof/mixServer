@@ -1,6 +1,5 @@
 #include "epoll.hpp"
-#ifdef __linux__
-#define ENABLE_EPOLL 1
+
 Epoll::Epoll()
 {
 	log_debug("EPOL in used!");

@@ -2,6 +2,7 @@
 #define _EPOLL_H_
 //only in linux
 #ifdef __linux__
+#define ENABLE_EPOLL 1
 #include <sys/epoll.h>
 #include <map>
 #include <set>
