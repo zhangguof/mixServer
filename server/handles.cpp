@@ -61,6 +61,7 @@ TcpStream::TcpStream(int fd,
 	pwrite_buf = std::make_shared<Buffer>();
 	pserver = _server;
 	connect_id  = _connect_id;
+	closed = false;
 
 
 }
@@ -99,6 +100,11 @@ void TcpStream::handle_write(){
 	if(remain_size<=0)
 	{
 		disable_write();
+		if(closed)
+		{
+			log_debug("close and after send all!!");
+			get_server()->close_connect(get_this());
+		}
 	}
 
 	log_debug("write_success!:has_send:%d,remain:%d",
@@ -130,7 +136,13 @@ void TcpStream::send(std::shared_ptr<std::string> ps)
 void TcpStream::close()
 {
 	//psocket->close();
-	get_server()->close_connect(get_this());
+	closed = true;
+	//has buffer to send.
+	if(pwrite_buf->readable_size()==0)
+	{
+		log_debug("close and has send all!!!");
+		get_server()->close_connect(get_this());
+	}
 	
 }
 

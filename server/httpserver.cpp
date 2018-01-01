@@ -54,13 +54,13 @@ struct HttpHeader
 	}
 };
 
-const char* reps_fileds[]={
-	"Content-Type",
-	"Content-Encoding",
-	"Content-Length",
-};
+// const char* reps_fileds[]={
+// 	"Content-Type",
+// 	"Content-Encoding",
+// 	"Content-Length",
+// };
 
-struct HttResponese
+struct HttpResponese
 {
 	std::string status_code; //HTTP/1.1 200 OK
 	std::map<std::string,std::string> _map;
@@ -71,6 +71,17 @@ struct HttResponese
 	const std::string& get(const std::string& name)
 	{
 		return _map[name];
+	}
+	void pack_str(std::string& s)
+	{
+		// std::string s;
+		s.append("HTTP/1.1 "+status_code+"\r\n");
+		for(auto it:_map)
+		{
+			s.append(it.first+": "+it.second+"\r\n");
+		}
+		s.append("\r\n");
+		// return s;
 	}
 };
 
@@ -92,7 +103,37 @@ public:
 			std::cout<<it.first<<":"<<it.second<<std::endl;;
 		}
 		
-		pstream->close();
+		// pstream->close();
+	}
+	void on_request()
+	{
+		HttpResponese resp;
+		std::string html_code = "<html>"
+		"<head>"
+		"<title>An Example Page</title>"
+		"</head>"
+		"<body>"
+		"Hello World, this is a very simple HTML document."
+		"</body>"
+		"</html>";
+		resp.status_code = "200 OK";
+		resp.set("Content-Encoding","utf-8");
+		resp.set("Content-Length",std::to_string(html_code.size()));
+		resp.set("Content-Type","text/html; charset=UTF-8");
+		std::string reps_str;
+		resp.pack_str(reps_str);
+		pstream->send(reps_str+html_code);
+		// pstream->close();
+		if(header.get("Connection") == "keep-alive")
+		{
+			log_debug("Connection:keep-alive,don't close it!");
+		}
+		else
+		{
+			log_debug("Connection:keep-alive test:close it!%s",header.get("Connection").c_str());
+			pstream->close();
+		}
+
 	}
 	// int state;
 	TcpServer::pttcpstream_t pstream;
@@ -104,9 +145,9 @@ void httpHandle::on_line(const std::string& str)
 {
 	if(str.size()==0)
 	{
-		return on_end();
+		return on_request();
 	}
-	auto find_it = str.find(":");
+	auto find_it = str.find(": ");
 	if(find_it == std::string::npos)
 	{
 		std::vector<std::string> v;
@@ -123,7 +164,7 @@ void httpHandle::on_line(const std::string& str)
 	else
 	{
 		std::string filed_name = std::string(str.begin(),str.begin()+find_it);
-		std::string filed_val = std::string(str.begin()+find_it+1,str.end());
+		std::string filed_val = std::string(str.begin()+find_it+2,str.end());
 		header.set(filed_name,filed_val);
 	}
 }
