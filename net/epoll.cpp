@@ -1,5 +1,5 @@
 #include "epoll.hpp"
-
+#ifdef ENABLE_EPOLL
 Epoll::Epoll()
 {
 	log_debug("EPOL in used!");
@@ -96,3 +96,4 @@ void Epoll::rm_handle(int fd)
 	--n_events;
 }
 
+#endif
