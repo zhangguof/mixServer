@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include "log.hpp"
 #include <iostream>
+#include <vector>
 
 // enum HandleState
 // {
@@ -14,17 +15,63 @@ state:heand_reading //wait for /r/n
 reading->
 */
 
+void string_split(char ch,const std::string& str,std::vector<std::string>& v)
+{
+	int find_pos = str.find(ch);
+	int start_pos = 0;
+	std::string s;
+	while(find_pos!=std::string::npos)
+	{
+		if(find_pos>start_pos)
+		{
+			s = std::string(str,start_pos,find_pos-start_pos);
+			v.push_back(s);
+		}
+		start_pos = find_pos+1;
+		find_pos = str.find(ch,start_pos);
+	}
+	if(str.size()-start_pos>0)
+	{
+		s = std::string(str,start_pos,str.size()-start_pos);
+		v.push_back(s);	
+	}
+
+}
+
 struct HttpHeader
 {
 	std::string method;
-	std::string request_url;
+	std::string req_url;
 	std::string proto_type;
-	std::string host;
+	std::map<std::string,std::string> _map;
+	void set(std::string filed_name, const std::string& v)
+	{
+		_map[filed_name] = v;
+	}
+	const std::string& get(const std::string& name)
+	{
+		return _map[name];
+	}
+};
+
+const char* reps_fileds[]={
+	"Content-Type",
+	"Content-Encoding",
+	"Content-Length",
 };
 
 struct HttResponese
 {
-	// std::string 
+	std::string status_code; //HTTP/1.1 200 OK
+	std::map<std::string,std::string> _map;
+	void set(std::string filed_name, const std::string& v)
+	{
+		_map[filed_name] = v;
+	}
+	const std::string& get(const std::string& name)
+	{
+		return _map[name];
+	}
 };
 
 class httpHandle
@@ -38,10 +85,14 @@ public:
 	void on_end()
 	{
 		log_debug("read end!!!");
-		// std::cout<<"method:"<<header.method<<":url:"<<header.request_url<<
-		// ":proto:"<<header.proto_type<<":host:"<<header.host<<std::endl;
+		std::cout<<"method:"<<header.method<<":url:"<<header.req_url<<
+		":proto:"<<header.proto_type<<std::endl;
+		for(auto it:header._map)
+		{
+			std::cout<<it.first<<":"<<it.second<<std::endl;;
+		}
 		
-		// pstream->close();
+		pstream->close();
 	}
 	// int state;
 	TcpServer::pttcpstream_t pstream;
@@ -55,23 +106,25 @@ void httpHandle::on_line(const std::string& str)
 	{
 		return on_end();
 	}
-	int find_idx = str.find(' ');
-	std::string filed_name = std::string(str.begin(),str.begin()+find_idx);
-	++find_idx;
-	if(filed_name=="GET")
+	auto find_it = str.find(":");
+	if(find_it == std::string::npos)
 	{
-		header.method = "GET";
-		int find_next = str.find(' ',find_idx);
-		header.request_url = std::string(str.begin()+find_idx,str.begin()+find_next);
-		header.proto_type = std::string(str.begin()+find_next+1,str.end());
-	}
-	else if(filed_name == "Host:")
-	{
-		header.host = std::string(str.begin()+find_idx,str.end());
+		std::vector<std::string> v;
+		string_split(' ',str,v);
+		std::string filed_name = v[0];
+		assert(filed_name == "GET" || filed_name == "POSH");
+		assert(v.size()==3);
+
+		header.method = filed_name;
+		header.req_url = v[1];
+		header.proto_type = v[2];
+
 	}
 	else
 	{
-		log_debug("unknow filed:%s",str.c_str());
+		std::string filed_name = std::string(str.begin(),str.begin()+find_it);
+		std::string filed_val = std::string(str.begin()+find_it+1,str.end());
+		header.set(filed_name,filed_val);
 	}
 }
 
