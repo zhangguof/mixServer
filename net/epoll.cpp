@@ -1,5 +1,6 @@
 #include "epoll.hpp"
 #ifdef ENABLE_EPOLL
+#include "eventloop.hpp"
 Epoll::Epoll()
 {
 	log_debug("EPOL in used!");
@@ -33,7 +34,15 @@ void Epoll::select(std::vector<std::pair<int,int> >& active_handles )
 		}
 	}
 	else if(n<0)
+	{
+		
 		log_debug("epoll_wait err!!:%d,%s",errno,get_error_msg(errno));
+		if(errno == EINTR)
+		{
+			log_debug("EINTR!!,going to shutdown!");
+			EventLoop::shutdown();
+		}
+	}
 }
 //int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 // EPOLL_CTL_ADD
