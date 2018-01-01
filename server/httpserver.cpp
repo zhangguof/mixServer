@@ -2,6 +2,7 @@
 #include "log.hpp"
 #include <iostream>
 #include <vector>
+#include "Python.h"
 
 // enum HandleState
 // {
@@ -14,6 +15,23 @@ http handle state:
 state:heand_reading //wait for /r/n
 reading->
 */
+typedef std::function<void(const char*, int)> send_raw_t;
+//py interface
+extern void py_new_connect(int conn_id,PyObject* sender);
+extern void py_handle_line(int conn_id,const char* s,int size);
+extern void py_handle_message(int conn_id, const char* s,int size);
+extern void py_handle_close(int conn_id);
+
+
+extern PyObject* new_pysender(send_raw_t* p);
+// extern void py_close_connect(int conn_id);
+//py interface end
+
+void test_send(const char* s,int size)
+{
+	std::string str(s,size);
+	printf("=====test sender:%s,len:%d\n",str.c_str(),str.size());
+}
 
 void string_split(char ch,const std::string& str,std::vector<std::string>& v)
 {
@@ -91,6 +109,7 @@ public:
 	httpHandle(TcpServer::pttcpstream_t _pstream){
 		// state=END;
 		pstream = _pstream;
+		conn_id = pstream->connect_id;
 	}
 	void on_line(const std::string& str);
 	void on_end()
@@ -138,11 +157,13 @@ public:
 	// int state;
 	TcpServer::pttcpstream_t pstream;
 	HttpHeader header;
+	int conn_id;
 
 };
 
 void httpHandle::on_line(const std::string& str)
 {
+
 	if(str.size()==0)
 	{
 		return on_request();
@@ -200,9 +221,12 @@ void HttpServer::close_connect(pttcpstream_t pstream)
 {
 	log_debug("http:on close_connect!!");
 	TcpServer::close_connect(pstream);
+	py_handle_close(pstream->connect_id);
+
 	auto it = handles.find(pstream->connect_id);
 	assert(it!=handles.end());
 	handles.erase(it);
+
 }
 
 void HttpServer::handle_request(){
@@ -210,13 +234,18 @@ void HttpServer::handle_request(){
 }
 void HttpServer::on_read_line(int c_id,const std::string& str)
 {
+	using namespace std::placeholders;
 	auto it_handle = handles.find(c_id);
 	if(it_handle == handles.end())
 	{
 		handles[c_id] = std::make_shared<httpHandle>(streams[c_id]);
+		send_raw_t *pt = new send_raw_t(std::bind( (void (TcpStream::*)(const char*, int))&TcpStream::send,streams[c_id],_1,_2));
+		PyObject* p_sender = new_pysender(pt);
+		py_new_connect(c_id,p_sender);
 	}
 	auto phandle = handles[c_id];
-	phandle->on_line(str);
+	//phandle->on_line(str);
+	py_handle_line(c_id,str.c_str(),str.size());
 
 	// log_debug("read line:%s",str.c_str());
 }

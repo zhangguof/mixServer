@@ -96,11 +96,26 @@ int init_py(int argc,char** argv)
 	return 0;
 }
 
+void check_py_error()
+{
+	PyObject* p = PyErr_Occurred();
+	if(p)
+	{
+		PyErr_Print();
+	}
+}
+
 PyObject* call_py_obj(const char* modname,
 	const char* fun_name,
 	const char* args_fmt,...)
 {
 	PyObject* pmod = PyImport_ImportModule(modname);
+	if(!pmod)
+	{
+		printf("import mod err!\n");
+		check_py_error();
+		return NULL;
+	}
 	PyObject* pfun = PyObject_GetAttrString(pmod,fun_name);
 	PyObject* args;
 	PyObject* pr = NULL;
@@ -117,11 +132,7 @@ PyObject* call_py_obj(const char* modname,
 		if(!pr)
 		{
 			printf("call py obj err!\n");
-			PyObject* p = PyErr_Occurred();
-			if(p)
-			{
-				PyErr_Print();
-			}
+			check_py_error();
 		}
 		Py_XDECREF(pr);
 	}
@@ -249,18 +260,19 @@ static PyObject* _engine_start_timer(PyObject* self,PyObject* args)
 
 
 static PyMethodDef _engine_methods[] = {
-    {"start_timer", _engine_start_timer, METH_VARARGS,
-     "start_timer!!."},
-    {"send",        _engine_send,      METH_VARARGS,
-     "do send msg."},
+    {"start_timer", _engine_start_timer, METH_VARARGS,"start_timer!!."},
+    {"send",        _engine_send,      METH_VARARGS,"do send msg."},
     {NULL,              NULL}           /* sentinel */
 };
 
-
+extern void add_py_sender(PyObject* m);
 
 void init_engine()
 {
 	PyImport_AddModule("_engine");
 	Py_InitModule("_engine",_engine_methods);
+	PyObject* pm = PyImport_ImportModule("_engine");
+	add_py_sender(pm);
+	Py_XDECREF(pm);
 }
 
