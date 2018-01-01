@@ -33,7 +33,7 @@ public:
 	TcpServer();
 	int start();
 	void bind(std::string ip,int port);
-	void close_connect(std::shared_ptr<TcpStream> pstream);
+	virtual void close_connect(std::shared_ptr<TcpStream> pstream);
 	
 	virtual void handle_read(std::shared_ptr<TcpStream> pstream);
 	virtual void new_connect(int fd);
@@ -80,6 +80,21 @@ class EchoServer:public TcpServer
 {
 	void new_connect(int fd);
 	void handle_read(pttcpstream_t pstream);
+};
+class httpHandle;
+class HttpServer:public TcpServer
+{
+public:
+	void new_connect(int fd);
+	void close_connect(pttcpstream_t pstream);
+	void handle_read(pttcpstream_t pstream);
+	void handle_request();
+	void on_read_line(int,const std::string&);
+	void on_get();
+	void on_post();
+	// void response(int conn_id)
+	std::map<int,std::shared_ptr<httpHandle> > handles;
+
 };
 
 
