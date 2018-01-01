@@ -32,7 +32,7 @@ SSL="/usr/local/opt/openssl"
 
 py_include_path = [python_src,python_src+"/Include",SSL+"/include",SSL+"/include/openssl"]
 py_lib_path = [python_src,SSL+"/lib"]
-py_libs = ["python2.7","ssl","crypto","z"]
+py_libs = ["python2.7","ssl","crypto","z","pthread","util"]
 
 proto_path = ["proto","proto/gen_proto/cpp"]
 
@@ -41,13 +41,13 @@ def build_pyext_static(target,root_path,paths,src_files=[],exclude_files=[]):
 	srcs.extend(src_files)
 	include_path = [root_path+"/python",root_path+"/src"]
 	env = Environment(CC = 'c++',CXX='c++',
-                   CCFLAGS = '-g -std=c++11')
+                   CCFLAGS = '-g -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0')
 	env.Append(CPPPATH=list(chain(include_path,paths,
 		py_include_path))
 	)
 	#-lprotobuf -L$(google_buffer_libpath)
 	env.StaticLibrary(target, srcs, 
-		LIBS=list(chain(["protobuf","python2.7"],py_libs)),
+		LIBS=list(chain(["protobuf","python2.7","dl"],py_libs)),
 		LIBPATH=list(chain([google_buffer_libpath],py_lib_path)))
 
 # def build_common():
@@ -60,12 +60,12 @@ def build(target,paths,exclude_files=[]):
 	srcs = add_paths(src_path,paths,exclude_files)
 	include_path = ["include",google_buffer_src]
 	env = Environment(CC = 'c++',CXX='c++',
-                   CCFLAGS = '-g -std=c++11 ')
+                   CCFLAGS = '-g -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0')
 	env.Append(CPPPATH=list(chain(include_path,paths,py_include_path)))
 	
 	#-lprotobuf -L$(google_buffer_libpath)
 	env.Program(target, srcs, 
-		LIBS=list(chain(["protobuf","python2.7","pypbext"],py_libs)),
+		LIBS=list(chain(["python2.7","pypbext","protobuf","dl"],py_libs)),
 		LIBPATH=list(chain([".",google_buffer_libpath],py_lib_path))
 		)
 
