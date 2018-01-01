@@ -96,6 +96,3 @@ void Epoll::rm_handle(int fd)
 	--n_events;
 }
 
-
-
-#endif
