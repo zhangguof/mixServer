@@ -94,12 +94,16 @@ void run_py()
     {
     	printf("init error!!\n");
     }
-    auto* obj = new pyTest;
+    pyTest_* obj = class_<pyTest_>::new_obj(NULL,NULL);
     // obj->xxx = 1024;
-    printf("ojb name:%s\n",obj->ob_type->tp_name);
+    printf("ojb name:%s,cnt:%d\n",obj->ob_type->tp_name,obj->ob_refcnt);
     call_py_obj("init","test","(O)",obj);
+    printf("after call name:%s,cnt:%d\n",obj->ob_type->tp_name,obj->ob_refcnt);
+    
+    Py_XDECREF(obj);
+
     // printf("after call:%d\n",obj->xxx);
-    delete obj;
+    // delete obj;
 
     Py_XDECREF(f_init);
     Py_XDECREF(pmod);
