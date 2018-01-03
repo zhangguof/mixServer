@@ -7,6 +7,7 @@
 #include "services.hpp"
 #include "timer.hpp"
 #include "eventloop.hpp"
+#include "pybase.hpp"
 
 
 
@@ -16,6 +17,9 @@ const char* py_str = "import sys\n"\
 					 "init.init()\n";
 char* pyhome = "./script";
 
+PyObject* call_py_obj(const char* ,
+	const char* ,
+	const char* ,...);
 
 void init_engine();
 int g_py_init = 0;
@@ -41,10 +45,22 @@ void init_python(int argc,char** argv)
 
 	Py_Initialize();
 	PySys_SetArgvEx(argc, argv, 0);
+	
 
 	init_engine();
 
 }
+
+void check_py_error()
+{
+	PyObject* p = PyErr_Occurred();
+	if(p)
+	{
+		PyErr_Print();
+	}
+}
+
+
 void run_py()
 {
 	/* Execute some Python statements (in module __main__) */
@@ -58,6 +74,11 @@ void run_py()
     if(ret==-1)
     	printf("insert error!\n");
     PyObject* pmod  = PyImport_ImportModule("init");
+    if(!pmod)
+    {
+    	check_py_error();
+    	return;
+    }
     PyObject* f_init = PyObject_GetAttrString(pmod,"init");
     if(f_init && PyCallable_Check(f_init))
     {
@@ -73,6 +94,13 @@ void run_py()
     {
     	printf("init error!!\n");
     }
+    auto* obj = new pyTest;
+    // obj->xxx = 1024;
+    printf("ojb name:%s\n",obj->ob_type->tp_name);
+    call_py_obj("init","test","(O)",obj);
+    // printf("after call:%d\n",obj->xxx);
+    delete obj;
+
     Py_XDECREF(f_init);
     Py_XDECREF(pmod);
     Py_XDECREF(str);
@@ -96,14 +124,7 @@ int init_py(int argc,char** argv)
 	return 0;
 }
 
-void check_py_error()
-{
-	PyObject* p = PyErr_Occurred();
-	if(p)
-	{
-		PyErr_Print();
-	}
-}
+
 
 PyObject* call_py_obj(const char* modname,
 	const char* fun_name,
@@ -266,6 +287,7 @@ static PyMethodDef _engine_methods[] = {
 };
 
 extern void add_py_sender(PyObject* m);
+
 
 void init_engine()
 {

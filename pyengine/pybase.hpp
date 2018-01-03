@@ -1,6 +1,8 @@
 #ifndef _PY_BASE_H_
 #define _PY_BASE_H_
 #include "Python.h"
+#include "structmember.h"
+#include <vector>
 //c++ obj
 //replace PyObject* by pyobj* ?
 #define PY_VAR_METHOD_DEF(name,doc) {#name,(PyCFunction)name,METH_VARARGS,doc}
@@ -19,52 +21,82 @@ public:
 	PyObject * _new_obj(PyObject *args, PyObject *kwds);
 };
 
+
+
+template<typename T>
+class class_method
+{
+public:
+	class_method();
+	class_method<T>& def(const char* fname,PyCFunction pfun);
+
+	class_method<T>& def_memb(const char* name,int T::* pv);
+	class_method<T>& def_memb(const char* name,char* T::* pv);
+	class_method<T>& _def_memb(const char*name,int type,ssize_t off);
+
+	class_method<T>& def_get_set(const char*name,getter pget,setter pset);
+
+	PyMethodDef* get_methods()
+	{
+		return &(*(_methods.begin()));
+	}
+	PyMemberDef* get_members()
+	{
+		return &(*(_members.begin()));
+	}
+	PyGetSetDef* get_getsetlist()
+	{
+		return &(*(_getsetlist.begin()));
+	}
+	std::vector<PyMethodDef> _methods;
+	std::vector<PyMemberDef> _members;
+	//getter static PyObject *_get(PyObject *self, void *closure)
+	//setter static int _set(PyObject *self, PyObject *value, void *closure)
+	std::vector<PyGetSetDef> _getsetlist;
+};
+
 class pyobj
 {
 public:
+	typedef class_method<pyobj> method_t; 
 	PyObject_HEAD
 public:
 	void* operator new(size_t size);
 	void operator delete(void* p);
 	static void dealloc(PyObject* self);
-	//methods
-	static PyObject* get_num(PyObject* self,void *closure);
-	// static PyObject* test(PyObject* self,PyObject *args,PyObject *kwds);
+//get set	
+
+//methods
+
 public:
 	static const char* name;
-	static PyMethodDef _methods[];
-	static PyMemberDef _members[];
-	static PyGetSetDef _getsetlist[];
+	static method_t _methods;
+	static void init_methods();
 	static pytype* p_type;
-
 };
+
 
 class pyTest:public pyobj
 {
 public:
-	void* operator new(size_t size);
+	typedef class_method<pyTest> method_t; 
+	int num;
+	int num1;
+	int num2;
 public:
-	int xxx;
-	PYOBJ_FUN_DEF(test2)
+//get set	
+	static PyObject* get_num(PyObject* self,void *closure);
+	static int set_num(PyObject* self,PyObject* val,void *closure);
+//methods
+	static PyObject* test(PyObject* self,PyObject *args);
+	static PyObject* foo(PyObject* self,PyObject *args);
+//from pyobj
 	static const char* name;
-	static PyMethodDef _methods[];
-	static PyMemberDef _members[];
-	
+	void* operator new(size_t size);
+	static method_t _methods;
+	static void init_methods();
 	static pytype* p_type;
 };
-
-// class pySender:public pyobj
-// {
-// public:
-// 	void* operator new(size_t size);
-// public:
-// 	int xxx;
-// 	PYOBJ_FUN_DEF(test2)
-// 	static const char* name;
-// 	static PyMethodDef _methods[];
-// 	static PyMemberDef _members[];
-// 	static pytype* p_type;
-// };
 
 
 #endif
