@@ -64,9 +64,13 @@ def main():
 	# print [s]
 	# get_msg(s)
 	# search_copy_mods()
+	import _engine
+	t = _engine.start_timer(300,test)
+	print "t_id:",t
+
 	
-	# t = _engine.start_timer(300,test)
-	# print "t_id:",t
+	print _engine
+	_engine.test()
 
 def update(interval):
 	pass
