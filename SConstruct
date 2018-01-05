@@ -1,5 +1,7 @@
 import os
 from itertools import chain
+# debug_flag="-DDEBUG_MEM"
+debug_flag=""
 
 src_path = os.path.abspath(os.path.curdir)
 print "src_path:",src_path
@@ -60,7 +62,7 @@ def build(target,paths,exclude_files=[]):
 	srcs = add_paths(src_path,paths,exclude_files)
 	include_path = ["include",google_buffer_src]
 	env = Environment(CC = 'c++',CXX='c++',
-                   CCFLAGS = '-g -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0')
+                   CCFLAGS = '-g -std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0 '+debug_flag)
 	env.Append(CPPPATH=list(chain(include_path,paths,py_include_path)))
 	
 	#-lprotobuf -L$(google_buffer_libpath)
@@ -78,13 +80,13 @@ def build_main():
 		)
 	
 	build("cppserver",list(
-		chain([".","net","services","server","pyengine","proto/gen_proto/cpp/server"],
+		chain([".","net","services","server","utils","pyengine","proto/gen_proto/cpp/server"],
 		proto_path)))
 	
-	build("client/client",list(
-		chain([".","net","client","client/services","pyengine","proto/gen_proto/cpp/client"],
-		proto_path)),
-	["./main.cpp"])
+	# build("client/client",list(
+	# 	chain([".","net","client","client/services","pyengine","proto/gen_proto/cpp/client"],
+	# 	proto_path)),
+	# ["./main.cpp","pyengine/pyhttphandle.cpp"])
 	
 	# build("timer_test",[".","net","test/timer_test"],["./main.cpp"])
 	

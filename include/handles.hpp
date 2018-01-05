@@ -2,8 +2,16 @@
 #define _HANDLES_H_
 #include "handle.hpp"
 #include "socket.hpp"
-
+#include "mem.hpp"
 class TcpServer;
+class TcpStream;
+class Acceptor;
+
+typedef STD::shared_ptr<TcpStream> ptstream_t;
+typedef std::shared_ptr<Acceptor> ptacceptor_t;
+
+
+
 class Acceptor:public Handle
 {
 public:
@@ -27,6 +35,7 @@ public:
 class TcpStream:public Handle
 {
 public:
+
 	TcpStream(int fd,
 		int connect_id,
 		std::weak_ptr<TcpServer> _server);
@@ -38,9 +47,9 @@ public:
 	void send(const char* p, int size);
 	void send(std::shared_ptr<std::string> ps);
 	void close();
-	std::shared_ptr<TcpStream> get_this()
+	ptstream_t get_this()
 	{
-			return std::static_pointer_cast<TcpStream>(
+			return STD::static_pointer_cast<TcpStream>(
 				shared_from_this());
 	}
 	inline std::shared_ptr<TcpServer> get_server()
@@ -57,6 +66,6 @@ public:
 	int connect_id;
 	bool closed;
 };
-typedef std::shared_ptr<TcpStream> ptstream_t;
+
 
 #endif
