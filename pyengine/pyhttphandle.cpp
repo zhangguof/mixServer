@@ -62,7 +62,7 @@ void pySender::init_methods()
 
 PYOBJ_GETTER(pySender,get_closed)
 {
-    if(self->closed)
+    if(self->closed || self->pstream->closing || self->pstream->closed)
     {
         Py_RETURN_TRUE;
     }

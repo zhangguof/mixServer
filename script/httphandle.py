@@ -22,9 +22,9 @@ class HttpHandle(BaseHTTPServer.BaseHTTPRequestHandler):
 	
 	def do_GET(self):
 		self.close_connection = 1
-		self.send_error(404)
-		self.send.close()
-		return
+		# self.send_error(404)
+		# self.send.close()
+		# return
 		html_code = '''<html>
 		<head>
 		<title>An Example Page</title>
@@ -43,8 +43,8 @@ class HttpHandle(BaseHTTPServer.BaseHTTPRequestHandler):
 			) + "\r\n"
 		reps_content = reps_header + "\r\n" + html_code
 		self.send(reps_content)
-		if self.close_connection:
-			self.send.close()
+		# if self.close_connection:
+		# 	self.send.close()
 
 	def handle_line(self,line):
 		self.rbuf.write(line+"\r\n")

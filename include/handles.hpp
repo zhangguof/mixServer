@@ -65,6 +65,7 @@ public:
 	std::shared_ptr<Buffer> pread_buf;
 	int connect_id;
 	bool closed;
+	bool closing;
 };
 
 
