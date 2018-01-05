@@ -35,7 +35,7 @@ public:
 	void handle_write();
 	void handle_error();
 	void send(std::string s);
-	void send(const char*p, int size);
+	void send(const char* p, int size);
 	void send(std::shared_ptr<std::string> ps);
 	void close();
 	std::shared_ptr<TcpStream> get_this()
@@ -57,5 +57,6 @@ public:
 	int connect_id;
 	bool closed;
 };
+typedef std::shared_ptr<TcpStream> ptstream_t;
 
 #endif

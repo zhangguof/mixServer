@@ -4,9 +4,33 @@
 #include "structmember.h"
 #include <vector>
 //c++ obj
-#define INIT_PYCLASS(obj_name) class_<obj_name> obj_name::pyclass = class_<obj_name>(#obj_name)
+#define INIT_PYCLASS(obj_name) class_<obj_name> obj_name::pyclass = \
+							   class_<obj_name>(#obj_name)
+
+#define DEF_PYCLASS(obj_name) static class_<obj_name> pyclass;\
+							  static void init_methods();
+
 #define INIT_PYMOD(mod_name) mod_name::get_inst<mod_name>(#mod_name)
-#define DEF_PY_METHOD(fname) static PyObject* fname(PyObject* self,PyObject*args)
+
+#define DEF_PY_METHOD(obj,fname) static PyObject* fname(obj* self,PyObject*args)
+#define DEF_PY_METHOD3(obj,fname) static PyObject* fname(obj* self,PyObject* args,PyObject* kwds)
+
+#define PYOBJ_METHOD(obj,fname) PyObject* obj::fname(obj*self,PyObject* args)
+#define PYOBJ_METHOD3(obj,fname) PyObject* obj::fname(obj*self,PyObject* args,PyObject*kwds)
+
+#define PYMOD_METHOD(mod,fname) PyObject* mod::fname(PyObject* self,PyObject* args)
+
+#define DEF_PY_GETTER(obj,fname) static PyObject* fname(obj*self,void* closure)
+#define DEF_PY_SETTER(obj,fname) static int fname(obj*self PyObject* value, void* closure)
+#define PYOBJ_GETTER(obj,fname) PyObject* obj::fname(obj* self,void* closure)
+#define PYOBJ_SETTER(obj,fname) int obj::fname(obj*self, PyObject* value, void* closure)
+
+#define INIT_METHOD(name,fun) pyclass.def(name,&fun)
+
+#define INIT_GETSET(name,gfun,sfun) pyclass.def_get_set(name,gfun,sfun)
+#define INIT_CALLABLE(fun) pyclass.def_callable(fun)
+
+#define NEW_PYOBJ(obj) class_<obj>::new_obj(NULL,NULL)
 
 int check_py_error();
 
@@ -25,6 +49,7 @@ class class_
 {
 public:
 	typedef PyObject* (*TpyCFun_t)(T*,PyObject*);
+	typedef PyObject* (*TpyCFun_t3)(T*,PyObject*,PyObject*);
 	typedef PyObject* (*TpyGetter)(T*,void*);
 	typedef int (*TpySetter)(T*,PyObject*,void*);
 	class_(const char* _name)
@@ -33,6 +58,7 @@ public:
 		_methods.push_back({0});
 		_members.push_back({0});
 		_getsetlist.push_back({0});
+		py_callable_fun = NULL;
 		init_type();
 	}
 	template<typename fun_t>
@@ -42,7 +68,7 @@ public:
 	template<typename getf_t,typename setf_t>
 	class_<T>& def_get_set(const char*name,getf_t pget,setf_t pset);
 	// class_<T>& def_get_set(const char*name,TpyGetter pget,TpySetter pset);
-
+	class_<T>& def_callable(TpyCFun_t3 pfun);
 
 	static void dealloc(PyObject* self);
 	void init_type();
@@ -63,11 +89,17 @@ public:
 	{
 		return &(*(_getsetlist.begin()));
 	}
+	ternaryfunc get_callable_fun()
+	{
+		return (ternaryfunc)py_callable_fun;
+	}
 	std::vector<PyMethodDef> _methods;
 	std::vector<PyMemberDef> _members;
 	//getter static PyObject *_get(PyObject *self, void *closure)
 	//setter static int _set(PyObject *self, PyObject *value, void *closure)
 	std::vector<PyGetSetDef> _getsetlist;
+
+	TpyCFun_t3 py_callable_fun;
 	const char* type_name;
 	PyTypeObject* ptypeobj;
 };
@@ -95,9 +127,11 @@ void class_<T>::init_type()
 	ptypeobj->tp_dealloc = dealloc;
 	ptypeobj->tp_flags = Py_TPFLAGS_DEFAULT;
 	T::init_methods();
+
 	ptypeobj->tp_methods = get_methods();
 	ptypeobj->tp_members = get_members();
 	ptypeobj->tp_getset  = get_getsetlist();
+	ptypeobj->tp_call	 = get_callable_fun();
 	int n = PyType_Ready(ptypeobj);
 	if(n<0)
 		ptypeobj = NULL;
@@ -134,6 +168,15 @@ class_<T>& class_<T>::def_get_set(const char*name,getf_t pget,setf_t pset)
 }
 
 template<typename T>
+class_<T>& class_<T>::def_callable(TpyCFun_t3 pfun)
+{
+	assert(!py_callable_fun);
+	py_callable_fun = pfun;
+}
+
+
+
+template<typename T>
 class_<T>& class_<T>::def_memb(
 	const char* name,int T::* pmem)
 {
@@ -158,7 +201,8 @@ T* class_<T>::_new_obj(PyObject *args, PyObject *kwds)
 	assert(ptype);
 	assert(ptype->tp_alloc);
     self = (T *)ptype->tp_alloc(ptype, 0);
-    new(self) T();
+    //No use new,will init some pyobject field.
+    //new(self) T();
     return self;
 }
 
@@ -172,7 +216,6 @@ class pyobj_
 {
 public:
 	PyObject_HEAD
-	pyobj_(){}
 	~pyobj_(){}
 	PyObject* get_pyobj()
 	{
@@ -184,17 +227,17 @@ public:
 
 	void* operator new(size_t size,void* p){return p;}
 private:
+	pyobj_(){}
 	// don't use new!
 	//just class_<obj>->new_obj();
 	//TODO:new placement
-	void* operator new(size_t size){}
+	void* operator new(size_t size){return NULL;}
 };
 
 class pyTest_:public pyobj_
 {
 public:
 	int n;
-	pyTest_();
 	~pyTest_();
 	static class_<pyTest_> pyclass;
 	static void init_methods();
@@ -268,10 +311,11 @@ public:
 //_engine mod
 class _engine:public pymod
 {
+public:
 	void init_methods();
-	DEF_PY_METHOD(test);
-	DEF_PY_METHOD(send);
-	DEF_PY_METHOD(start_timer);
+	DEF_PY_METHOD(PyObject,test);
+	DEF_PY_METHOD(PyObject,send);
+	DEF_PY_METHOD(PyObject,start_timer);
 };
 
 

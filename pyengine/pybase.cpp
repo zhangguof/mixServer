@@ -69,11 +69,11 @@ INIT_PYCLASS(pyobj_);
 
 // class_<pyTest_> pyTest_::pyclass = class_<pyTest_>("pytest_");
 INIT_PYCLASS(pyTest_);
-pyTest_::pyTest_()
-{
-	n = 111;
-	printf("init....\n");
-}
+// pyTest_::pyTest_()
+// {
+// 	n = 111;
+// 	printf("init....\n");
+// }
 pyTest_::~pyTest_()
 {
 	printf("free pytest_\n");

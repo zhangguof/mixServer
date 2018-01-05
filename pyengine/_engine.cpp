@@ -1,6 +1,7 @@
 #include "pybase.hpp"
 #include "services.hpp"
 #include "eventloop.hpp"
+#include "handles.hpp"
 
 EventLoop* g_event_loop = NULL;
 
@@ -11,13 +12,15 @@ void _engine::init_methods()
 	def("start_timer",&start_timer);
 }
 
-PyObject* _engine::test(PyObject* self,PyObject* args)
+// PyObject* _engine::test(PyObject* self,PyObject* args)
+PYMOD_METHOD(_engine,test)
 {
 	printf("in _engine test!!\n");
 	Py_RETURN_NONE;
 }
 
-PyObject* _engine::send(PyObject* self,PyObject* args)
+// PyObject* _engine::send(PyObject* self,PyObject* args)
+PYMOD_METHOD(_engine,send)
 {
 	printf("in _sender_send!!!!!\n");
 	int uid;
@@ -40,7 +43,6 @@ PyObject* _engine::send(PyObject* self,PyObject* args)
 	}
 	else
 	{
-		printf("sneder:send err!\n");
 		PyErr_SetString(PyExc_RuntimeError,"_engine:send err!!");
 		return NULL;
 	}
@@ -56,7 +58,6 @@ public:
 		PyObject* pr =  PyObject_CallObject(pfun,NULL);
 		if(!pr)
 		{
-			printf("call py obj err!\n");
 			if(check_py_error())
 			{
 				Py_INCREF(pfun);
@@ -70,7 +71,8 @@ public:
 	PyObject* pfun;
 };
 
-PyObject* _engine::start_timer(PyObject* self,PyObject* args)
+// PyObject* _engine::start_timer(PyObject* self,PyObject* args)
+PYMOD_METHOD(_engine,start_timer)
 {
 	int t;
 	PyObject* pyf;
@@ -92,4 +94,6 @@ PyObject* _engine::start_timer(PyObject* self,PyObject* args)
 	}
 	Py_RETURN_NONE;
 }
+
+
 
