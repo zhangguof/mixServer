@@ -77,6 +77,7 @@ public:
 	{
 		return sizeof(SA);
 	}
+
 	std::string ip;
 	unsigned short port;
 	int family;
@@ -92,6 +93,14 @@ public:
 	{
 		assert(fd!=-1);
 		socket_fd = fd;
+//int getpeername(int socket, 
+// struct sockaddr *restrict address,
+// socklen_t *restrict address_len);
+		unsigned int len = sizeof(SA);
+		int n = ::getpeername(fd,addr.get_sa(),&len);
+		addr.bind(addr.get_sa());
+		assert(n==0);
+		
 	}
 	Socket(){
 		socket_fd = socket(AF_INET,SOCK_STREAM,0);
