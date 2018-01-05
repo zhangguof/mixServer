@@ -3,18 +3,8 @@
 #include <iostream>
 #include <vector>
 #include "Python.h"
+#include "pyobjs.hpp"
 
-// enum HandleState
-// {
-// 	END=0,
-// 	HREADING,
-// };
-
-/*
-http handle state:
-state:heand_reading //wait for /r/n
-reading->
-*/
 typedef std::function<void(const char*, int)> send_raw_t;
 //py interface
 extern void py_new_connect(int conn_id,PyObject* sender);
@@ -23,15 +13,8 @@ extern void py_handle_message(int conn_id, const char* s,int size);
 extern void py_handle_close(int conn_id);
 
 
-extern PyObject* new_pysender(send_raw_t* p);
-// extern void py_close_connect(int conn_id);
+extern pySender* new_pysender(ptstream_t ps);
 //py interface end
-
-void test_send(const char* s,int size)
-{
-	std::string str(s,size);
-	printf("=====test sender:%s,len:%d\n",str.c_str(),str.size());
-}
 
 void string_split(char ch,const std::string& str,std::vector<std::string>& v)
 {
@@ -72,19 +55,14 @@ struct HttpHeader
 	}
 };
 
-// const char* reps_fileds[]={
-// 	"Content-Type",
-// 	"Content-Encoding",
-// 	"Content-Length",
-// };
 
 struct HttpResponese
 {
 	std::string status_code; //HTTP/1.1 200 OK
 	std::map<std::string,std::string> _map;
-	void set(std::string filed_name, const std::string& v)
+	void set(std::string field_name, const std::string& v)
 	{
-		_map[filed_name] = v;
+		_map[field_name] = v;
 	}
 	const std::string& get(const std::string& name)
 	{
@@ -110,6 +88,11 @@ public:
 		// state=END;
 		pstream = _pstream;
 		conn_id = pstream->connect_id;
+
+		// py handle new connect!
+		PyObject* p_sender = (PyObject*)new_pysender(_pstream);
+		py_new_connect(conn_id,p_sender);
+		Py_DECREF(p_sender);
 	}
 	void on_line(const std::string& str);
 	void on_end()
@@ -121,7 +104,6 @@ public:
 		{
 			std::cout<<it.first<<":"<<it.second<<std::endl;;
 		}
-		
 		// pstream->close();
 	}
 	void on_request()
@@ -154,40 +136,49 @@ public:
 		}
 
 	}
+	void on_close()
+	{
+		py_handle_close(conn_id);
+	}
 	// int state;
 	TcpServer::pttcpstream_t pstream;
 	HttpHeader header;
 	int conn_id;
+	~httpHandle()
+	{
+		printf("release httpHandle !!!\n");
+	}
 
 };
 
 void httpHandle::on_line(const std::string& str)
 {
+	//python do handle
+	py_handle_line(conn_id,str.c_str(),str.size());
+	// if(str.size()==0)
+	// {
+	// 	return on_request();
+	// }
+	// auto find_it = str.find(": ");
+	// if(find_it == std::string::npos)
+	// {
+	// 	std::vector<std::string> v;
+	// 	string_split(' ',str,v);
+	// 	std::string filed_name = v[0];
+	// 	assert(filed_name == "GET" || filed_name == "POSH");
+	// 	assert(v.size()==3);
 
-	if(str.size()==0)
-	{
-		return on_request();
-	}
-	auto find_it = str.find(": ");
-	if(find_it == std::string::npos)
-	{
-		std::vector<std::string> v;
-		string_split(' ',str,v);
-		std::string filed_name = v[0];
-		assert(filed_name == "GET" || filed_name == "POSH");
-		assert(v.size()==3);
+	// 	header.method = filed_name;
+	// 	header.req_url = v[1];
+	// 	header.proto_type = v[2];
 
-		header.method = filed_name;
-		header.req_url = v[1];
-		header.proto_type = v[2];
-
-	}
-	else
-	{
-		std::string filed_name = std::string(str.begin(),str.begin()+find_it);
-		std::string filed_val = std::string(str.begin()+find_it+2,str.end());
-		header.set(filed_name,filed_val);
-	}
+	// }
+	// else
+	// {
+	// 	std::string filed_name = std::string(str.begin(),str.begin()+find_it);
+	// 	std::string filed_val = std::string(str.begin()+find_it+2,str.end());
+	// 	header.set(filed_name,filed_val);
+	// }
 }
 
 void HttpServer::handle_read(pttcpstream_t pstream)
@@ -208,7 +199,6 @@ void HttpServer::handle_read(pttcpstream_t pstream)
 		idx = pbuf->find_CRLF();
 	}
 
-
 }
 
 void HttpServer::new_connect(int fd)
@@ -221,12 +211,12 @@ void HttpServer::close_connect(pttcpstream_t pstream)
 {
 	log_debug("http:on close_connect!!");
 	TcpServer::close_connect(pstream);
-	py_handle_close(pstream->connect_id);
+	
 
 	auto it = handles.find(pstream->connect_id);
 	assert(it!=handles.end());
+	it->second->on_close();
 	handles.erase(it);
-
 }
 
 void HttpServer::handle_request(){
@@ -235,17 +225,17 @@ void HttpServer::handle_request(){
 void HttpServer::on_read_line(int c_id,const std::string& str)
 {
 	using namespace std::placeholders;
+	log_debug("on_read_line:%d",c_id);
+	assert(streams.find(c_id)!=streams.end());
 	auto it_handle = handles.find(c_id);
 	if(it_handle == handles.end())
 	{
+
 		handles[c_id] = std::make_shared<httpHandle>(streams[c_id]);
-		send_raw_t *pt = new send_raw_t(std::bind( (void (TcpStream::*)(const char*, int))&TcpStream::send,streams[c_id],_1,_2));
-		PyObject* p_sender = new_pysender(pt);
-		py_new_connect(c_id,p_sender);
 	}
 	auto phandle = handles[c_id];
-	//phandle->on_line(str);
-	py_handle_line(c_id,str.c_str(),str.size());
+
+	phandle->on_line(str);
 
 	// log_debug("read line:%s",str.c_str());
 }
