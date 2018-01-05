@@ -17,6 +17,7 @@ public:
 
     //getter setter
     DEF_PY_GETTER(pySender,get_closed);
+    DEF_PY_GETTER(pySender,get_client_addr);
 
     DEF_PY_METHOD(pySender,flush);
     //DEF_PY_METHOD(getvalue);

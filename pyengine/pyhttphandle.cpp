@@ -52,8 +52,10 @@ void pySender::init_methods()
 {
     // pyclass.def_get_set("closed",&get_closed,0);
     INIT_GETSET("closed",get_closed,0);
+    INIT_GETSET("client_addr",get_client_addr,0);
     INIT_METHOD("write",write);
     INIT_METHOD("flush",flush);
+    INIT_METHOD("close",close);
     INIT_CALLABLE(do_call);
 
 }
@@ -68,6 +70,17 @@ PYOBJ_GETTER(pySender,get_closed)
     {
         Py_RETURN_FALSE;
     }
+}
+
+PYOBJ_GETTER(pySender,get_client_addr)
+{
+    auto psocket = self->pstream->psocket;
+    PyObject* addr = Py_BuildValue("(s#i)",
+                    psocket->addr.ip.c_str(),
+                    psocket->addr.ip.size(),
+                    psocket->addr.port
+        );
+    return addr;
 }
 
 PYOBJ_METHOD(pySender,close)
@@ -104,5 +117,6 @@ void pySender::init(const ptstream_t& _ps)
 }
 pySender::~pySender()
 {
+    printf("release pySender!!!!\n");
     pstream.reset();//release
 }

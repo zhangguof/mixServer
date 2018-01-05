@@ -57,6 +57,8 @@ TcpStream::TcpStream(int fd,
 	Handle(fd,READ|ERROR)
 {
 	psocket = std::make_shared<Socket>(fd);
+	log_debug("new connect from :%s,%d\n",
+		psocket->addr.ip.c_str(),psocket->addr.port);
 	pread_buf = std::make_shared<Buffer>();
 	pwrite_buf = std::make_shared<Buffer>();
 	pserver = _server;
