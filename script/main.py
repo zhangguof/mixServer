@@ -47,8 +47,8 @@ def get_msg(s):
 def test():
 	print "in test!!",time.time()
 	# import _engine
-	t = _engine.start_timer(300,test)
-	print "t_id:",t
+	# t = _engine.start_timer(300,test)
+	# print "t_id:",t
 
 def main():
 	print "in main....."
