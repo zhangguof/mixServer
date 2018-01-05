@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <iostream>
 #include <functional>
+#include "handles.hpp"
 
 class IgnoreSigPipe
 {
@@ -46,8 +47,10 @@ void TcpServer::new_connect(int fd)
 {
 	// auto p = std::shared_ptr<TcpStream>(new TcpStream(fd,ploop,this));
 	++max_connect_id;
-	auto pstream = std::make_shared<TcpStream>(fd,max_connect_id
-												,get_this());
+	// auto pstream = STD::make_shared<TcpStream>(fd,max_connect_id
+	// 											,get_this());
+	auto pstream = ptstream_t(new TcpStream(fd,max_connect_id,get_this()));
+
 	ploop->regist_handle(pstream);
 	//streams.push_back(pstream);
 	streams[max_connect_id] = pstream;

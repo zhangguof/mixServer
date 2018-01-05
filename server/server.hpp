@@ -27,15 +27,15 @@ class TcpServer:public std::enable_shared_from_this<TcpServer>
 {
 public:
 	typedef std::shared_ptr<TcpServer> pttcpsevert_t;
-	typedef std::shared_ptr<TcpStream> pttcpstream_t;
+	typedef ptstream_t pttcpstream_t;
 	typedef std::shared_ptr<Msg> ptmsg_t;
 
 	TcpServer();
 	int start();
 	void bind(std::string ip,int port);
-	virtual void close_connect(std::shared_ptr<TcpStream> pstream);
+	virtual void close_connect(ptstream_t pstream);
 	
-	virtual void handle_read(std::shared_ptr<TcpStream> pstream);
+	virtual void handle_read(ptstream_t pstream);
 	virtual void new_connect(int fd);
 
 	void set_loop(EventLoop::ptloop_t _ploop)
@@ -58,7 +58,7 @@ public:
 	std::shared_ptr<EventLoop> ploop;
 	std::shared_ptr<Acceptor> acceptor;
 	int max_connect_id;
-	std::map<int, std::shared_ptr<TcpStream> > streams;
+	std::map<int, ptstream_t > streams;
 
 };
 class MsgServer:public TcpServer
