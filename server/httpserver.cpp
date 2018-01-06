@@ -183,7 +183,7 @@ void httpHandle::on_line(const std::string& str)
 
 void HttpServer::handle_read(pttcpstream_t pstream)
 {
-	// log_debug("http handle read!");
+	log_debug("http handle read!");
 	auto pbuf = pstream->pread_buf;
 	int idx = pbuf->find_CRLF();
 	while(1)
@@ -225,7 +225,7 @@ void HttpServer::handle_request(){
 void HttpServer::on_read_line(int c_id,const std::string& str)
 {
 	using namespace std::placeholders;
-	// log_debug("on_read_line:%d",c_id);
+	log_debug("on_read_line:%d",c_id);
 	assert(streams.find(c_id)!=streams.end());
 	auto it_handle = handles.find(c_id);
 	if(it_handle == handles.end())
