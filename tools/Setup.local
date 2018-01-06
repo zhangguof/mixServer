@@ -52,13 +52,14 @@ zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz
 # Helper module for various ascii-encoders
 binascii binascii.c
 
-#google protobuffer support
-PB_SRC=/Users/tony/newwork/github/py/protobuf-3.5.1
-PB_PYEXT_PATH=$(PB_SRC)/python/google/protobuf/pyext
+# Modules with some UNIX dependencies -- on by default:
+# (If you have a really backward UNIX, select and socket may not be
+# supported...)
 
-#_api_implementation $(PB_SRC)/python/google/protobuf/internal/api_implementation.cc -DPYTHON_PROTO2_CPP_IMPL_V2
-
-#_message  $(PB_PYEXT_PATH)/descriptor.cc $(PB_PYEXT_PATH)/descriptor_pool.cc $(PB_PYEXT_PATH)/message.cc $(PB_PYEXT_PATH)/repeated_composite_container.cc $(PB_PYEXT_PATH)/descriptor_containers.cc $(PB_PYEXT_PATH)/extension_dict.cc $(PB_PYEXT_PATH)/message_factory.cc $(PB_PYEXT_PATH)/repeated_scalar_container.cc $(PB_PYEXT_PATH)/descriptor_database.cc $(PB_PYEXT_PATH)/map_container.cc $(PB_PYEXT_PATH)/message_module.cc -DGOOGLE_PROTOBUF_NO_THREADLOCAL -Wno-write-strings -Wno-invalid-offsetof -Wno-sign-compare -I$(PB_SRC)/python -I$(PB_SRC)/src -L$(PB_SRC)/src/.libs -lprotobuf 
+#fcntl fcntlmodule.c	# fcntl(2) and ioctl(2)
+#spwd spwdmodule.c		# spwd(3) 
+#grp grpmodule.c		# grp(3)
+select selectmodule.c	# select(2); not on ancient System V
 
 
 
