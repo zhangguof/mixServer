@@ -1,6 +1,6 @@
 #include "socket.hpp"
 
-
+//socket address class
 SockAddr::SockAddr(){}
 SockAddr::SockAddr(struct sockaddr_in *sock_addr)
 {
@@ -58,7 +58,7 @@ unsigned int SockAddr::get_sa_len()
 
 
 
-
+// Socket class
 Socket::Socket(int fd)
 {
 	assert(fd!=-1);
@@ -70,6 +70,7 @@ Socket::Socket(int fd)
 	int n = ::getpeername(fd,addr.get_sa(),&len);
 	addr.bind(addr.get_sa());
 	assert(n==0);
+	set_nonblock();
 		
 }
 Socket::Socket(){
