@@ -1,4 +1,6 @@
 #include "mem.hpp"
+#if defined(DEBUG_MEM)
+
 
 namespace std_{
 
@@ -37,3 +39,4 @@ void Refinfo::add_call_info(std::vector<std::string>& v)
 }
 
 }
+#endif
