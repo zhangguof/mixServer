@@ -84,7 +84,7 @@ void Kqueue::select(std::vector<std::pair<int,int> >& active_handles)
 	}
 	else if(n<0)
 	{
-		log_debug("kevent err!:%d,%s",errno,get_error_msg(errno));
+		log_err("kevent err!:%d,%s",errno,get_error_msg(errno));
 		if(errno == EINTR)
 		{
 			log_debug("EINTR!!,going to shutdown");

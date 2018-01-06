@@ -36,7 +36,7 @@ int Connector::_connect()
 		status = CONNECTING;
 		return 0;
 	}
-	log_debug("connect error:%d,%s",errno,get_error_msg(errno));
+	log_err("connect error:%d,%s",errno,get_error_msg(errno));
 	return n;
 }
 
@@ -50,7 +50,7 @@ void Connector::handle_read()
 		n = psocket->recv(0);
 		if(n<0)
 		{
-			log_debug("read try connect error:%d,%s,%s",
+			log_err("read try connect error:%d,%s,%s",
 				errno,get_error_msg(errno),strerror(errno)
 				);
 			close();
@@ -63,7 +63,7 @@ void Connector::handle_read()
 		if(n==0 || (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK))
 		{
 			if(n<0)
-				log_debug("error,no:%d,msg:%s:%s",
+				log_err("error,no:%d,msg:%s:%s",
 					errno,get_error_msg(errno),strerror(errno));
 			else
 				log_debug("peer close!!!");
@@ -100,7 +100,7 @@ void Connector::handle_write()
 		}
 		else
 		{
-			log_debug("connect error!!%d:%d,%s",errno,err,get_error_msg(err));
+			log_err("connect error!!%d:%d,%s",errno,err,get_error_msg(err));
 			close();
 		}
 
@@ -114,7 +114,7 @@ void Connector::handle_write()
 		int n = psocket->send(pwrite_buf);
 		if(n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK)
 		{
-			log_debug("error:%d,no:%d,msg:%s,%s\n",n,errno,
+			log_err("error:%d,no:%d,msg:%s,%s\n",n,errno,
 				get_error_msg(errno),strerror(errno));
 			close();
 			return;
@@ -190,8 +190,7 @@ int Client::_start_connect()
 	int n = pconn->connect(ip,port);
 	if(n<0)
 	{
-		log_debug("client connect err!!");
-		// log_debug("error:%d,%d,%s",n,errno,get_error_msg(errno));
+		log_err("client connect err!!");
 		return n;
 	}
 	ploop->regist_handle(pconn);
@@ -309,7 +308,7 @@ void Client::on_close()
 	status = CLOSED;
 	if(retry_count > max_retry_cout)
 	{
-		log_debug("max retry_count!!shutdown");
+		log_err("max retry_count!!shutdown");
 		ploop->shutdown();
 	}
 	else

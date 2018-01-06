@@ -18,7 +18,7 @@ void Select::select(std::vector<std::pair<int,int> >& active_fds)
 	int n = ::select(max_fds+1,&rfds,&wfds,&efds,&zero_sec);
 	if(n<0)
 	{
-		log_debug("select error!!!!:%d,%d,%s",n,errno,get_error_msg(errno));
+		log_err("select error!!!!:%d,%d,%s",n,errno,get_error_msg(errno));
 	}
 	int size = all_fds.size();
 	for(int i=0;i<size;++i)

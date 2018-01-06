@@ -1,7 +1,7 @@
 import os
 from itertools import chain
 # debug_flag="-DDEBUG_MEM"
-debug_flag=""
+debug_flag="-DDEBUG"
 
 src_path = os.path.abspath(os.path.curdir)
 print "src_path:",src_path

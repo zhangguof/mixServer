@@ -4,36 +4,31 @@
 #include <time.h>
 #include <stdarg.h>
 
+#define NONE                 "\e[0m"
+#define RED                  "\e[0;31m"
+#define GREEN                "\e[0;32m"
 
+
+#if defined(DEBUG)
 #define log_debug(msg,args...) Log::debug(__FILE__,__LINE__,msg,##args)
+#else
+#define log_debug(msg,args...) ;
+#endif
 // #define log_debug(fmt,args...) printf(fmt,##args)
+#define log_err(msg,args...) Log::err(__FILE__,__LINE__,msg,##args)
 
 class Log
 {
 public:
+	static const int buf_size = 1024;
+	static void format_log(char*buf,const char* tag,
+		const char* filename,int fileline,const char* msg);
 
 	static void debug(const char* filename,int fileline,
-		const char* msg,...)
-	{
-		time_t now;
-		struct tm* tm_now;
-		time(&now);
-		tm_now = localtime(&now);
-		char datetime[100];
-		char msgbuf[1024];
-		sprintf(datetime,"%d-%d-%d %d:%d:%d",
-			tm_now->tm_year+1900,tm_now->tm_mon+1,
-			tm_now->tm_mday,tm_now->tm_hour,tm_now->tm_min,
-			tm_now->tm_sec);
+		const char* msg,...);
 
-		va_list args;
-		va_start(args,msg);
-		vsprintf(msgbuf,msg,args);
-		va_end(args);
-
-
-		printf("[%s][FILE:%s:%d:]%s\n",datetime,filename,fileline,msgbuf);
-	}
+	static void err(const char* filename,int fileline,
+		const char* msg,...);
 };
 
 #endif

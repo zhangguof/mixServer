@@ -43,7 +43,7 @@ void Proto::on_msg(int uid,const ptmsg_t& pmsg)
 		}
 		else
 		{
-			log_debug("py handle err!!!");
+			log_err("py handle err!!!");
 		}
 	}
 }

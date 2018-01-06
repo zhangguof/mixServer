@@ -89,7 +89,7 @@ void Poll::poll(std::vector<std::pair<int,int> >& active_handles)
 	}
 	else if(n<0)
 	{
-		log_debug("poll error:%d,%d,%s",n,errno,get_error_msg(errno));
+		log_err("poll error:%d,%d,%s",n,errno,get_error_msg(errno));
 	}
 }
 void Poll::select(std::vector<std::pair<int,int> >& active_handles)

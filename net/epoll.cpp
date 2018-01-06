@@ -9,7 +9,7 @@ Epoll::Epoll()
 	n_events = 0; //当前所有的fd数量
 	efd = epoll_create(4096);// linux2.6.8后忽略该参数
 	if(efd==-1)
-		log_debug("epoll_create err!:%d,%s",errno,
+		log_err("epoll_create err!:%d,%s",errno,
 			get_error_msg(errno));
 	assert(efd!=-1);
 }
@@ -36,10 +36,10 @@ void Epoll::select(std::vector<std::pair<int,int> >& active_handles )
 	else if(n<0)
 	{
 		
-		log_debug("epoll_wait err!!:%d,%s",errno,get_error_msg(errno));
+		log_err("epoll_wait err!!:%d,%s",errno,get_error_msg(errno));
 		if(errno == EINTR)
 		{
-			log_debug("EINTR!!,going to shutdown!");
+			log_err("EINTR!!,going to shutdown!");
 			EventLoop::shutdown();
 		}
 	}
@@ -78,7 +78,7 @@ void Epoll::epoll_ctl(int op,int fd,int e)
 	event.data.fd = fd;
 	int ret = ::epoll_ctl(efd,op,fd,&event);
 	if(ret<0)
-		log_debug("epoll_ctl error!:%d:%d:%d,err:%d,%s",fd,e,op,
+		log_err("epoll_ctl error!:%d:%d:%d,err:%d,%s",fd,e,op,
 			 errno,get_error_msg(errno));
 	assert(ret!=-1);
 }

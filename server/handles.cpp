@@ -19,7 +19,7 @@ int Acceptor::listen(std::string ip, int port)
 	int n = psocket->bind(ip,port);
 	if(n<0)
 	{
-		log_debug("bind error:%d,%s:%s",
+		log_err("bind error:%d,%s:%s",
 			errno,get_error_msg(errno),strerror(errno));
 		return n;
 	}
@@ -27,7 +27,7 @@ int Acceptor::listen(std::string ip, int port)
 	n = psocket->listen();
 	if(n<0)
 	{
-		log_debug("listen error:%d,%s:%s",
+		log_err("listen error:%d,%s:%s",
 			errno,get_error_msg(errno),strerror(errno)
 			);
 		return n;
@@ -76,7 +76,7 @@ void TcpStream::handle_read()
 	if(n==0 || (n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK))
 	{
 		if(n<0)
-			log_debug("error,no:%d,msg:%s,%s\n",errno,
+			log_err("error,no:%d,msg:%s,%s\n",errno,
 				get_error_msg(errno),strerror(errno)
 				);
 		else
@@ -94,7 +94,7 @@ void TcpStream::handle_write(){
 	int n = psocket->send(pwrite_buf);
 	if(n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK)
 	{
-		log_debug("error:%d,no:%d,msg:%s,%s\n",n,errno,
+		log_err("error:%d,no:%d,msg:%s,%s\n",n,errno,
 			get_error_msg(errno),strerror(errno));
 		close();
 		return;
@@ -116,7 +116,7 @@ void TcpStream::handle_write(){
 	
 }
 void TcpStream::handle_error(){
-	log_debug("TcpStream::handle_error:%d:%d,%s,%s",
+	log_err("TcpStream::handle_error:%d:%d,%s,%s",
 		psocket->socket_fd,errno,get_error_msg(errno),
 		strerror(errno)
 		);

@@ -11,8 +11,6 @@ class HttpHandle(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.send = sender
 		self.client_address = sender.client_addr
 		self.rbuf = StringIO()
-		print 'HttpHandle:inti.....'
-		# super(HttpHandle,self).__init__(None,None,None)
 		self.setup()
 
 	def setup(self):
