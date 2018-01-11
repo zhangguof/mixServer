@@ -157,5 +157,70 @@ TcpStream::~TcpStream(){
 
 }
 
+//==================
+FileHandle::FileHandle(std::string& _file_path)
+{
+	file_path = _file_path;
+	open();
+}
+
+FileHandle::FileHandle(const char* _file_path)
+{
+	// file_path = _file_path;
+	// int _fd = open(_file_path,O_RDWR);
+	// init(_fd,MODIFY);
+	file_path = _file_path;
+	open();
+}
+
+void FileHandle::open()
+{
+	//O_EVTONLY O_RDWR
+	//O_DIRECTORY
+	int _fd = ::open(file_path.c_str(),O_EVTONLY);
+	// int _fd = ::opendir(file_path.c_str());
+	if(_fd==-1)
+		log_err("open file err:filepath:%s:%d:%s",file_path.c_str(),errno,get_error_msg(errno));
+	assert(_fd!=-1);
+	init(_fd,MODIFY);
+	
+}
+
+
+void FileHandle::handle_error()
+{
+	log_debug("file handle error!");
+}
+
+void FileHandle::close()
+{
+	log_debug("file handle do close!");
+	::close(get_fd());
+}
+void FileHandle::handle_modify()
+{
+	log_debug("file handle file modify!%s",file_path.c_str());
+	// disable_modify();
+	char buf[4096];
+	char *pbuf = buf;
+	int n;
+	int size = 0;
+	int _fd = get_fd();
+	while(1)
+	{
+		n = ::read(_fd,pbuf,1024);
+		if(n<=0 || size >= 4096)
+			break;
+		pbuf += n;
+		size += n;
+	}
+	std::string s(buf,size);
+	log_debug("read str:%s",s.c_str());
+	log_debug("clear file!");
+
+    // ::ftruncate(_fd,0);
+    // ::lseek(_fd,0,SEEK_SET);
+    // enable_modify();
+}
 
 
