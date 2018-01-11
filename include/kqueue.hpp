@@ -38,28 +38,23 @@ public:
 	void update_event(int fd,int events);
 	void rm_handle(int fd);
 	void set_kevent(int fd,int e,u16 flags);
-	// inline u16 to_kqueue_event(int events)
-	// {
-	// 	u16 e = 0;
-	// 	if(events & READ)
-	// 		e|=EVFILT_READ;
-	// 	if(events & WRITE)
-	// 		e|=EVFILT_WRITE;
-	// 	return e;
-	// }
 
 	inline int from_kqueue_event(short filter,u16 flags)
 	{
 		int e = 0;
-		assert(filter == EVFILT_READ || filter == EVFILT_WRITE);
+		assert(filter == EVFILT_READ || filter == EVFILT_WRITE || filter == EVFILT_VNODE);
 		if(filter == EVFILT_READ)
 			e|=READ;
 		else if(filter == EVFILT_WRITE)
 			e|=WRITE;
+		else if(filter == EVFILT_VNODE)
+			e|=MODIFY;
 		if(flags & EV_ERROR)
 			e|=ERROR;
 		return e;
 	}
+	inline void _check_and_set_event(int fd,int e,int re,int enable_e,int check_e);
+
 
 private:
 	int kfd;
@@ -73,8 +68,6 @@ private:
 	struct timespec _timeout;
 	
 };
-
-
 
 
 #endif

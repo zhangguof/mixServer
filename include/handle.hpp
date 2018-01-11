@@ -8,7 +8,8 @@ enum EVENT
 {
 	READ = 0x01, 
 	WRITE = 0x02,
-	ERROR = 0x04
+	ERROR = 0x04,
+	MODIFY = 0x08, //for file handle
 };
 class Handle;
 typedef std::shared_ptr<Handle> ptHandle;
@@ -31,6 +32,7 @@ public:
 	virtual void handle_write()=0;
 	virtual void handle_error()=0;
 	virtual void close() = 0;
+	virtual void handle_modify(){}
 
 	inline int get_fd()
 	{
@@ -54,6 +56,14 @@ public:
 	inline void disable_read()
 	{
 		disable_event(READ);
+	}
+	inline void enable_modify()
+	{
+		enable_event(MODIFY);
+	}
+	inline void disable_modify()
+	{
+		disable_event(MODIFY);
 	}
 	std::shared_ptr<Handle> get_this()
 	{

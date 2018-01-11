@@ -36,6 +36,8 @@ void Handle::handle_event()
 		handle_write();
 	if(revents & ERROR)
 		handle_error();
+	if(revents & MODIFY)
+		handle_modify();
 }
 
 void Handle::enable_event(int e)

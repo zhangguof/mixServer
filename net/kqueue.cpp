@@ -5,11 +5,11 @@
 Kqueue::Kqueue()
 {
 	log_debug("Kqueue in used!");
-	log_debug("EVFILT_READ:%0x, EVFILT_WRITE:%0x,EV_ADD:%d,EV_ENABLE:%d,EV_DISABLE:%d,EV_ERROR:%d",
-			EVFILT_READ,EVFILT_WRITE,EV_ADD,EV_ENABLE,EV_DISABLE,EV_ERROR);
-	log_debug("EACCES:%d,EFAULT:%d,EFAULT:%d,EBADF:%d,EINTR:%d,EINVAL:%d,ENOENT:%d,ENOMEM:%d,ESRCH:%d",
-		EACCES,EFAULT,EFAULT,EBADF,EINTR,EINVAL,ENOENT,ENOMEM,ESRCH
-		);
+	// log_debug("EVFILT_READ:%0x, EVFILT_WRITE:%0x,EV_ADD:%d,EV_ENABLE:%d,EV_DISABLE:%d,EV_CLEAR:%d,V_ERROR:%d",
+	// 		EVFILT_READ,EVFILT_WRITE,EV_ADD,EV_ENABLE,EV_DISABLE,EV_CLEAR,EV_ERROR);
+	// log_debug("EACCES:%d,EFAULT:%d,EFAULT:%d,EBADF:%d,EINTR:%d,EINVAL:%d,ENOENT:%d,ENOMEM:%d,ESRCH:%d",
+	// 	EACCES,EFAULT,EFAULT,EBADF,EINTR,EINVAL,ENOENT,ENOMEM,ESRCH
+	// 	);
 	n_events = 0;
 	kfd = kqueue();
 	k_events.resize(10);
@@ -117,6 +117,19 @@ void Kqueue::set_kevent(int fd,int e,u16 flags)
 		assert(n!=-1);
 	}
 
+   /* Set up a list of events to monitor. */
+   // vnode_events = NOTE_DELETE |  NOTE_WRITE | NOTE_EXTEND |                            NOTE_ATTRIB | NOTE_LINK | NOTE_RENAME | NOTE_REVOKE;
+   // EV_SET( &events_to_monitor[0], event_fd, EVFILT_VNODE, EV_ADD | EV_CLEAR, vnode_events, 0, user_data);
+	unsigned int vnode_events = NOTE_WRITE;
+	if(e & MODIFY)
+	{
+		EV_SET(&event,fd,EVFILT_VNODE,flags,vnode_events,0,NULL);
+		int n = ::kevent(kfd,&event,1,NULL,0,NULL);
+		if(n==-1)
+			log_err("kevent err:%d,%s",errno,get_error_msg(errno));
+		assert(n!=-1);
+	}
+
 }
 
 void Kqueue::add_handle(int fd,int e)
@@ -126,12 +139,29 @@ void Kqueue::add_handle(int fd,int e)
 	assert(revents.find(fd) == revents.end());
 	// revents[fd] = 0;
 	// enable_events[fd] = e;
-	set_kevent(fd,e,EV_ADD|EV_ENABLE);
+	set_kevent(fd,e,EV_ADD|EV_ENABLE|EV_CLEAR);
 	++n_events;
 	revents[fd] = e;
 	enable_events[fd] = e;
 	if(k_events.capacity()<n_events)
 		k_events.resize(n_events);
+}
+
+void  Kqueue::_check_and_set_event(int fd,int e,int re,int enable_e,int check_e)
+{
+	u16 flags = 0;
+	if(!(enable_e & check_e))
+		flags = EV_ADD;
+
+	if((e&check_e) && !(re&check_e))
+	{
+		set_kevent(fd,check_e,flags | EV_ENABLE | EV_CLEAR);
+	}
+	else if(!(e&check_e) && (re&check_e))
+	{
+		set_kevent(fd,check_e,flags | EV_DISABLE | EV_CLEAR);
+	}
+
 }
 void Kqueue::update_event(int fd,int e)
 {
@@ -142,33 +172,11 @@ void Kqueue::update_event(int fd,int e)
 	assert(enable_it != enable_events.end());
 
 	auto re = it->second; //run events;
-	auto enable_e = it->second; //init events;
-	u16 flags = 0;
-	if(!(enable_e & READ))
-		flags = EV_ADD;
+	auto enable_e = enable_it->second; //init events;
+	_check_and_set_event(fd,e,re,enable_e,READ);
+	_check_and_set_event(fd,e,re,enable_e,WRITE);
+	_check_and_set_event(fd,e,re,enable_e,MODIFY);
 
-	if((e&READ) && !(re&READ))
-	{
-		set_kevent(fd,READ,flags | EV_ENABLE);
-	}
-	else if(!(e&READ) && (re&READ))
-	{
-		set_kevent(fd,READ,flags | EV_DISABLE);
-	}
-
-	flags = 0;
-	if(!(enable_e & WRITE))
-		flags = EV_ADD;
-	// log_debug("wirte check!!!,fd:%d,e:%d,re:%d",fd,e,re);
-	if((e&WRITE) && !(re&WRITE))
-	{
-		set_kevent(fd,WRITE,flags | EV_ENABLE);
-	}
-	else if(!(e&WRITE) && (re&WRITE))
-	{
-		
-		set_kevent(fd,WRITE,flags | EV_DISABLE);
-	}
 	revents[fd] = e;
 	enable_events[fd] |= e;
 	log_debug("update event:%d,%0x->%0x",fd,re,e);

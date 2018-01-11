@@ -3,6 +3,8 @@
 #include "handle.hpp"
 #include "socket.hpp"
 #include "mem.hpp"
+#include <dirent.h>
+
 class TcpServer;
 class TcpStream;
 class Acceptor;
@@ -66,6 +68,21 @@ public:
 	int connect_id;
 	bool closed;
 	bool closing;
+};
+
+class FileHandle:public Handle
+{
+public:
+	FileHandle(std::string& _file_path);
+	FileHandle(const char* _file_path);
+	inline void open();
+
+	void handle_read(){}
+	void handle_write(){}
+	void handle_error();
+	void close();
+	void handle_modify();
+	std::string file_path;
 };
 
 
