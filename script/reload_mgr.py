@@ -1,6 +1,8 @@
 #-*- coding:utf-8 -*-
 import sys
 import weakref
+import os
+import _engine
 disable_reload = True
 
 #old mod reloaded object.
@@ -117,6 +119,37 @@ def reload_mod(mod_name):
 	# print "=======:"
 	# print old_mods
 		
+#do reload when file modify
+file_to_mods = {
+	
+}
+def regist_file_handle(file_path):
+	file_path = os.path.abspath(file_path)
+	assert(file_path.endswith(".py"))
+	cur_path  = os.path.dirname(os.path.abspath(__file__))
+	cur_path  = os.path.abspath(cur_path)
+	rel_path = os.path.relpath(file_path,cur_path)
+	print "regist_file_handle:%s"%file_path
+	print cur_path
+	print "relpath:%s"%rel_path
+	mod_name = rel_path.replace("/",".")[:-3]
+	file_to_mods[file_path] = mod_name
+	_engine.regist_file_handle(file_path,handle_file_modify);
+
+
+def handle_file_modify(file_path):
+	mod_name = file_to_mods.get(file_path)
+	if not mod_name:
+		print "don't regist file:%s"%file_path
+	print "going to reload %s"%mod_name
+	#do reload
+	reload_mod(mod_name)
+
+
+def init():
+	regist_file_handle("script/test_re.py")
+
+
 
 
 def reload_mods(mod_names):

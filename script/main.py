@@ -6,6 +6,7 @@ import encodings #init codes?
 from protos import test_pb2
 import time
 import _engine
+import reload_mgr
 
 def do_copy(src,dst):
 	import shutil
@@ -56,7 +57,8 @@ def main():
 	service.init()
 	# import proto
 	# print proto.protos
-
+	print "reload init...."
+	reload_mgr.init()
 
 	# e = test_pb2.Echo()
 	# e.msg = "test"
@@ -64,13 +66,9 @@ def main():
 	# print [s]
 	# get_msg(s)
 	# search_copy_mods()
-	import _engine
-	t = _engine.start_timer(300,test)
-	print "t_id:",t
 
-	
-	print _engine
-	_engine.test()
+
+
 
 def update(interval):
 	pass

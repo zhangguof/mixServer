@@ -1,6 +1,7 @@
 #include "Python.h"
 #include "pybase.hpp"
 #include "structmember.h"
+#include "log.hpp"
 //utils fun
 int check_py_error()
 {
@@ -20,7 +21,7 @@ PyObject* call_py_obj(const char* modname,
 	PyObject* pmod = PyImport_ImportModule(modname);
 	if(!pmod)
 	{
-		printf("import mod err!\n");
+		log_err("import mod err!\n");
 		check_py_error();
 		return NULL;
 	}
@@ -47,7 +48,7 @@ PyObject* call_py_obj(const char* modname,
 		pr =  PyObject_CallObject(pfun,args);
 		if(!pr)
 		{
-			printf("call py obj err!\n");
+			log_err("call py obj err!\n");
 			check_py_error();
 		}
 		Py_XDECREF(pr);

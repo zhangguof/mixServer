@@ -21,7 +21,7 @@
 #define PYMOD_METHOD(mod,fname) PyObject* mod::fname(PyObject* self,PyObject* args)
 
 #define DEF_PY_GETTER(obj,fname) static PyObject* fname(obj*self,void* closure)
-#define DEF_PY_SETTER(obj,fname) static int fname(obj*self PyObject* value, void* closure)
+#define DEF_PY_SETTER(obj,fname) static int fname(obj* self, PyObject* value, void* closure)
 #define PYOBJ_GETTER(obj,fname) PyObject* obj::fname(obj* self,void* closure)
 #define PYOBJ_SETTER(obj,fname) int obj::fname(obj*self, PyObject* value, void* closure)
 
@@ -316,6 +316,7 @@ public:
 	DEF_PY_METHOD(PyObject,test);
 	DEF_PY_METHOD(PyObject,send);
 	DEF_PY_METHOD(PyObject,start_timer);
+	DEF_PY_METHOD(PyObject,regist_file_handle);
 };
 
 
