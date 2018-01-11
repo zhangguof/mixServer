@@ -5,6 +5,8 @@ import os
 import _engine
 disable_reload = True
 
+auto_reload = True
+
 #old mod reloaded object.
 #mod_name:[mod_dict1,mod_dict2]
 old_mods = {
@@ -129,12 +131,10 @@ def regist_file_handle(file_path):
 	cur_path  = os.path.dirname(os.path.abspath(__file__))
 	cur_path  = os.path.abspath(cur_path)
 	rel_path = os.path.relpath(file_path,cur_path)
-	print "regist_file_handle:%s"%file_path
-	print cur_path
-	print "relpath:%s"%rel_path
 	mod_name = rel_path.replace("/",".")[:-3]
 	file_to_mods[file_path] = mod_name
 	_engine.regist_file_handle(file_path,handle_file_modify);
+	print "regist reload mod:%s"%mod_name
 
 
 def handle_file_modify(file_path):
@@ -145,9 +145,32 @@ def handle_file_modify(file_path):
 	#do reload
 	reload_mod(mod_name)
 
+def get_scripts():
+	ex_names = ["reload_mgr.py","__init__.py","init.py","main.py"]
+	scripts = []
+	for root,_,files in os.walk("script"):
+		if root.startswith("script/lib"):
+			continue
+		if root.startswith("script/google"):
+			continue
+		for file_name in files:
+			if not file_name.endswith(".py"):
+				continue
+			if file_name in ex_names:
+				continue
+			file_path = os.path.join(root,file_name)
+			scripts.append(file_path)
+	return scripts
 
 def init():
-	regist_file_handle("script/test_re.py")
+	if auto_reload:
+		print "auto reload files:"
+		files = get_scripts()
+		print files
+		for file_path in files:
+			regist_file_handle(file_path)
+		# regist_file_handle("script/test_re.py")
+
 
 
 
