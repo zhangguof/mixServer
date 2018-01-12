@@ -128,13 +128,21 @@ public:
 	{
 		//O_EVTONLY O_RDWR
 		//O_DIRECTORY
-		int _fd = ::open(file_path.c_str(),O_EVTONLY);
+		#if defined(ENABLE_EPOLL)
+
+		int flag = O_EVTONLY;
+		int _fd = ::open(file_path.c_str(),flag);
 		// int _fd = ::opendir(file_path.c_str());
 		if(_fd==-1)
 			log_err("open file err:filepath:%s:%d:%s",file_path.c_str(),errno,get_error_msg(errno));
 		assert(_fd!=-1);
 		init(_fd,MODIFY);
 		log_debug("open file success!fd:%d",_fd);
+		
+		#else
+		;
+		#endif
+
 		return true;
 		
 	}
