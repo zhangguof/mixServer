@@ -10,6 +10,7 @@ enum EVENT
 	WRITE = 0x02,
 	ERROR = 0x04,
 	MODIFY = 0x08, //for file handle
+	CLOSE = 0x10,  //for file hanlde close
 };
 class Handle;
 typedef std::shared_ptr<Handle> ptHandle;

@@ -54,6 +54,9 @@ public:
 	u32 start_timer(u32 t,fun_t f);
 	
 	static void shutdown();
+	static bool is_shutdown(){
+		return _shutdown;
+	}
 	void clear();
 private:
 	// Select select_;

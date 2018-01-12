@@ -39,7 +39,7 @@ public:
 	void rm_handle(int fd);
 	void set_kevent(int fd,int e,u16 flags);
 
-	inline int from_kqueue_event(short filter,u16 flags)
+	inline int from_kqueue_event(short filter,u16 flags,u32 fflags)
 	{
 		int e = 0;
 		assert(filter == EVFILT_READ || filter == EVFILT_WRITE || filter == EVFILT_VNODE);
@@ -48,7 +48,13 @@ public:
 		else if(filter == EVFILT_WRITE)
 			e|=WRITE;
 		else if(filter == EVFILT_VNODE)
-			e|=MODIFY;
+		{
+			//vnode_events = NOTE_DELETE |  NOTE_WRITE | NOTE_EXTEND | NOTE_ATTRIB | NOTE_LINK | NOTE_RENAME | NOTE_REVOKE;
+			if(fflags & NOTE_RENAME || fflags& NOTE_WRITE)
+				e|=MODIFY;
+			if(fflags & NOTE_DELETE)
+				e|=CLOSE;
+		}
 		if(flags & EV_ERROR)
 			e|=ERROR;
 		return e;

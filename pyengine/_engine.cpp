@@ -108,7 +108,16 @@ public:
 	void handle_read(){}
 	void handle_write(){}
 	void handle_error(){}
-	void close(){}
+	void close(){
+		log_debug("handle close!!");
+		if(get_loop()->is_shutdown())
+			return;
+		get_loop()->unregist_handle(get_this());
+
+		auto phandle = std::make_shared<PyFileHandle>();
+		phandle->init_file(file_path.c_str(),cb);
+		get_loop()->regist_file_handle(file_path.c_str(),phandle);
+	}
 	void handle_modify()
 	{
 		log_debug("handle modify:%s",file_path.c_str());
@@ -145,6 +154,15 @@ public:
 
 		return true;
 		
+		}
+		std::shared_ptr<PyFileHandle> get_this()
+		{
+				return std::static_pointer_cast<PyFileHandle>(
+					shared_from_this());
+		}
+	~PyFileHandle()
+	{
+		log_debug("release PyFileHandle:%d!!!!",get_fd());
 	}
 	PyObject* cb;
 	std::string file_path;

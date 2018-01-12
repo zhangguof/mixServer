@@ -5,11 +5,13 @@
 Kqueue::Kqueue()
 {
 	log_debug("Kqueue in used!");
-	// log_debug("EVFILT_READ:%0x, EVFILT_WRITE:%0x,EV_ADD:%d,EV_ENABLE:%d,EV_DISABLE:%d,EV_CLEAR:%d,V_ERROR:%d",
-	// 		EVFILT_READ,EVFILT_WRITE,EV_ADD,EV_ENABLE,EV_DISABLE,EV_CLEAR,EV_ERROR);
-	// log_debug("EACCES:%d,EFAULT:%d,EFAULT:%d,EBADF:%d,EINTR:%d,EINVAL:%d,ENOENT:%d,ENOMEM:%d,ESRCH:%d",
-	// 	EACCES,EFAULT,EFAULT,EBADF,EINTR,EINVAL,ENOENT,ENOMEM,ESRCH
-	// 	);
+	log_debug("EVFILT_READ:%0x, EVFILT_WRITE:%0x,EV_ADD:%d,EV_ENABLE:%d,EV_DISABLE:%d,EV_CLEAR:%d,V_ERROR:%d",
+			EVFILT_READ,EVFILT_WRITE,EV_ADD,EV_ENABLE,EV_DISABLE,EV_CLEAR,EV_ERROR);
+	log_debug("EACCES:%d,EFAULT:%d,EFAULT:%d,EBADF:%d,EINTR:%d,EINVAL:%d,ENOENT:%d,ENOMEM:%d,ESRCH:%d",
+		EACCES,EFAULT,EFAULT,EBADF,EINTR,EINVAL,ENOENT,ENOMEM,ESRCH
+		);
+	log_debug("NOTE_DELETE:%0x |  NOTE_WRITE:%0x | NOTE_EXTEND:%0x | NOTE_ATTRIB:%0x | NOTE_LINK:%0x | NOTE_RENAME:%0x | NOTE_REVOKE:%0x",
+			   NOTE_DELETE,NOTE_WRITE,NOTE_EXTEND,NOTE_ATTRIB,NOTE_LINK,NOTE_RENAME,NOTE_REVOKE);
 	n_events = 0;
 	kfd = kqueue();
 	k_events.resize(10);
@@ -68,8 +70,9 @@ void Kqueue::select(std::vector<std::pair<int,int> >& active_handles)
 
 			auto ke = k_events[i];
 			int fd = ke.ident;
-			int event = from_kqueue_event(ke.filter,ke.flags);
-			// log_debug("kqueue:select:fd:%d,event:%d",fd,event);
+			int event = from_kqueue_event(ke.filter,ke.flags,ke.fflags);
+			// log_debug("kqueue:select:fd:%d,event:%d,flags:%0x,fflags:%0x",
+			// 	fd,event,ke.flags,ke.fflags);
 			//active_handles.push_back(std::make_pair(fd,event));
 			auto it = _active_handles.find(fd);
 			if(it==_active_handles.end())
@@ -118,9 +121,9 @@ void Kqueue::set_kevent(int fd,int e,u16 flags)
 	}
 
    /* Set up a list of events to monitor. */
-   // vnode_events = NOTE_DELETE |  NOTE_WRITE | NOTE_EXTEND |                            NOTE_ATTRIB | NOTE_LINK | NOTE_RENAME | NOTE_REVOKE;
+   // unsigned int vnode_events = NOTE_DELETE |  NOTE_WRITE | NOTE_EXTEND | NOTE_ATTRIB | NOTE_LINK | NOTE_RENAME | NOTE_REVOKE;
    // EV_SET( &events_to_monitor[0], event_fd, EVFILT_VNODE, EV_ADD | EV_CLEAR, vnode_events, 0, user_data);
-	unsigned int vnode_events = NOTE_WRITE;
+	unsigned int vnode_events = NOTE_WRITE | NOTE_DELETE | NOTE_RENAME;
 	if(e & MODIFY)
 	{
 		EV_SET(&event,fd,EVFILT_VNODE,flags,vnode_events,0,NULL);

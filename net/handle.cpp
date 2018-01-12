@@ -38,6 +38,8 @@ void Handle::handle_event()
 		handle_error();
 	if(revents & MODIFY)
 		handle_modify();
+	if(revents & CLOSE)
+		close();
 }
 
 void Handle::enable_event(int e)
