@@ -73,7 +73,7 @@ void EventLoop::regist_file_handle(const char* fp,ptHandle p_handle)
 			regist_handle(select_.pInotify);
 			select_.pInotify->has_registed = true;
 		}
-		select_.pInotify->add_watch(fp,p_handle)
+		select_.pInotify->add_watch(fp,p_handle);
 	#else
 		regist_handle(p_handle);
 	#endif

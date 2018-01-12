@@ -38,7 +38,7 @@ public:
 				errno,get_error_msg(errno));
 		}
 		assert(_fd!=-1);
-		init(_fd,MODIFY)
+		Handle::init(_fd,MODIFY);
 		has_registed = false;
 	}
 	void handle_read(){
@@ -77,7 +77,7 @@ public:
 		{
 			auto it = handles.find(event->wd);
 			assert(it!=handles.end());
-			it->send->handle_modify();
+			it->second->handle_modify();
 		}
 	}
 	void add_watch(const char* path,

@@ -128,7 +128,7 @@ public:
 	{
 		//O_EVTONLY O_RDWR
 		//O_DIRECTORY
-		#if defined(ENABLE_EPOLL)
+		#if !defined(ENABLE_EPOLL)
 
 		int flag = O_EVTONLY;
 		int _fd = ::open(file_path.c_str(),flag);
