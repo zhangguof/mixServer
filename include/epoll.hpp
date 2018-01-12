@@ -11,6 +11,7 @@
 #include <vector>
 #include <utility>
 #include <cassert>
+#include <unistd.h>
 
 #include "log.hpp"
 #include "errors.hpp"
@@ -26,7 +27,7 @@
 //     char     name[];   /* Optional null-terminated name */
 // };
 
-class iNotifyHandle:Handle
+class iNotifyHandle:public Handle
 {
 public:
 	const static int BUFFER_SIZE = 4096;

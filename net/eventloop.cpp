@@ -70,8 +70,7 @@ void EventLoop::regist_file_handle(const char* fp,ptHandle p_handle)
 	#if defined(ENABLE_EPOLL)
 		if(!select_.pInotify->has_registed)
 		{
-			regist_handle(static_pointer_cast<Handle>
-							(select_.pInotify));
+			regist_handle(std::static_pointer_cast<Handle>(select_.pInotify));
 			select_.pInotify->has_registed = true;
 		}
 		select_.pInotify->add_watch(fp,p_handle);

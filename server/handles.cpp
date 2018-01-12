@@ -177,7 +177,7 @@ void FileHandle::open()
 {
 	//O_EVTONLY O_RDWR
 	//O_DIRECTORY
-	int _fd = ::open(file_path.c_str(),O_EVTONLY);
+	int _fd = ::open(file_path.c_str(),O_RDWR);
 	// int _fd = ::opendir(file_path.c_str());
 	if(_fd==-1)
 		log_err("open file err:filepath:%s:%d:%s",file_path.c_str(),errno,get_error_msg(errno));
