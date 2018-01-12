@@ -159,7 +159,9 @@ PYMOD_METHOD(_engine,regist_file_handle)
 			return NULL;
 		}
 		// phandle->init()
-		g_event_loop->regist_handle(phandle);
+
+		g_event_loop->regist_file_handle(s,phandle);
+		
 
 	}
 	else

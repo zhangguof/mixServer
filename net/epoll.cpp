@@ -11,6 +11,9 @@ Epoll::Epoll()
 	if(efd==-1)
 		log_err("epoll_create err!:%d,%s",errno,
 			get_error_msg(errno));
+	pInotify = std::make_shared<iNotifyHandle>();
+	pInotify->init();
+	
 	assert(efd!=-1);
 }
 

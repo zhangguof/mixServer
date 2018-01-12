@@ -40,6 +40,7 @@ public:
 	void do_loop();
 	void do_select();
 	void regist_handle(ptHandle p_handle);
+	void regist_file_handle(const char* fp,ptHandle p_handle);
 	void unregist_handle(ptHandle p_handle);
 	void update_event(ptHandle p_handle);
 

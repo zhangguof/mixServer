@@ -65,6 +65,21 @@ void EventLoop::regist_handle(ptHandle p_handle)
 	handles[fd] = p_handle;
 }
 
+void EventLoop::regist_file_handle(const char* fp,ptHandle p_handle)
+{
+	#if defined(ENABLE_EPOLL)
+		if(!select_.pInotify->has_registed)
+		{
+			regist_handle(select_.pInotify);
+			select_.pInotify->has_registed = true;
+		}
+		select_.pInotify->add_watch(fp,p_handle)
+	#else
+		regist_handle(p_handle);
+	#endif
+}
+
+
 void EventLoop::unregist_handle(ptHandle p_handle)
 {
 	int fd = p_handle->get_fd();
