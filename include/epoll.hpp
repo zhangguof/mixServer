@@ -39,8 +39,9 @@ public:
 				errno,get_error_msg(errno));
 		}
 		assert(_fd!=-1);
-		Handle::init(_fd,MODIFY);
+		Handle::init(_fd,READ);
 		has_registed = false;
+		log_debug("inotify init success!");
 	}
 	void handle_read(){
 		log_debug("iNotify handle read!");
@@ -56,6 +57,7 @@ public:
 			log_err("iNotify read err!:%s",get_error_msg(errno));
 			return;
 		}
+		log_debug("=====handle read!:%d",n);
 		for(char* p = buf;p<buf+n;)
 		{
 			struct inotify_event *event = 
@@ -73,17 +75,28 @@ public:
 	}
 	void handle_event(struct inotify_event* event)
 	{
-		log_debug("inotify_event:handle event:%d",event->wd);
-		if(event->mask & IN_MODIFY)
+		log_debug("inotify_event:handle event:%d,mask:%0x,IN_MODFIY:%ox,IN_IGNORED:%0x",
+				event->wd,event->mask,IN_MODIFY,IN_IGNORED);
+		int wd = event->wd;
+		assert(watchs.find(wd)!=watchs.end());	
+		auto it = handles.find(wd);
+		assert(it!=handles.end());
+		std::string path = watchs[wd];
+		auto phandle = it->second;
+		if(event->mask & IN_ATTRIB)
 		{
-			auto it = handles.find(event->wd);
-			assert(it!=handles.end());
-			it->second->handle_modify();
+			assert(phandle);
+			phandle->handle_modify();
+		}
+		if(event->mask & IN_IGNORED)
+		{
+			rm_watch(wd);
+			add_watch(path.c_str(),phandle);
 		}
 	}
 	void add_watch(const char* path,
 		std::shared_ptr<Handle> phandle){
-		int wd = ::inotify_add_watch(get_fd(),path,IN_MODIFY);
+		int wd = ::inotify_add_watch(get_fd(),path,IN_ATTRIB);
 		if(wd==-1)
 		{
 			log_err("add_watch:err!path:%s,%d,%s",path,
@@ -95,15 +108,17 @@ public:
 		watchs[wd] = path;
 		// re_watchs[path] = wd;
 		handles[wd] = phandle;
+		log_debug("add watch:%d",wd);
 	}
 	void rm_watch(int wd){
 		if(watchs.find(wd)!=watchs.end())
 		{
-			auto path = watchs[wd];
+			//auto path = watchs[wd];
 			watchs.erase(wd);
 			// re_watchs.erase(path);
 			handles.erase(wd);
 			::inotify_rm_watch(get_fd(),wd);
+			log_debug("rm watch:%d",wd);
 		}
 	}
 	std::map<int,std::string> watchs;
