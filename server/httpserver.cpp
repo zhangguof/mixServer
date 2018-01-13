@@ -86,14 +86,18 @@ class httpHandle
 public:
 	httpHandle(TcpServer::pttcpstream_t _pstream){
 		// state=END;
+
 		pstream = _pstream;
 		conn_id = pstream->connect_id;
+		log_debug("new httpHandle!!:%d",conn_id);
 
 		// py handle new connect!
-		PyObject* p_sender = (PyObject*)new_pysender(_pstream);
-		py_new_connect(conn_id,p_sender);
-		Py_DECREF(p_sender);
+		pySender* _p_sender = new_pysender(_pstream);
+		py_new_connect(conn_id,(PyObject*)_p_sender);
+		p_sender = _p_sender;
+		// Py_DECREF(p_sender);
 	}
+	void handle_read();
 	void on_line(const std::string& str);
 	void on_end()
 	{
@@ -139,6 +143,7 @@ public:
 	void on_close()
 	{
 		py_handle_close(conn_id);
+		Py_XDECREF(p_sender);
 	}
 	// int state;
 	TcpServer::pttcpstream_t pstream;
@@ -148,13 +153,46 @@ public:
 	{
 		printf("release httpHandle !!!\n");
 	}
+	// bool reading_line;
+	pySender* p_sender;
+
 
 };
+
+void httpHandle::handle_read()
+{
+	auto pbuf = pstream->pread_buf;
+	int c_id  = pstream->connect_id;
+	if(!(p_sender->reading_line))
+	{
+		int n 	= pbuf->readable_size();
+		assert(n>0);
+		char* p = pbuf->read();
+		py_handle_message(c_id,p,n);
+		return;
+	}
+
+	int idx = pbuf->find_CRLF();
+	while(1)
+	{
+		if(idx<0)
+			break;
+		char* p = pbuf->read(idx+2);
+		// printf("read n:%d\n",idx);
+		// std::string line = "";
+		// if(idx>0)
+		// 	line.append(p,idx);
+		// on_read_line(pstream->connect_id,line);
+		// on_line(line);
+		py_handle_line(c_id,p,idx);
+		idx = pbuf->find_CRLF();
+	}
+}
 
 void httpHandle::on_line(const std::string& str)
 {
 	//python do handle
-	py_handle_line(conn_id,str.c_str(),str.size());
+	// py_handle_line(conn_id,str.c_str(),str.size());
 	// if(str.size()==0)
 	// {
 	// 	return on_request();
@@ -183,21 +221,32 @@ void httpHandle::on_line(const std::string& str)
 
 void HttpServer::handle_read(pttcpstream_t pstream)
 {
-	log_debug("http handle read!");
-	auto pbuf = pstream->pread_buf;
-	int idx = pbuf->find_CRLF();
-	while(1)
+	int c_id = pstream->connect_id;
+	log_debug("http handle read!:%d",c_id);
+	using namespace std::placeholders;
+	assert(streams.find(c_id)!=streams.end());
+
+	auto it_handle = handles.find(c_id);
+	if(it_handle == handles.end())
 	{
-		if(idx<0)
-			break;
-		char* p = pbuf->read(idx+2);
-		// printf("read n:%d\n",idx);
-		std::string line = "";
-		if(idx>0)
-			line.append(p,idx);
-		on_read_line(pstream->connect_id,line);
-		idx = pbuf->find_CRLF();
+		handles[c_id] = std::make_shared<httpHandle>(pstream);
 	}
+	auto phandle = handles[c_id];
+	phandle->handle_read();
+	// auto pbuf = pstream->pread_buf;
+	// int idx = pbuf->find_CRLF();
+	// while(1)
+	// {
+	// 	if(idx<0)
+	// 		break;
+	// 	char* p = pbuf->read(idx+2);
+	// 	// printf("read n:%d\n",idx);
+	// 	std::string line = "";
+	// 	if(idx>0)
+	// 		line.append(p,idx);
+	// 	on_read_line(pstream->connect_id,line);
+	// 	idx = pbuf->find_CRLF();
+	// }
 
 }
 
@@ -222,23 +271,23 @@ void HttpServer::close_connect(pttcpstream_t pstream)
 void HttpServer::handle_request(){
 
 }
-void HttpServer::on_read_line(int c_id,const std::string& str)
-{
-	using namespace std::placeholders;
-	log_debug("on_read_line:%d",c_id);
-	assert(streams.find(c_id)!=streams.end());
-	auto it_handle = handles.find(c_id);
-	if(it_handle == handles.end())
-	{
+// void HttpServer::on_read_line(int c_id,const std::string& str)
+// {
+// 	using namespace std::placeholders;
+// 	log_debug("on_read_line:%d",c_id);
+// 	assert(streams.find(c_id)!=streams.end());
+// 	auto it_handle = handles.find(c_id);
+// 	if(it_handle == handles.end())
+// 	{
 
-		handles[c_id] = std::make_shared<httpHandle>(streams[c_id]);
-	}
-	auto phandle = handles[c_id];
+// 		handles[c_id] = std::make_shared<httpHandle>(streams[c_id]);
+// 	}
+// 	auto phandle = handles[c_id];
 
-	phandle->on_line(str);
+// 	phandle->on_line(str);
 
-	// log_debug("read line:%s",str.c_str());
-}
+// 	log_debug("read line:%s",str.c_str());
+// }
 void HttpServer::on_get(){
 
 }

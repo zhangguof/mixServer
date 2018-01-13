@@ -8,6 +8,7 @@ class pySender:public pyobj_
 public:
     ptstream_t pstream;
     bool closed;
+    bool reading_line;
     ~pySender();
     void init(const ptstream_t& _ps);
 
@@ -18,6 +19,7 @@ public:
     //getter setter
     DEF_PY_GETTER(pySender,get_closed);
     DEF_PY_GETTER(pySender,get_client_addr);
+    DEF_PY_SETTER(pySender,set_reading_line);
 
     DEF_PY_METHOD(pySender,flush);
     //DEF_PY_METHOD(getvalue);

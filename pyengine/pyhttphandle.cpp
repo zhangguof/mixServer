@@ -3,6 +3,7 @@
 #include "handles.hpp"
 #include "pybase.hpp"
 #include "pyobjs.hpp"
+#include "log.hpp"
 
 
 //from pyinit.cpp
@@ -10,7 +11,9 @@
 const char* handle_modname = "httphandle";
 void py_new_connect(int conn_id,PyObject* sender)
 {
+    assert(sender);
 	call_py_obj(handle_modname,"new_connect","(iO)",conn_id,sender);
+
 }
 
 void py_handle_line(int conn_id,const char* s,int size)
@@ -53,6 +56,7 @@ void pySender::init_methods()
     // pyclass.def_get_set("closed",&get_closed,0);
     INIT_GETSET("closed",get_closed,0);
     INIT_GETSET("client_addr",get_client_addr,0);
+    INIT_GETSET("reading_line",0,set_reading_line);
     INIT_METHOD("write",write);
     INIT_METHOD("flush",flush);
     INIT_METHOD("close",close);
@@ -81,6 +85,28 @@ PYOBJ_GETTER(pySender,get_client_addr)
                     psocket->addr.port
         );
     return addr;
+}
+
+PYOBJ_SETTER(pySender,set_reading_line)
+{
+    if(value == Py_False)
+    {
+        self->reading_line = false;
+    }
+    else if(value == Py_True)
+    {
+        self->reading_line = true;
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "The last attribute value must be a bool type!");
+        log_err("set reading_line err!!!");
+        Py_DECREF(value);
+        return -1;
+    }
+    Py_DECREF(value);
+    return 0;
 }
 
 PYOBJ_METHOD(pySender,close)
@@ -114,6 +140,7 @@ void pySender::init(const ptstream_t& _ps)
 {
     pstream = _ps;
     closed  = false;
+    reading_line = true;
 }
 pySender::~pySender()
 {

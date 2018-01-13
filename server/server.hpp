@@ -89,7 +89,7 @@ public:
 	void close_connect(pttcpstream_t pstream);
 	void handle_read(pttcpstream_t pstream);
 	void handle_request();
-	void on_read_line(int,const std::string&);
+	// void on_read_line(int,const std::string&);
 	void on_get();
 	void on_post();
 	// void response(int conn_id)

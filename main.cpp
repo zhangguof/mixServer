@@ -33,7 +33,7 @@ int main(int argn,char** argv)
 	// echo_server->set_loop(ploop);
 	
 
-	std::string ip = "127.0.0.1";
+	std::string ip = "0.0.0.0";
 	int port = 8889;
 	if(argn>1)
 	{
