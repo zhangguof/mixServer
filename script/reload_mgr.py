@@ -48,6 +48,9 @@ def update_dict(old_d,new_d,weak_refs=None,is_mod=False):
 					copy_obj(o_val,v,None)
 				elif is_methods(o_val,v):
 					old_d[k] = v
+
+				elif is_dict(o_val,v):
+					v.update(o_val)
 					#print "update:%s:old:%s->%s"%(k,o_val,v)
 				# elif is_dict(o_val,v):
 				# 	if weak_refs is not None:
