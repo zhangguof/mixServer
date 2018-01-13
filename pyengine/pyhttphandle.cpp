@@ -112,7 +112,9 @@ PYOBJ_SETTER(pySender,set_reading_line)
 PYOBJ_METHOD(pySender,close)
 {
     self->pstream->close();
-    self->closed = true;    
+    self->closed = true;
+    Py_RETURN_NONE;    
+
 }
 
 PYOBJ_METHOD(pySender,write)
