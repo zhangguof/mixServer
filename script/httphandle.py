@@ -62,26 +62,74 @@ def make_response(code,message,headers):
 #      j                   = i MOD 4
 #    transformed-octet-i = original-octet-i XOR masking-key-octet-j
 def ws_unmask(mask_codes,data):
+	if not mask_codes:
+		return data
 	_data = []
 	# print 'mask data:',[data]
 	for i,d in enumerate(data):
 		_data.append(chr(ord(d) ^ mask_codes[i%4]))
 	return "".join(_data)
 
+def get_byte_bit(byte,bs,be):
+	#0..7 bit
+	assert(bs>=0 and be<=7 and bs<=be)
+	mask = ((1<<(be-bs+1))-1)
+	return (byte >> (7-be)) & mask
+
+def get_bits(byte,bits):
+	L = []
+	for s,e in bits:
+		L.append(get_byte_bit(byte,s,e))
+
 
 class WSFrame:
 	def __init__(self,handle):
 		self.header = {}
-		self.mask = None
 		self.mask_codes = []
 		self.buf = ""
-		self.remain_len = 2
-		self.len_size = 1
+		self.remain_len = 2 #byte going to read
 		self.data_len = None
 		self.payload = StringIO()
 		self.reading_head = True
 		self.handle = handle
 		self.mode = None
+	@staticmethod
+	def make_frame_data(msg,mask_codes=None):
+		len1 = len(msg)
+		len2 = None
+		if len1 > 65535:
+			len2 = len(msg)
+			len1 = 127
+		elif len1 > 125:
+			len2  = len(msg)
+			len1 = 126
+		FIN,RSV1,RSV2,RSV3 = 1,0,0,0
+		raws = StringIO()
+		if mask_codes:
+			len1 = 0x80 | len1
+		opcode = 0x1
+		header = struct.pack(">BB",\
+				(0x80&(FIN<<7))  | (0x40&(RSV1<< 6)) | \
+				(0x40&(RSV2<<5)) |(0x40&(RSV3<< 4))  | \
+				0x0F&opcode,\
+				len1
+				)
+		raws.write(header)
+		if len2 is not None:
+			if len2>65535:
+				raws.write(struct.pack(">Q",len2))
+			else:
+				raws.write(struct.pack(">H",len2))
+		if mask_codes:
+			mask = (mask_codes[0]<<24) | (mask_codes[1]<<16) |\
+					(mask_codes[2]<<8) | (mask_codes[3])
+			raws.write(struct.pack(">I",mask))
+
+		data = ws_unmask(mask_codes,msg)
+		raws.write(struct.pack("%ds"%len(data),data))
+		raw_data =  raws.getvalue()
+		return raw_data
+
 
 	def on_read(self,s):
 		# print "on read====",len(s),len(self.buf)
@@ -108,21 +156,18 @@ class WSFrame:
 			self.remain_len = 0
 			if len1==126:
 				self.remain_len += 2
-				self.len_size = 2
-
 			elif len1 == 127:
 				self.remain_len += 8
-				self.len_size = 8
 			else:
 				self.remain_len += len1
-				self.len_size = 1
 				self.data_len = len1
 			if mask:
 				self.remain_len += 4
 			print "len1:%d,mask:%d,remain_len:%d,opcode:%d"%(len1,mask,self.remain_len,opcode)
 			if opcode==0x8:
+				print "opcode :%x,handle close"%(opcode)
 				self.handle.handle_close()
-				pass
+				return
 			if opcode == 0x1:
 				self.mode = "text"
 			elif opcode == 0x2:
@@ -131,12 +176,12 @@ class WSFrame:
 				self.on_read("")
 
 		elif self.data_len is None:
-			if self.len_size == 2:
+			if self.header['len1'] == 126:
 				_len2 = struct.unpack(">H",self.buf[:2])[0]
 				self.buf = self.buf[2:]
 				self.data_len = _len2
 				self.remain_len += (_len2-2)
-			elif self.len_size == 8:
+			elif self.header['len1'] == 127:
 				_len2 = struct.unpack(">Q",self.buf[:8])[0]
 				self.buf = self.buf[8:]
 				self.data_len = _len2
@@ -147,16 +192,15 @@ class WSFrame:
 			if len(self.buf) > 0:
 				self.on_read("")
 
-		elif self.header['mask'] and self.mask is None:
-				self.mask = struct.unpack(">I",self.buf[:4])[0]
+		elif self.header['mask'] and not self.mask_codes:
+				mask = struct.unpack(">I",self.buf[:4])[0]
 				self.reading_head = False
-				# print "==== read mask!,",self.mask
-				mask  = self.mask
+				# print "==== read mask!,",mask,hex(mask)
+				# mask  = self.mask
 				while mask:
 					self.mask_codes.append(mask&0xFF)
 					mask = mask >> 8
 				self.mask_codes.reverse()
-				# print "mask====:",hex(self.mask),[hex(a) for a in self.mask_codes]
 				self.buf = self.buf[4:]
 				self.remain_len -= 4
 				if len(self.buf) > 0:
@@ -175,9 +219,6 @@ class WSFrame:
 				else:
 					data = self.payload.read()
 				self.handle.handle_frame(data)
-
-
-
 
 
 class WSHandle:
@@ -207,8 +248,6 @@ class WSHandle:
 
 
 	def handle_message(self,s):
-		# print "ws_handle:handle_message:",s
-		# f = WSFrame()
 		if self.cur_frame is None:
 			self.cur_frame = WSFrame(self)
 		self.cur_frame.on_read(s)
@@ -222,6 +261,10 @@ class WSHandle:
 	def handle_frame(self,data):
 		self.cur_frame  = None
 		print "===handle frame:",len(data)
+		fs = WSFrame.make_frame_data("echo:%s"%data)
+		self.send_message(fs)
+
+
 
 	def date_time_string(self, timestamp=None):
 		"""Return the current date and time formatted for a message header."""
@@ -238,7 +281,6 @@ class WSHandle:
 #BaseHTTPServer.BaseHTTPRequestHandler
 class HttpHandle(BaseHTTPServer.BaseHTTPRequestHandler):
 	def __init__(self,connect_id,sender):
-		print "======="
 		self.conn_id = connect_id
 		self.send = sender
 		self.client_address = sender.client_addr
@@ -254,6 +296,7 @@ class HttpHandle(BaseHTTPServer.BaseHTTPRequestHandler):
 	
 	def do_GET(self):
 		self.close_connection = 1
+		print "====handles:",handles
 
 		if self.headers.get("Connection") == "Upgrade":
 			self.send.reading_line = False
@@ -321,7 +364,9 @@ def handle_close(conn_id):
 	h.handle_close()
 	del handles[conn_id]
 
-print handles
+# import dis
+# print dis.disassemble(handle_message.func_code)
+
 #call by py!
 # def _close_connect(conn_id):
 # 	print "py _close_connect:",conn_id
